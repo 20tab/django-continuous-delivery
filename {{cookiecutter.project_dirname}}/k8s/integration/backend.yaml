@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integration-{{cookiecutter.project_slug}}-backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: integration-{{cookiecutter.project_slug}}-backend
+  template:
+    metadata:
+      labels:
+        component: integration-{{cookiecutter.project_slug}}-backend
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+        - name: integration-{{cookiecutter.project_slug}}-static-storage
+          persistentVolumeClaim:
+            claimName: integration-{{cookiecutter.project_slug}}-static-persistent-volume-claim
+        - name: integration-{{cookiecutter.project_slug}}-media-storage
+          persistentVolumeClaim:
+            claimName: integration-{{cookiecutter.project_slug}}-media-persistent-volume-claim
+      containers:
+        - name: backend
+          image: {{cookiecutter.docker_image_registry}}/backend:__IMAGE_TAG__
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: integration-{{cookiecutter.project_slug}}-static-storage
+              mountPath: /app/static
+              subPath: static
+            - name: integration-{{cookiecutter.project_slug}}-media-storage
+              mountPath: /app/media
+              subPath: media
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: POSTGRES_HOST
+            - name: DJANGO_ALLOWED_HOSTS
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: DJANGO_ALLOWED_HOSTS
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: DJANGO_SECRET_KEY
+            - name: DJANGO_SERVER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: DJANGO_SERVER_EMAIL
+            - name: DJANGO_DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: DJANGO_DEBUG 
+            - name: EMAIL_URL
+              valueFrom:
+                secretKeyRef:
+                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  key: EMAIL_URL
+            
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: integration-{{cookiecutter.project_slug}}-backend-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: integration-{{cookiecutter.project_slug}}-backend
+  ports:
+    - port: 8000
+      targetPort: 8000

@@ -1,0 +1,17 @@
+.dockerignore
+.editorconfig
+.env.tpl
+.git
+.gitignore
+.gitlab-ci.yml
+.pre-commit-config.yaml
+.vscode
+Dockerfile
+LICENSE.md
+Makefile
+pyproject.toml
+README.md
+requirements/*.ini
+setup.cfg
+tasks.py
+uwsgiconf/local/*

@@ -1,0 +1,112 @@
+image: python:3.7
+
+stages:
+- test
+- build
+- deploy
+
+test:
+  stage: test
+  services:
+    - postgres:12
+  before_script:
+    - pip install tox
+  variables:
+    POSTGRES_DB: {{cookiecutter.project_slug}}
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_HOST: postgres
+    DJANGO_SECRET_KEY: "))l@kn-eym6$9w3veu5g5yaa2zjbkrtr)s5)f1)#9+)bl4_2u@"
+  script:
+    - tox -e coverage,report,reporthtml
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  artifacts:
+    paths:
+      - public
+
+
+build:
+  stage: build
+  image: docker:18-git
+  services:
+    - docker:18-dind
+  variables:
+    DOCKER_DRIVER: "overlay"
+  before_script:
+    - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
+  script:
+    - "docker build -t $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA --pull ."
+    - "docker push $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA"
+  after_script:
+    - "docker logout $CI_REGISTRY"
+  only:
+    - develop
+    - master
+    - tags
+
+.deploy:
+  stage: deploy
+  image: lucj/kubectl:1.15.2
+  before_script:
+    - kubectl config set-cluster my-cluster --server=${KUBE_URL} --certificate-authority="${KUBE_CA_PEM_FILE}"
+    - kubectl config set-credentials admin --token=${KUBE_TOKEN}
+    - kubectl config set-context my-context --cluster=my-cluster --user=admin --namespace=default
+    - kubectl config use-context my-context
+
+deploy_development:
+  extends: .deploy
+  only:
+    - develop
+  environment: development
+  script:
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/development/backend.yaml
+    - kubectl apply -f k8s/development/backend.yaml
+
+rollback_development:
+  extends: .deploy
+  only:
+    - develop
+  environment: development
+  when: manual
+  script:
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/development/backend.yaml
+    - kubectl apply -f k8s/development/backend.yaml
+
+deploy_integration:
+  extends: .deploy
+  only:
+    - master
+  environment: integration
+  script:
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/integration/backend.yaml
+    - kubectl apply -f k8s/integration/backend.yaml
+
+rollback_integration:
+  extends: .deploy
+  only:
+    - master
+  environment: integration
+  when: manual
+  script:
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/integration/backend.yaml
+    - kubectl apply -f k8s/integration/backend.yaml
+
+deploy_production:
+  extends: .deploy
+  only:
+    - tags
+  environment: production
+  script:
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/production/backend.yaml
+    - kubectl apply -f k8s/production/backend.yaml
+
+rollback_production:
+  extends: .deploy
+  only:
+    - tags
+  environment: production
+  when: manual
+  script:
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/production/backend.yaml
+    - kubectl apply -f k8s/production/backend.yaml
+
