@@ -2,6 +2,5 @@
     "project_name": "django contoinuous delivery",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '').replace('-', '') }}",
     "project_dirname": "backend",
-    "docker_image_registry": "registry.gitlab.com/GROUP_NAME/REPOSITORY_NAME",
     "static_url": "/static/"
 }
