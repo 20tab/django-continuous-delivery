@@ -12,7 +12,16 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-from configurations import Configuration, values
+from configuration.values import (
+    BooleanValue,
+    EmailURLValue,
+    EmailValue,
+    ListValue,
+    SecretValue,
+    SingleNestedTupleValue,
+    Value,
+)
+from configurations import Configuration
 
 
 class ProjectDefault(Configuration):
@@ -30,12 +39,12 @@ class ProjectDefault(Configuration):
     # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
     # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = values.SecretValue()
+    SECRET_KEY = SecretValue()
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = values.BooleanValue(True)
+    DEBUG = BooleanValue(True)
 
-    ALLOWED_HOSTS = values.ListValue([])
+    ALLOWED_HOSTS = ListValue([])
 
     # Application definition
 
@@ -80,17 +89,14 @@ class ProjectDefault(Configuration):
 
     # Database
     # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-    POSTGRES_DB = values.Value(environ_prefix="")
-    POSTGRES_USER = values.Value(environ_prefix="")
-    POSTGRES_PASSWORD = values.Value(environ_prefix="")
-    POSTGRES_HOST = values.Value(environ_prefix="")
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': POSTGRES_DB,
-            'USER': POSTGRES_USER,
-            'PASSWORD': POSTGRES_PASSWORD,
-            'HOST': POSTGRES_HOST,
+            'NAME': Value(environ_prefix="", environ_name="POSTGRES_DB"),
+            'USER': Value(environ_prefix="", environ_name="POSTGRES_USER"),
+            'PASSWORD': Value(environ_prefix="", environ_name="POSTGRES_PASSWORD"),
+            'HOST': Value(environ_prefix="", environ_name="POSTGRES_HOST"),
             'PORT': '5432',
         }
     }
@@ -147,7 +153,7 @@ class ProjectDefault(Configuration):
     # Email Settings
     # https://docs.djangoproject.com/en/3.0/topics/email/
 
-    ADMINS = values.SingleNestedTupleValue((("{{cookiecutter.project_slug}}", "errors@{{cookiecutter.project_slug}}.com"),))
+    ADMINS = SingleNestedTupleValue((("{{cookiecutter.project_slug}}", "errors@{{cookiecutter.project_slug}}.com"),))
 
     DEFAULT_FROM_EMAIL = "{{cookiecutter.project_slug}} <info@{{cookiecutter.project_slug}}.com>"
 
@@ -155,12 +161,12 @@ class ProjectDefault(Configuration):
 
     EMAIL_USE_LOCALTIME = True
 
-    SERVER_EMAIL = values.EmailValue("server@{{cookiecutter.project_slug}}.com")
+    SERVER_EMAIL = EmailValue("server@{{cookiecutter.project_slug}}.com")
 
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/
 
-    EMAIL = values.EmailURLValue("console://")
+    EMAIL = EmailURLValue("console://")
 
     # Translation
     # https://docs.djangoproject.com/en/3.0/topics/i18n/translation/
@@ -177,6 +183,6 @@ class ProjectDefault(Configuration):
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
-        INTERNAL_IPS = values.ListValue([], environ_name="ALLOWED_HOSTS")
+        INTERNAL_IPS = ListValue([], environ_name="ALLOWED_HOSTS")
         INSTALLED_APPS.append("debug_toolbar")
         MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
