@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-from configuration.values import (
+from configurations import Configuration
+from configurations.values import (
     BooleanValue,
     EmailURLValue,
     EmailValue,
@@ -21,7 +22,6 @@ from configuration.values import (
     SingleNestedTupleValue,
     Value,
 )
-from configurations import Configuration
 
 
 class ProjectDefault(Configuration):
@@ -91,13 +91,13 @@ class ProjectDefault(Configuration):
     # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': Value(environ_prefix="", environ_name="POSTGRES_DB"),
-            'USER': Value(environ_prefix="", environ_name="POSTGRES_USER"),
-            'PASSWORD': Value(environ_prefix="", environ_name="POSTGRES_PASSWORD"),
-            'HOST': Value(environ_prefix="", environ_name="POSTGRES_HOST"),
-            'PORT': '5432',
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": Value(environ_prefix="", environ_name="POSTGRES_DB"),
+            "USER": Value(environ_prefix="", environ_name="POSTGRES_USER"),
+            "PASSWORD": Value(environ_prefix="", environ_name="POSTGRES_PASSWORD"),
+            "HOST": Value(environ_prefix="", environ_name="POSTGRES_HOST"),
+            "PORT": "5432",
         }
     }
 
