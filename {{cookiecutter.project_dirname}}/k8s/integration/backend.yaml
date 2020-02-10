@@ -54,6 +54,11 @@ spec:
                 secretKeyRef:
                   name: integration-{{cookiecutter.project_slug}}-secrets
                   key: POSTGRES_HOST
+            - name: DJANGO_CONFIGURATION
+              valueFrom:
+                secretKeyRef:
+                  name: development-nalablog-secrets
+                  key: DJANGO_CONFIGURATION
             - name: DJANGO_ALLOWED_HOSTS
               valueFrom:
                 secretKeyRef:
