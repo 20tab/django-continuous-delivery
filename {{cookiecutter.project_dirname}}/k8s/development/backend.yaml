@@ -49,7 +49,7 @@ spec:
                 secretKeyRef:
                   name: development-{{cookiecutter.project_slug}}-secrets
                   key: POSTGRES_PASSWORD
-            - name: DJANGO_DATABASE_URL
+            - name: DATABASE_URL
               value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@development-{{cookiecutter.project_slug}}-postgres-cluster-ip-service:5432/$(POSTGRES_DB)
             - name: DJANGO_CONFIGURATION
               valueFrom:
