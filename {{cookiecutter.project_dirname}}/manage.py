@@ -7,7 +7,7 @@ from dotenv import find_dotenv, load_dotenv
 
 
 def main():
-    """Run Django process."""
+    """Run administrative tasks."""
     load_dotenv(find_dotenv())  # does not override already set variables
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{cookiecutter.project_slug}}.settings")
     try:
