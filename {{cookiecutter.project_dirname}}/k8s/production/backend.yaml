@@ -49,11 +49,8 @@ spec:
                 secretKeyRef:
                   name: production-{{cookiecutter.project_slug}}-secrets
                   key: POSTGRES_PASSWORD
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: production-{{cookiecutter.project_slug}}-secrets
-                  key: POSTGRES_HOST
+            - name: DJANGO_DATABASE_URL
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@production-{{cookiecutter.project_slug}}-postgres-cluster-ip-service:5432/$(POSTGRES_DB)
             - name: DJANGO_CONFIGURATION
               valueFrom:
                 secretKeyRef:
@@ -78,13 +75,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: production-{{cookiecutter.project_slug}}-secrets
-                  key: DJANGO_DEBUG 
+                  key: DJANGO_DEBUG
             - name: EMAIL_URL
               valueFrom:
                 secretKeyRef:
                   name: production-{{cookiecutter.project_slug}}-secrets
                   key: EMAIL_URL
-            
+
 ---
 
 apiVersion: v1
