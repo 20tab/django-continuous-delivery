@@ -54,7 +54,7 @@ spec:
             - name: DJANGO_CONFIGURATION
               valueFrom:
                 secretKeyRef:
-                  name: development-nalablog-secrets
+                  name: development-{{cookiecutter.project_slug}}-secrets
                   key: DJANGO_CONFIGURATION
             - name: DJANGO_ALLOWED_HOSTS
               valueFrom:
