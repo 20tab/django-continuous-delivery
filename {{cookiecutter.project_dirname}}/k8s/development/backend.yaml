@@ -23,7 +23,7 @@ spec:
             claimName: development-{{cookiecutter.project_slug}}-media-persistent-volume-claim
       containers:
         - name: backend
-          image: DOCKER_IMAGE_REGISTRY/backend:__IMAGE_TAG__
+          image: registry.gitlab.com/{{cookiecutter.project_slug}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
           ports:
             - containerPort: 8000
           volumeMounts:
