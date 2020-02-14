@@ -182,8 +182,8 @@ class Local(ProjectDefault):
         MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 
-class Alpha(ProjectDefault):
-    """The alpha settings."""
+class Development(ProjectDefault):
+    """The dvelopment settings."""
 
     # Debug
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
@@ -191,8 +191,8 @@ class Alpha(ProjectDefault):
     DEBUG = True
 
 
-class Beta(ProjectDefault):
-    """The beta settings."""
+class Integration(ProjectDefault):
+    """The integratrion settings."""
 
     # Debug
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
