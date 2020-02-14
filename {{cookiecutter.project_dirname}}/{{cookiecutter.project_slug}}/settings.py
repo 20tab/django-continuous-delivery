@@ -81,16 +81,7 @@ class ProjectDefault(Configuration):
     # Database
     # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": values.Value(environ_prefix="", environ_name="POSTGRES_DB"),
-            "USER": values.Value(environ_prefix="", environ_name="POSTGRES_USER"),
-            "PASSWORD": values.Value(environ_prefix="", environ_name="POSTGRES_PASSWORD"),
-            "HOST": values.Value(environ_prefix="", environ_name="POSTGRES_HOST"),
-            "PORT": "5432",
-        }
-    }
+    DATABASES = values.DatabaseURLValue()
 
     # Password validation
     # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators  # noqa
