@@ -2,5 +2,6 @@
     "project_name": "django contoinuous delivery",
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '').replace('-', '') }}",
     "project_dirname": "{{ cookiecutter.project_slug }}",
+    "gitlab_group_name": "{{ cookiecutter.project_slug }}",
     "static_url": "/static/"
 }
