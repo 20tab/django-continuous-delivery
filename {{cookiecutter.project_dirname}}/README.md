@@ -7,7 +7,7 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
 ## Index <!-- omit in toc -->
 
 - [Conventions](#conventions)
-- [Workspace initialization](#workspace-initialization)
+- [Initialization](#initialization)
   - [Virtual environment](#virtual-environment)
   - [Requirements](#requirements)
 - [Git](#git)
@@ -15,9 +15,6 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
     - [Git clone](#git-clone)
     - [Git hooks](#git-hooks)
 - [Quickstart](#quickstart)
-- [Usage](#usage)
-  - [Database reset](#database-reset)
-  - [Superuser creation](#superuser-creation)
 - [Libraries](#libraries)
   - [List outdated libraries](#list-outdated-libraries)
   - [Update libraries](#update-libraries)
@@ -29,6 +26,7 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
 - [Database](#database)
   - [Create](#create)
   - [Drop](#drop)
+  - [Reset](#reset)
   - [Dump](#dump)
 
 ## Conventions
@@ -36,14 +34,14 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
 - replace `projects` with your actual projects directory
 - replace `git_repository_url` with your actual git repository url
 
-## Workspace initialization
+## Initialization
 
 We suggest updating pip to the latest version and using a virtual environment to wrap all your libraries.
 
 ### Virtual environment
 
 **IMPORTANT**: Please, create an empty virtual environment, with the right python version, and activate it.
-To install and use virtualenv, please, visit [the official documentation](https://virtualenv.pypa.io)
+To install and use virtualenv, please, visit the official [Python tutorial](https://docs.python.org/3/tutorial/venv.html)
 
 ### Requirements
 
@@ -91,25 +89,6 @@ Invoke init and follow instructions, to configure the project:
 
 ```shell
 ({{cookiecutter.project_slug}}) $ inv init
-```
-
-## Usage
-
-### Database reset
-
-To reset database execute (beware all data will be lost):
-
-```shell
-({{cookiecutter.project_slug}}) $ inv dropdb
-({{cookiecutter.project_slug}}) $ inv createdb
-```
-
-### Superuser creation
-
-Create a user with full privileges (e.g. admin access):
-
-```shell
-({{cookiecutter.project_slug}}) $ python manage.py createsuperuser
 ```
 
 ## Libraries
@@ -187,6 +166,17 @@ To drop the local database (database settings from `.env`):
 ```shell
 ({{cookiecutter.project_slug}}) $ inv dropdb
 ```
+
+### Reset
+
+To reset database execute (database settings from `.env`):
+
+```shell
+({{cookiecutter.project_slug}}) $ inv dropdb
+({{cookiecutter.project_slug}}) $ inv createdb
+```
+
+**NOTE**: Beware all data will be lost.
 
 ### Dump
 
