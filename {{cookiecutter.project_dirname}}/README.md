@@ -1,44 +1,40 @@
-# {{cookiecutter.project_slug}}
+# {{cookiecutter.project_name}} <!-- omit in toc -->
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
-This is a [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-docs.readthedocs.io) as application server.
+A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-docs.readthedocs.io) as application server.
 
-## Documentation
+## Index <!-- omit in toc -->
 
-* [Conventions](#conventions)
-* [Workspace initialization](#workspace-initialization)
-    * [Virtual environment](#virtual-environment)
-    * [Basic requirements](#basic-requirements)
-* [Clone and start the existing project](#clone-and-start-the-existing-project)
-    * [Clone Project](#clone-project)
-    * [Initialization](#initialization)
-* [Usage](#usage)
-    * [Database reset](#database-reset)
-    * [Superuser creation](#superuser-creation)
-    * [Add or Update libraries](#add-or-update-libraries)
-        * [List outdated libraries](#list-outdated-libraries)
-        * [Edit and Compile requirements files](#edit-and-compile-requirements-files)
-    * [Install libraries for development](#install-libraries-for-development)
-* [Testing](#testing)
-* [Static](#static)
-* [Continuous Integration](#continuous-integration)
-    * [Jenkins](#jenkins)
-    * [Gitlab CI](#gitlab-ci)
-    * [Bitbucket pipelines](#bitbucket-pipelines)
-* [Git pre-commit hooks](#git-pre-commit-hooks)
-* [Database](#database)
-    * [Create](#create)
-    * [Drop](#drop)
-    * [Dump](#dump)
-* [Deploy](#deploy)
-    * [Initialize](#initialize)
-    * [Deploy](#deploy)
-    * [Restore](#restore)
+- [Conventions](#conventions)
+- [Workspace initialization](#workspace-initialization)
+  - [Virtual environment](#virtual-environment)
+  - [Requirements](#requirements)
+- [Git](#git)
+    - [Git initialization](#git-initialization)
+    - [Git clone](#git-clone)
+    - [Git hooks](#git-hooks)
+- [Quickstart](#quickstart)
+- [Usage](#usage)
+  - [Database reset](#database-reset)
+  - [Superuser creation](#superuser-creation)
+- [Libraries](#libraries)
+  - [List outdated libraries](#list-outdated-libraries)
+  - [Update libraries](#update-libraries)
+  - [Install libraries](#install-libraries)
+- [Testing](#testing)
+- [Static files](#static-files)
+- [Continuous Integration](#continuous-integration)
+  - [Gitlab CI](#gitlab-ci)
+- [Database](#database)
+  - [Create](#create)
+  - [Drop](#drop)
+  - [Dump](#dump)
 
 ## Conventions
 
 - replace `projects` with your actual projects directory
+- replace `git_repository_url` with your actual git repository url
 
 ## Workspace initialization
 
@@ -49,36 +45,47 @@ We suggest updating pip to the latest version and using a virtual environment to
 **IMPORTANT**: Please, create an empty virtual environment, with the right python version, and activate it.
 To install and use virtualenv, please, visit [the official documentation](https://virtualenv.pypa.io)
 
-### Basic requirements
+### Requirements
 
-**Django** and **Invoke** must be installed before initializing the project.
+[Invoke](https://www.pyinvoke.org/) must be installed before initializing the project.
 
 ```shell
-({{cookiecutter.project_slug}}) $ pip install -U django invoke python-dotenv dj-database-url
+({{cookiecutter.project_slug}}) $ pip install -U invoke
 ```
 
-## Clone and start the existing project
+## Git
 
-This section explains the steps when you need to clone an existing project.
+#### Git initialization
 
-### Clone Project
+In order to initialize git and sync the project with an existing repository:
 
-Change directory and clone the project repository:
+```shell
+({{cookiecutter.project_slug}}) $ cd ~/projects/{{cookiecutter.project_slug}}
+({{cookiecutter.project_slug}}) $ inv gitinit git_repository_url
+```
+
+#### Git clone
+
+To get the existing project, change directory, clone the project repository and enter the newly created **{{cookiecutter.project_slug}}** directory:
 
 ```shell
 ({{cookiecutter.project_slug}}) $ cd ~/projects/
 ({{cookiecutter.project_slug}}) $ git clone GIT_REPOSITORY_URL {{cookiecutter.project_slug}}
+({{cookiecutter.project_slug}}) $ cd {{cookiecutter.project_slug}}
 ```
 
-> **NOTE** : If you're cloning an existing project, make sure you go to the correct branch (e.g. `git checkout develop`)
+**NOTE** : Make sure you switch to the correct branch (e.g. `git checkout develop`)
 
-### Initialization
+#### Git hooks
 
-Enter the newly created **project** directory:
+To install pre-commit into your git hooks run the below command. pre-commit will now run on every commit. Every time you clone a project using pre-commit running pre-commit install should always be the first thing you do.
 
 ```shell
-({{cookiecutter.project_slug}}) $ cd ~/projects/{{cookiecutter.project_slug}}
+({{cookiecutter.project_slug}}) $ pre-commit install
 ```
+
+
+## Quickstart
 
 Invoke init and follow instructions, to configure the project:
 
@@ -95,7 +102,6 @@ To reset database execute (beware all data will be lost):
 ```shell
 ({{cookiecutter.project_slug}}) $ inv dropdb
 ({{cookiecutter.project_slug}}) $ inv createdb
-({{cookiecutter.project_slug}}) $ python manage.py migrate
 ```
 
 ### Superuser creation
@@ -106,9 +112,9 @@ Create a user with full privileges (e.g. admin access):
 ({{cookiecutter.project_slug}}) $ python manage.py createsuperuser
 ```
 
-### Add or Update libraries
+## Libraries
 
-#### List outdated libraries
+### List outdated libraries
 
 To list all outdated installed libraries:
 
@@ -116,7 +122,7 @@ To list all outdated installed libraries:
 ({{cookiecutter.project_slug}}) $ pip list -o
 ```
 
-#### Edit and Compile requirements files
+### Update libraries
 
 Edit the appropriate .ini requirements file, to add/remove pinned libraries or modify their versions.
 
@@ -132,7 +138,7 @@ Alternatively, in order to update specific dependent libraries to the latest ver
 ({{cookiecutter.project_slug}}) $ make pip p='-P urllib3'
 ```
 
-### Install libraries for development
+### Install libraries
 
 To install the just updated requirements (e.g. `requirements/dev.txt`), execute:
 
@@ -148,9 +154,7 @@ To run the full test suite, with coverage calculation, execute:
 ({{cookiecutter.project_slug}}) $ make test
 ```
 
-> **NOTE**:  check [django-bdd-toolkit](https://github.com/20tab/django-bdd-toolkit) for instructions on how to write BDD tests
-
-## Static
+## Static files
 
 To collect static files, execute:
 
@@ -162,32 +166,9 @@ To collect static files, execute:
 
 Depending on the CI tool, you might need to configure Django environment variables.
 
-### Jenkins
-
-Use the following command as a shortcut to configure the continuous integration.
-
-```shell
-pip install tox
-export DATABASE_URL=postgres://postgres:postgres@localhost:5432/{{cookiecutter.project_slug}}
-export DJANGO_SECRET_KEY=<django_secret_key>
-tox -e coverage,reportxml
-```
-
 ### Gitlab CI
 
 The configuration file `.gitlab-ci.yml` should work as is, needing no further customization.
-
-### Bitbucket pipelines
-
-The configuration file `bitbucket-pipelines.yml` should work as is, needing no further customization.
-
-## Git pre-commit hooks
-
-To install pre-commit into your git hooks run the below command. pre-commit will now run on every commit. Every time you clone a project using pre-commit running pre-commit install should always be the first thing you do.
-
-```shell
-({{cookiecutter.project_slug}}) $ pre-commit install
-```
 
 ## Database
 
