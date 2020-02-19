@@ -2,12 +2,10 @@
 
 import getpass
 import os
+import secrets
 import sys
 from pathlib import Path
 
-import dj_database_url
-from django.core.management.utils import get_random_secret_key
-from dotenv import find_dotenv, load_dotenv
 from invoke import task
 
 BASE_DIR = os.path.dirname(__file__)
@@ -17,7 +15,10 @@ EMPEROR_MODE = True
 VASSALS = f"{BASE_DIRNAME}/vassals"
 USERNAME = os.getlogin()
 ENV_FILE = f"{BASE_DIR}/.env"
-SECRET_KEY = get_random_secret_key()
+SECRET_KEY = "".join(
+    secrets.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
+    for i in range(50)
+)
 
 
 @task
@@ -111,6 +112,9 @@ def init(c):
     print("Collect static files")
     c.run("make collectstatic")
     createdb(c)
+    print("Install pre-commit")
+    c.run("black .")
+    c.run("pre-commit install")
     print("*** Next steps ***")
     print(f"a) Check the uwsgiconf/local/{USERNAME}.ini and verify the python plugin")
     print(f"b) Configure the file by {PROJECT_DIRNAME}/settings.py")
@@ -155,7 +159,6 @@ def gitinit(c, git_repository_url):
     """Initialize git repository."""
     c.run(f'sed -i".bak" -e "s,GIT_REPOSITORY_URL,{git_repository_url},g;" README.md')
     c.run("git init")
-    c.run("pre-commit install")
     c.run("git add -A")
     c.run("git commit -m 'Initial commit'")
     c.run(f"git remote add origin {git_repository_url}")
@@ -170,9 +173,12 @@ def restart(c):
 
 def get_db():
     """Fetch database credentials."""
+    from dj_database_url import parse
+    from dotenv import find_dotenv, load_dotenv
+
     load_dotenv(find_dotenv())
     db_url = os.getenv("DATABASE_URL")
-    db_default = dj_database_url.parse(db_url)
+    db_default = parse(db_url)
     db_name = db_default["NAME"]
     db_host = db_default["HOST"]
     db_port = db_default["PORT"]
