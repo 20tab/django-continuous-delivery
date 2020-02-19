@@ -24,7 +24,7 @@ spec:
             claimName: media-persistent-volume-claim
       containers:
         - name: backend
-          image: registry.gitlab.com/{{cookiecutter.gitlab_group_name}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
+          image: registry.gitlab.com/{{cookiecutter.gitlab_group_slug}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
           ports:
             - containerPort: 8000
           volumeMounts:
