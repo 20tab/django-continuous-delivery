@@ -84,7 +84,7 @@ class ProjectDefault(Configuration):
     DATABASES = values.DatabaseURLValue()
 
     # Password validation
-    # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators  # noqa
+    # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
     # fmt: off
     AUTH_PASSWORD_VALIDATORS = [
         {
@@ -139,7 +139,9 @@ class ProjectDefault(Configuration):
         (("{{cookiecutter.project_slug}}", "errors@{{cookiecutter.project_slug}}.com"),)
     )
 
-    DEFAULT_FROM_EMAIL = "{{cookiecutter.project_slug}} <info@{{cookiecutter.project_slug}}.com>"
+    DEFAULT_FROM_EMAIL = (
+        "{{cookiecutter.project_slug}} <info@{{cookiecutter.project_slug}}.com>"
+    )
 
     EMAIL_SUBJECT_PREFIX = "[{{cookiecutter.project_slug}}] "
 
