@@ -8,10 +8,12 @@
 .vscode
 Dockerfile
 LICENSE.md
+k8s
 Makefile
 pyproject.toml
 README.md
 requirements/*.ini
 setup.cfg
+scripts
 tasks.py
 uwsgiconf/local/*
