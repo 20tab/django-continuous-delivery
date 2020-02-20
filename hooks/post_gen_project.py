@@ -1,9 +1,11 @@
-# cat post_gen_project.py
-import os
+"""Define hooks to be run after project generation."""
+
+import subprocess
 
 
-def create_apps():
-    os.system('./bin/init.sh')
+def init():
+    """Execute intialization script."""
+    subprocess.run("./scripts/init.sh")
 
 
-create_apps()
+init()
