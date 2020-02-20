@@ -1,56 +1,57 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: integration-{{cookiecutter.project_slug}}-backend-deployment
+  name: backend-deployment
+  namespace: {{cookiecutter.project_slug}}-integration
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: integration-{{cookiecutter.project_slug}}-backend
+      component: backend
   template:
     metadata:
       labels:
-        component: integration-{{cookiecutter.project_slug}}-backend
+        component: backend
     spec:
       imagePullSecrets:
         - name: regcred
       volumes:
-        - name: integration-{{cookiecutter.project_slug}}-static-storage
+        - name: static-storage
           persistentVolumeClaim:
-            claimName: integration-{{cookiecutter.project_slug}}-static-persistent-volume-claim
-        - name: integration-{{cookiecutter.project_slug}}-media-storage
+            claimName: static-persistent-volume-claim
+        - name: media-storage
           persistentVolumeClaim:
-            claimName: integration-{{cookiecutter.project_slug}}-media-persistent-volume-claim
+            claimName: media-persistent-volume-claim
       containers:
         - name: backend
-          image: registry.gitlab.com/{{cookiecutter.gitlab_group_name}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
+          image: registry.gitlab.com/{{cookiecutter.gitlab_group_slug}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
           ports:
             - containerPort: 8000
           volumeMounts:
-            - name: integration-{{cookiecutter.project_slug}}-static-storage
+            - name: static-storage
               mountPath: /app/static
               subPath: static
-            - name: integration-{{cookiecutter.project_slug}}-media-storage
+            - name: media-storage
               mountPath: /app/media
               subPath: media
           env:
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: POSTGRES_DB
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: POSTGRES_PASSWORD
             - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@integration-{{cookiecutter.project_slug}}-postgres-cluster-ip-service:5432/$(POSTGRES_DB)
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-cluster-ip-service:5432/$(POSTGRES_DB)
             - name: DJANGO_CONFIGURATION
               valueFrom:
                 secretKeyRef:
@@ -59,27 +60,27 @@ spec:
             - name: DJANGO_ALLOWED_HOSTS
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: DJANGO_ALLOWED_HOSTS
             - name: DJANGO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: DJANGO_SECRET_KEY
             - name: DJANGO_SERVER_EMAIL
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: DJANGO_SERVER_EMAIL
             - name: DJANGO_DEBUG
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: DJANGO_DEBUG
             - name: EMAIL_URL
               valueFrom:
                 secretKeyRef:
-                  name: integration-{{cookiecutter.project_slug}}-secrets
+                  name: secrets
                   key: EMAIL_URL
 
 ---
@@ -87,11 +88,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: integration-{{cookiecutter.project_slug}}-backend-cluster-ip-service
+  name: backend-cluster-ip-service
+  namespace: {{cookiecutter.project_slug}}-integration
 spec:
   type: ClusterIP
   selector:
-    component: integration-{{cookiecutter.project_slug}}-backend
+    component: backend
   ports:
     - port: 8000
       targetPort: 8000
