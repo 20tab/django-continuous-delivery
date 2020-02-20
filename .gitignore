@@ -146,8 +146,11 @@ dmypy.json
 [._]*.un~
 
 # VisualStudioCode
+.devcontainer/
 .vscode/
 
 # macOS
 .DS_Store
 
+# Requirements
+requirements.txt
