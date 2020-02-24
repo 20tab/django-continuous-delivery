@@ -185,7 +185,7 @@ class Local(ProjectDefault):
 
 
 class Development(ProjectDefault):
-    """The dvelopment settings."""
+    """The development settings."""
 
     # Debug
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
@@ -215,8 +215,8 @@ class Production(ProjectDefault):
 
     EMAIL = values.EmailURLValue()
 
-    # Deployment
-    # https://docs.djangoproject.com/en/stable/howto/deployment/checklist/
+    # Security
+    # https://docs.djangoproject.com/en/stable/topics/security/
 
     SECURE_BROWSER_XSS_FILTER = True
 
