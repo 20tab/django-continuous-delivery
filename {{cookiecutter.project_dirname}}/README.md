@@ -82,7 +82,6 @@ To install pre-commit into your git hooks run the below command. pre-commit will
 ({{cookiecutter.project_slug}}) $ pre-commit install
 ```
 
-
 ## Quickstart
 
 Invoke init and follow instructions, to configure the project:
