@@ -2,21 +2,21 @@
 
 check:
 	black --check .
-	flake8
 	isort --check-only --recursive
+	flake8
 	mypy .
 
 checkcommit:
 	black .
-	flake8
 	isort --recursive
+	flake8
 	mypy .
 
 collectstatic:
 	python manage.py collectstatic --clear --noinput
 
 dev:
-	pip install -q -U pip~=20.0.1 pip-tools~=4.4.0
+	pip install -q -U pip~=20.0.2 pip-tools~=4.5.0
 	pip-sync requirements/dev.txt
 
 migrate:
@@ -26,12 +26,12 @@ migrations:
 	python manage.py makemigrations --no-header
 
 pip:
-	pip install -q -U pip~=20.0.1 pip-tools~=4.4.0
-	pip-compile $(p) requirements/common.ini > requirements/common.txt
-	pip-compile $(p) requirements/dev.ini > requirements/dev.txt
-	pip-compile $(p) requirements/prod.ini > requirements/prod.txt
-	pip-compile $(p) requirements/tests.ini > requirements/tests.txt
-	pip-compile $(p) requirements/local.ini > requirements/local.txt
+	pip install -q -U pip~=20.0.2 pip-tools~=4.5.0
+	pip-compile $(p) -q -o requirements/common.txt requirements/common.ini
+	pip-compile $(p) -q -o requirements/dev.txt requirements/dev.ini
+	pip-compile $(p) -q -o requirements/prod.txt requirements/prod.ini
+	pip-compile $(p) -q -o requirements/tests.txt requirements/tests.ini
+	pip-compile $(p) -q -o requirements/local.txt requirements/local.ini
 
 test:
 	tox -e coverage,reporthtml,report
