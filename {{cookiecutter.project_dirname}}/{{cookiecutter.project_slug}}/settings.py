@@ -134,15 +134,11 @@ class ProjectDefault(Configuration):
 
     # Email Settings
     # https://docs.djangoproject.com/en/stable/topics/email/
+    # fmt: off
+    ADMINS = values.SingleNestedTupleValue((("{{cookiecutter.project_slug}}", "errors@{{cookiecutter.project_slug}}.com"),))  # noqa
 
-    ADMINS = values.SingleNestedTupleValue(
-        (("{{cookiecutter.project_slug}}", "errors@{{cookiecutter.project_slug}}.com"),)
-    )
-
-    DEFAULT_FROM_EMAIL = (
-        "{{cookiecutter.project_slug}} <info@{{cookiecutter.project_slug}}.com>"
-    )
-
+    DEFAULT_FROM_EMAIL = ("{{cookiecutter.project_slug}} <info@{{cookiecutter.project_slug}}.com>")  # noqa
+    # fmt: on
     EMAIL_SUBJECT_PREFIX = "[{{cookiecutter.project_slug}}] "
 
     EMAIL_USE_LOCALTIME = True
