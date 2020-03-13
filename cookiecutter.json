@@ -2,6 +2,5 @@
     "project_name": null,
     "project_slug": "{{ cookiecutter.project_name.casefold().replace(' ', '').replace('-', '') }}",
     "project_dirname": "{{ cookiecutter.project_slug }}",
-    "gitlab_group_slug": "{{ cookiecutter.project_slug }}",
-    "static_slug": "static"
+    "gitlab_group_slug": "{{ cookiecutter.project_slug }}"
 }

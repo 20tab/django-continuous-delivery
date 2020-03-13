@@ -117,7 +117,7 @@ class ProjectDefault(Configuration):
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/stable/howto/static-files/
 
-    STATIC_URL = "/{{cookiecutter.static_slug}}/"
+    STATIC_URL = "/static/"
 
     STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "static"))
 
