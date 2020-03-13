@@ -16,9 +16,6 @@ spec:
       imagePullSecrets:
         - name: regcred
       volumes:
-        - name: static-storage
-          persistentVolumeClaim:
-            claimName: static-persistent-volume-claim
         - name: media-storage
           persistentVolumeClaim:
             claimName: media-persistent-volume-claim
@@ -28,12 +25,8 @@ spec:
           ports:
             - containerPort: 8000
           volumeMounts:
-            - name: static-storage
-              mountPath: /app/static
-              subPath: static
             - name: media-storage
               mountPath: /app/media
-              subPath: media
           env:
             - name: POSTGRES_DB
               valueFrom:
