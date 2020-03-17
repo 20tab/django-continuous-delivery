@@ -25,7 +25,7 @@ test:
 
 pages:
   stage: coverage
-  image: alpine
+  image: busybox
   script:
     - mv htmlcov public
   artifacts:
