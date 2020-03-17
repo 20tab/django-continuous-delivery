@@ -1,5 +1,5 @@
 DATABASE_URL=postgres://username:password@127.0.0.1:5432/database
-DJANGO_ADMINS={{cookiecutter.project_slug}},errors@{{cookiecutter.project_slug}}.com
+DJANGO_ADMINS=20tab,errors@20tab.com
 DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
 DJANGO_CONFIGURATION=Local
 DJANGO_DEBUG=True
