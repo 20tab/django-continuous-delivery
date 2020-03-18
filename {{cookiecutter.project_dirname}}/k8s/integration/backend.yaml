@@ -33,28 +33,38 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_DB
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_PASSWORD
-            - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-cluster-ip-service:5432/$(POSTGRES_DB)
-            - name: DJANGO_CONFIGURATION
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: development-{{cookiecutter.project_slug}}-secrets
-                  key: DJANGO_CONFIGURATION
+                  name: secrets
+                  key: POSTGRES_USER
+            - name: DATABASE_URL
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-cluster-ip-service:5432/$(POSTGRES_DB)
+            - name: DJANGO_ADMINS
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_ADMINS
             - name: DJANGO_ALLOWED_HOSTS
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: DJANGO_ALLOWED_HOSTS
+            - name: DJANGO_CONFIGURATION
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_CONFIGURATION
+            - name: DJANGO_DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_DEBUG
             - name: DJANGO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -65,11 +75,6 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: DJANGO_SERVER_EMAIL
-            - name: DJANGO_DEBUG
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: DJANGO_DEBUG
             - name: EMAIL_URL
               valueFrom:
                 secretKeyRef:
