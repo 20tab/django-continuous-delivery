@@ -134,16 +134,16 @@ class ProjectDefault(Configuration):
 
     # Email Settings
     # https://docs.djangoproject.com/en/stable/topics/email/
-
-    ADMINS = values.SingleNestedTupleValue((("20tab", "errors@20tab.com"),))
     # fmt: off
-    DEFAULT_FROM_EMAIL = ("{{cookiecutter.project_name}} <info@{{cookiecutter.project_slug}}.com>")  # noqa
+    ADMINS = values.SingleNestedTupleValue((("admin", "errors@{{cookiecutter.domain_url}}"),))  # noqa
     # fmt: on
+    DEFAULT_FROM_EMAIL = values.EmailValue("info@{{cookiecutter.domain_url}}")
+
     EMAIL_SUBJECT_PREFIX = "[{{cookiecutter.project_name}}] "
 
     EMAIL_USE_LOCALTIME = True
 
-    SERVER_EMAIL = values.EmailValue("info@{{cookiecutter.project_slug}}.com")
+    SERVER_EMAIL = values.EmailValue("server@{{cookiecutter.domain_url}}")
 
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/

@@ -65,6 +65,11 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: DJANGO_DEBUG
+            - name: DJANGO_DEFAULT_FROM_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_DEFAULT_FROM_EMAIL
             - name: DJANGO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
