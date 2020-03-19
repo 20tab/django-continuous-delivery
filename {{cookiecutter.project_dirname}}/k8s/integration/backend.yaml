@@ -16,9 +16,6 @@ spec:
       imagePullSecrets:
         - name: regcred
       volumes:
-        - name: static-storage
-          persistentVolumeClaim:
-            claimName: static-persistent-volume-claim
         - name: media-storage
           persistentVolumeClaim:
             claimName: media-persistent-volume-claim
@@ -28,40 +25,51 @@ spec:
           ports:
             - containerPort: 8000
           volumeMounts:
-            - name: static-storage
-              mountPath: /app/static
-              subPath: static
             - name: media-storage
               mountPath: /app/media
-              subPath: media
           env:
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_DB
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_PASSWORD
-            - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-cluster-ip-service:5432/$(POSTGRES_DB)
-            - name: DJANGO_CONFIGURATION
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: development-{{cookiecutter.project_slug}}-secrets
-                  key: DJANGO_CONFIGURATION
+                  name: secrets
+                  key: POSTGRES_USER
+            - name: DATABASE_URL
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-cluster-ip-service:5432/$(POSTGRES_DB)
+            - name: DJANGO_ADMINS
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_ADMINS
             - name: DJANGO_ALLOWED_HOSTS
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: DJANGO_ALLOWED_HOSTS
+            - name: DJANGO_CONFIGURATION
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_CONFIGURATION
+            - name: DJANGO_DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_DEBUG
+            - name: DJANGO_DEFAULT_FROM_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_DEFAULT_FROM_EMAIL
             - name: DJANGO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -72,11 +80,6 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: DJANGO_SERVER_EMAIL
-            - name: DJANGO_DEBUG
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: DJANGO_DEBUG
             - name: EMAIL_URL
               valueFrom:
                 secretKeyRef:
