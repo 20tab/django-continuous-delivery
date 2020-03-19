@@ -3,6 +3,5 @@
     "project_slug": "{{ cookiecutter.project_name.casefold().replace(' ', '').replace('-', '') }}",
     "project_dirname": "{{ cookiecutter.project_slug }}",
     "domain_url": "{{ cookiecutter.project_slug }}.com",
-    "admin_email": "errors@{{ cookiecutter.domain_url }}",
     "gitlab_group_slug": "{{ cookiecutter.project_slug }}"
 }
