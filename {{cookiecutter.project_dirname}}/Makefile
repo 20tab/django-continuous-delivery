@@ -27,11 +27,11 @@ migrations:
 
 pip:
 	pip install -q -U pip~=20.0.2 pip-tools~=4.5.0
-	pip-compile $(p) -q -o requirements/common.txt requirements/common.ini
-	pip-compile $(p) -q -o requirements/dev.txt requirements/dev.ini
-	pip-compile $(p) -q -o requirements/prod.txt requirements/prod.ini
-	pip-compile $(p) -q -o requirements/tests.txt requirements/tests.ini
-	pip-compile $(p) -q -o requirements/local.txt requirements/local.ini
+	pip-compile $(p) -q -U -o requirements/common.txt requirements/common.ini
+	pip-compile $(p) -q -U -o requirements/dev.txt requirements/dev.ini
+	pip-compile $(p) -q -U -o requirements/prod.txt requirements/prod.ini
+	pip-compile $(p) -q -U -o requirements/tests.txt requirements/tests.ini
+	pip-compile $(p) -q -U -o requirements/local.txt requirements/local.ini
 
 test:
 	tox -e coverage,reporthtml,report
