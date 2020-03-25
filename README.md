@@ -35,7 +35,7 @@ $ cookiecutter https://github.com/20tab/django-continuous-delivery.git
 project_name: My project name
 project_slug [myprojectname]:
 project_dirname [myprojectname]:
+domain_url [myprojectname.com]:
 gitlab_group_slug [myprojectname]:
-static_slug [static]:
 $ cd myprojectname
 ```
