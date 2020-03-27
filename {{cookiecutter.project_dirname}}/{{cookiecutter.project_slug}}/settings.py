@@ -127,11 +127,15 @@ class ProjectDefault(Configuration):
 
     # Stored files
     # https://docs.djangoproject.com/en/stable/topics/files/
+    {% if cookiecutter.use_media_volume == "Yes" %}
+    MEDIA_URL = "/media/"
 
+    MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "media"))
+    {% else %}
     # MEDIA_URL = "/media/"
 
     # MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "media"))
-
+    {% endif %}
     # Email Settings
     # https://docs.djangoproject.com/en/stable/topics/email/
     # fmt: off
