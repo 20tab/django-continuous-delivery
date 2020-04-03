@@ -17,7 +17,7 @@ distlib==0.3.0            # via virtualenv
 dj-database-url==0.5.0    # via -r requirements/common.ini
 dj-email-url==1.0.0       # via -r requirements/common.ini
 django-configurations==2.2  # via -r requirements/common.ini
-django-debug-toolbar==2.2  # via -r requirements/local.ini
+django-debug-toolbar==2.2  # via -r requirements/dev.ini
 django==3.0.5             # via -r requirements/common.ini, django-debug-toolbar
 entrypoints==0.3          # via flake8
 filelock==3.0.12          # via tox, virtualenv
@@ -29,7 +29,7 @@ flake8==3.7.9             # via -r requirements/tests.ini, flake8-bugbear, flake
 identify==1.4.13          # via pre-commit
 importlib-metadata==1.6.0  # via pluggy, pre-commit, pytest, tox, virtualenv
 invoke==1.4.1             # via -r requirements/dev.ini
-ipdb==0.13.2              # via -r requirements/local.ini
+ipdb==0.13.2              # via -r requirements/dev.ini
 ipython-genutils==0.2.0   # via traitlets
 ipython==7.13.0           # via ipdb
 isort[pyproject]==4.3.21  # via -r requirements/tests.ini, flake8-isort
@@ -72,7 +72,7 @@ tox==3.14.6               # via -r requirements/tests.ini
 traitlets==4.3.3          # via ipython
 typed-ast==1.4.1          # via black, mypy
 typing-extensions==3.7.4.2  # via mypy
-uwsgi==2.0.18             # via -r requirements/local.ini
+uwsgi==2.0.18             # via -r requirements/dev.ini
 virtualenv==20.0.15       # via pre-commit, tox
 wcwidth==0.1.9            # via prompt-toolkit, pytest
 zipp==3.1.0               # via importlib-metadata

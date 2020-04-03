@@ -31,7 +31,6 @@ pip:
 	pip-compile $(p) -q -U -o requirements/dev.txt requirements/dev.ini
 	pip-compile $(p) -q -U -o requirements/prod.txt requirements/prod.ini
 	pip-compile $(p) -q -U -o requirements/tests.txt requirements/tests.ini
-	pip-compile $(p) -q -U -o requirements/local.txt requirements/local.ini
 
 test:
 	tox -e coverage,reporthtml,report
