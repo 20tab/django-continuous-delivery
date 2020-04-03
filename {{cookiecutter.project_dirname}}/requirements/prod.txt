@@ -4,16 +4,16 @@
 #
 #    pip-compile --output-file=requirements/prod.txt requirements/prod.ini
 #
-asgiref==3.2.3            # via django
-dj-database-url==0.5.0    # via -r requirements/common.ini (line 3)
-dj-email-url==1.0.0       # via -r requirements/common.ini (line 4)
-django-configurations==2.2  # via -r requirements/common.ini (line 5)
-django==3.0.3             # via -r requirements/common.ini (line 6)
-psycopg2==2.8.4           # via -r requirements/common.ini (line 7)
-python-dotenv==0.11.0     # via -r requirements/common.ini (line 8)
+asgiref==3.2.7            # via django
+dj-database-url==0.5.0    # via -r requirements/common.ini
+dj-email-url==1.0.0       # via -r requirements/common.ini
+django-configurations==2.2  # via -r requirements/common.ini
+django==3.0.5             # via -r requirements/common.ini
+psycopg2==2.8.4           # via -r requirements/common.ini
+python-dotenv==0.12.0     # via -r requirements/common.ini
 pytz==2019.3              # via django
 six==1.14.0               # via django-configurations
-sqlparse==0.3.0           # via django
-uwsgi==2.0.18             # via -r requirements/prod.ini (line 4)
-uwsgidecorators==1.1.0    # via -r requirements/prod.ini (line 5)
-uwsgitop==0.11            # via -r requirements/prod.ini (line 6)
+sqlparse==0.3.1           # via django
+uwsgi==2.0.18             # via -r requirements/prod.ini
+uwsgidecorators==1.1.0    # via -r requirements/prod.ini
+uwsgitop==0.11            # via -r requirements/prod.ini
