@@ -1,20 +1,24 @@
 """Define hooks to be run after project generation."""
 
-import os
 import subprocess
+from pathlib import Path
 
 
 def init():
     """Execute intialization script."""
     subprocess.run("./scripts/init.sh")
 
+
 def set_media_volumes():
+    """Set media volumes if requested."""
     use_media_volume = "{{ cookiecutter.use_media_volume }}" == "Yes"
 
     if not use_media_volume:
-        os.remove("k8s/development/1_volumes.yaml")
-        os.remove("k8s/integration/1_volumes.yaml")
-        os.remove("k8s/production/1_volumes.yaml")
+        for f in Path("k8s").glob("*/1_volumes.yaml"):
+            try:
+                f.unlink()
+            except FileNotFoundError:
+                pass
 
 
 init()
