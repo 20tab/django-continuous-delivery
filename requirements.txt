@@ -11,7 +11,7 @@ click==7.1.1              # via black
 entrypoints==0.3          # via flake8
 flake8-bugbear==20.1.4    # via -r requirements.ini
 flake8-docstrings==1.5.0  # via -r requirements.ini
-flake8-isort==2.9.0       # via -r requirements.ini
+flake8-isort==2.9.1       # via -r requirements.ini
 flake8==3.7.9             # via -r requirements.ini, flake8-bugbear, flake8-docstrings, flake8-isort
 isort[pyproject]==4.3.21  # via -r requirements.ini, flake8-isort
 mccabe==0.6.1             # via flake8
