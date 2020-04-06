@@ -6,18 +6,18 @@ check:
 	flake8
 	mypy .
 
-checkcommit:
-	black .
-	isort --recursive
-	flake8
-	mypy .
-
 collectstatic:
 	python manage.py collectstatic --clear --noinput
 
 dev:
 	pip install -q -U pip~=20.0.2 pip-tools~=4.5.0
 	pip-sync requirements/dev.txt
+
+fix:
+	black .
+	isort --recursive -y
+	flake8
+	mypy .
 
 migrate:
 	python manage.py migrate --noinput
