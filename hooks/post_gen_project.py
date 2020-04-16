@@ -1,14 +1,14 @@
+#!/usr/bin/env python
 """Define hooks to be run after project generation."""
 
 from pathlib import Path
 from shutil import copyfile
 
 
-def init():
+def main():
     """Execute intialization steps."""
     copyfile(Path(".env.tpl"), Path(".env"))
-    use_media_volume = "{{ cookiecutter.use_media_volume }}" == "Yes"
-    if not use_media_volume:
+    if "{{cookiecutter.use_media_volume}}" == "No":
         for f in Path("k8s").glob("*/1_volumes.yaml"):
             try:
                 f.unlink()
@@ -16,4 +16,5 @@ def init():
                 pass
 
 
-init()
+if __name__ == "__main__":
+    main()
