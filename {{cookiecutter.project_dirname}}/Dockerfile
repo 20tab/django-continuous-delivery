@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster AS base
+FROM python:3.8-slim-buster AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
