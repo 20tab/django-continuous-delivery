@@ -26,7 +26,7 @@ def init(c):
     """Initialize project."""
     try:
         VENV_ROOT = str(Path(os.getenv("VIRTUAL_ENV")).parent).replace(
-            "/", "\/"
+            "/", r"\/"
         )  # noqa
     except TypeError:
         print("Activate your virtualenv and run the inv command again")
@@ -72,15 +72,13 @@ def init(c):
         c.run("mkdir media")
     ini_dir = f"{BASE_DIR}/uwsgiconf/local"
     PYVERSION = f"{sys.version_info[0]}.{sys.version_info[1]}"
-    WORKAREA_ROOT = BASE_DIRNAME.replace("/", "\/")  # noqa
+    WORKAREA_ROOT = BASE_DIRNAME.replace("/", r"\/")  # noqa
     print("Generating uwsgi user file")
     if EMPEROR_MODE and not os.path.exists(f"{vassals}/{PROJECT_DIRNAME}.ini"):
         c.run(f"cp {ini_dir}/vassal.ini.tpl {ini_dir}/{USERNAME}.ini")
         c.run(
-            (
-                f'sed -i".bak" -e "s/USERNAME/{USERNAME}/g;s/ZEROCONF/{ZEROCONF}/g;'
-                f's/ZEROOPTS/{ZEROOPTS}/g;" {ini_dir}/{USERNAME}.ini'
-            )
+            f'sed -i".bak" -e "s/USERNAME/{USERNAME}/g;s/ZEROCONF/{ZEROCONF}/g;'
+            f's/ZEROOPTS/{ZEROOPTS}/g;" {ini_dir}/{USERNAME}.ini'
         )
         c.run(
             f"ln -s "
@@ -102,12 +100,10 @@ def init(c):
     if not os.path.exists(f"{ENV_FILE}"):
         c.run(f"cp {ENV_FILE}.tpl {ENV_FILE}")
     c.run(
-        (
-            f'sed -i".bak" -e '
-            f'"s/database/{database}/g;s/password/{password}/g;'
-            f's/secretkey/{SECRET_KEY}/g;s/username/{username}/g"'
-            f" {ENV_FILE}"
-        )
+        f'sed -i".bak" -e '
+        f'"s/database/{database}/g;s/password/{password}/g;'
+        f's/secretkey/{SECRET_KEY}/g;s/username/{username}/g"'
+        f" {ENV_FILE}"
     )
     print("Collect static files")
     c.run("make collectstatic")
