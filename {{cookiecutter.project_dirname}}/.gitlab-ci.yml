@@ -97,7 +97,7 @@ rollback_integration:
   environment: integration
   when: manual
   script:
-    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/integration/backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/integration/2_backend.yaml
     - kubectl apply -f k8s/integration/
 
 deploy_production:
@@ -106,7 +106,7 @@ deploy_production:
     - tags
   environment: production
   script:
-    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/production/backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/production/2_backend.yaml
     - kubectl apply -f k8s/production/
 
 rollback_production:
@@ -116,6 +116,6 @@ rollback_production:
   environment: production
   when: manual
   script:
-    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/production/backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/production/2_backend.yaml
     - kubectl apply -f k8s/production/
 
