@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 """Define hooks to be run after project generation."""
 
-import sys
 from pathlib import Path
 from shutil import copyfile
 
 
 def create_env_file():
     """Create env file from the template."""
-    env_file = Path(".env")
-    env_template = Path(".env.tpl")
-    try:
-        copyfile(env_template, env_file)
-    except FileNotFoundError:
-        sys.exit(f"File {env_template} not found.")
+    copyfile(Path(".env.tpl"), Path(".env"))
 
 
 def remove_media_volumes():
@@ -22,7 +16,7 @@ def remove_media_volumes():
         try:
             path.unlink()
         except FileNotFoundError:
-            sys.exit(f"File '{path}' not found.")
+            pass
 
 
 def main():
