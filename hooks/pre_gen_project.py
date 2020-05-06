@@ -22,7 +22,7 @@ def check_slugs():
     _project_slug = slugify(project_slug, separator="")
     if project_slug != _project_slug:
         sys.exit(f"{project_slug=} is not a valid slug (e.g. {_project_slug}).")
-    _project_dirname = slugify(project_slug, separator="")
+    _project_dirname = slugify(project_dirname, separator="")
     if project_dirname != _project_dirname:
         sys.exit(f"{project_dirname=} is not a valid slug (e.g. {_project_dirname}).")
 
