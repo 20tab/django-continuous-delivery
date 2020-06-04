@@ -10,7 +10,7 @@ collectstatic:
 	python manage.py collectstatic --clear --noinput
 
 dev:
-	pip install -q -U pip~=20.0.0 pip-tools~=5.0.0
+	pip install -q -U pip~=20.1.0 pip-tools~=5.2.0
 	pip-sync requirements/dev.txt
 
 fix:
@@ -26,7 +26,7 @@ migrations:
 	python manage.py makemigrations --no-header
 
 pip:
-	pip install -q -U pip~=20.0.0 pip-tools~=5.0.0
+	pip install -q -U pip~=20.1.0 pip-tools~=5.2.0
 	pip-compile $(p) -q -U -o requirements/common.txt requirements/common.ini
 	pip-compile $(p) -q -U -o requirements/dev.txt requirements/dev.ini
 	pip-compile $(p) -q -U -o requirements/prod.txt requirements/prod.ini
