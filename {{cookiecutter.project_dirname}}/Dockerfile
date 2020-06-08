@@ -21,14 +21,14 @@ CMD tox -e coverage,reporthtml,report
 
 FROM base AS dev
 
-COPY ./requirements/dev.txt requirements.txt
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
         git \
         libpq-dev \
         make \
-        ssh-client \
-    && pip3 install --no-cache-dir -r requirements.txt
+        ssh-client
+COPY ./requirements/dev.txt requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
 CMD python manage.py migrate --noinput && \
     python manage.py collectstatic --clear --noinput && \
