@@ -14,23 +14,19 @@ spec:
         component: backend
     spec:
       imagePullSecrets:
-        - name: regcred
-      {% if cookiecutter.use_media_volume == "Yes" %}
+        - name: regcred{% if cookiecutter.use_media_volume == "Yes" %}
       volumes:
         - name: media-storage
           persistentVolumeClaim:
-            claimName: media-persistent-volume-claim
-      {% endif %}
+            claimName: media-persistent-volume-claim{% endif %}
       containers:
         - name: backend
           image: registry.gitlab.com/{{cookiecutter.gitlab_group_slug}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
           ports:
-            - containerPort: 8000
-          {% if cookiecutter.use_media_volume == "Yes" %}
+            - containerPort: 8000{% if cookiecutter.use_media_volume == "Yes" %}
           volumeMounts:
             - name: media-storage
-              mountPath: /app/media
-          {% endif %}
+              mountPath: /app/media{% endif %}
           env:
             - name: POSTGRES_DB
               valueFrom:
