@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
 import os
+import string
 
 from configurations import Configuration, values
 
@@ -184,6 +185,22 @@ class Local(ProjectDefault):
         MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 
+class Testing(ProjectDefault):
+    """The testing settings."""
+
+    SECRET_KEY = string.ascii_letters
+
+    # Debug
+    # https://docs.djangoproject.com/en/stable/ref/settings/#debug
+
+    DEBUG = False
+
+    # Email URL
+    # https://django-configurations.readthedocs.io/en/stable/values/
+
+    EMAIL = "dummy://"
+
+
 class Development(ProjectDefault):
     """The development settings."""
 
@@ -228,17 +245,3 @@ class Production(ProjectDefault):
     # https://docs.djangoproject.com/en/stable/ref/databases/#general-notes
 
     # CONN_MAX_AGE = None
-
-
-class Testing(ProjectDefault):
-    """The testing settings."""
-
-    # Debug
-    # https://docs.djangoproject.com/en/stable/ref/settings/#debug
-
-    DEBUG = False
-
-    # Email URL
-    # https://django-configurations.readthedocs.io/en/stable/values/
-
-    EMAIL = values.EmailURLValue("dummy://", environ=False)
