@@ -13,7 +13,6 @@ test:
     - pip install tox
   variables:
     DATABASE_URL: "postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}"
-    DJANGO_SECRET_KEY: "dj4ng0s3cr3tk3y"
     POSTGRES_PASSWORD: "postgres"
   script:
     - tox -e coverage,report,reporthtml
