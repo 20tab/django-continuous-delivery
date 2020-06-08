@@ -201,7 +201,25 @@ class Testing(ProjectDefault):
     EMAIL = "dummy://"
 
 
-class Development(ProjectDefault):
+class Remote(ProjectDefault):
+    """The remote settings."""
+
+    # Sentry
+    # https://sentry.io/for/django/
+
+    try:
+        import sentry_sdk  # noqa
+        from sentry_sdk.integrations.django import DjangoIntegration  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:  # pragma: no cover
+        sentry_sdk.init(
+            integrations=[DjangoIntegration()],
+            send_default_pii=True,
+        )
+
+
+class Development(Remote):
     """The development settings."""
 
     # Debug
@@ -210,7 +228,7 @@ class Development(ProjectDefault):
     DEBUG = True
 
 
-class Integration(ProjectDefault):
+class Integration(Remote):
     """The integratrion settings."""
 
     # Debug
@@ -219,7 +237,7 @@ class Integration(ProjectDefault):
     DEBUG = False
 
 
-class Production(ProjectDefault):
+class Production(Remote):
     """The production settings."""
 
     # Debug

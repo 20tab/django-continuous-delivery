@@ -85,6 +85,13 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: EMAIL_URL
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: SENTRY_DSN
+            - name: SENTRY_ENVIRONMENT
+              value: $(DJANGO_CONFIGURATION)
 
 ---
 
