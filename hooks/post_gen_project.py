@@ -2,12 +2,11 @@
 """Define hooks to be run after project generation."""
 
 from pathlib import Path
-from shutil import copyfile
 
 
 def create_env_file():
     """Create env file from the template."""
-    copyfile(Path(".env.tpl"), Path(".env"))
+    Path(".env").write_text(Path(".env.tpl").read_text())
 
 
 def remove_media_volumes():
