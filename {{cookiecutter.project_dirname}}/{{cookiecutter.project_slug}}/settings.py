@@ -214,8 +214,7 @@ class Remote(ProjectDefault):
         pass
     else:  # pragma: no cover
         sentry_sdk.init(
-            integrations=[DjangoIntegration()],
-            send_default_pii=True,
+            integrations=[DjangoIntegration()], send_default_pii=True,
         )
 
 
