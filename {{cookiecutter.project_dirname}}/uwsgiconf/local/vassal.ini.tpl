@@ -2,25 +2,25 @@
 
 project_name = {{cookiecutter.project_slug}}
 venv_name = {{cookiecutter.project_slug}}
-py_version = PYVERSION
-uid = USERNAME
-gid = USERNAME
+py_version = __PYVERSION__
+uid = __USERNAME__
+gid = __USERNAME__
 
-workarea_root = WORKAREA_ROOT
+workarea_root = __WORKAREA_ROOT__
 
 project_root = %(workarea_root)/%(project_name)
-venvs_dir = VENV_ROOT
+venvs_dir = __VENV_ROOT__
 
 # Set environment variables
-for-readline = WORKAREA_ROOT/{{cookiecutter.project_slug}}/.env
+for-readline = __WORKAREA_ROOT__/{{cookiecutter.project_slug}}/.env
   env = %(_)
 endfor =
 
-ini = WORKAREA_ROOT/{{cookiecutter.project_slug}}/uwsgiconf/local/global.ini
-ini = WORKAREA_ROOT/{{cookiecutter.project_slug}}/uwsgiconf/local/static.ini
+ini = __WORKAREA_ROOT__/{{cookiecutter.project_slug}}/uwsgiconf/local/global.ini
+ini = __WORKAREA_ROOT__/{{cookiecutter.project_slug}}/uwsgiconf/local/static.ini
 
 # Not required if uwsgi was installed using pip
-plugin = python3
+plugin = __PYTHON__
 
 socket = 127.0.0.1:0
 subscribe-to = 127.0.0.1:5005:%(project_name).local
@@ -37,8 +37,8 @@ req-logger = file:logfile=/%(project_root)/%(project_name)_access.log
 logfile-chown = %U:%G
 
 # Zeroconf
-plugin = ZEROCONF
-ZEROCONF-register = ZEROOPTS
+plugin = __ZEROCONF__
+__ZEROCONF__-register = __ZEROOPTS__
 
 processes = 1
 threads = 1

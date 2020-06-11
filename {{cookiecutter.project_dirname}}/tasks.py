@@ -8,38 +8,33 @@ from pathlib import Path
 
 from invoke import task
 
-BASE_DIR = os.path.dirname(__file__)
-BASE_DIRNAME = os.path.dirname(BASE_DIR)
-PROJECT_DIRNAME = os.path.basename(os.path.dirname(__file__))
 EMPEROR_MODE = True
-VASSALS = f"{BASE_DIRNAME}/vassals"
-USERNAME = os.getlogin()
-ENV_FILE = f"{BASE_DIR}/.env"
-SECRET_KEY = "".join(
-    secrets.choice("abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
-    for i in range(50)
-)
+USERNAME = getpass.getuser()
+PROJECT_PATH = Path(__file__).parent
+PROJECT_NAME = PROJECT_PATH.name
+ENV_FILE = PROJECT_PATH / ".env"
+ENV_TEMPLATE = PROJECT_PATH / ".env.tpl"
+WORKAREA_ROOT = PROJECT_PATH.parent
+VASSAL_DIR = WORKAREA_ROOT / "vassals"
 
 
 @task
 def init(c):
     """Initialize project."""
     try:
-        VENV_ROOT = str(Path(os.getenv("VIRTUAL_ENV")).parent).replace(
-            "/", r"\/"
-        )  # noqa
+        VENV_ROOT = Path(os.getenv("VIRTUAL_ENV")).parent
     except TypeError:
-        print("Activate your virtualenv and run the inv command again")
-        return
+        sys.exit("Activate your virtualenv and run the inv command again.")
     EMPEROR_MODE = confirm(
         "Do you want to configure your uWSGI vassal in emperor mode? (no=stand-alone)"
     )
+    vassal_path = str(VASSAL_DIR)
     if EMPEROR_MODE:
-        vassals = (
+        vassal_path = (
             input(
-                f"We will use '{VASSALS}' as the vassal directory or specify the path: "
+                f"We will use '{vassal_path}' as vassal directory or specify the path: "
             )
-            or VASSALS
+            or vassal_path
         )
         bonjour = confirm(
             "Do you want to use Bonjour for OSX (Yes) or Avahi for Linux (No)? "
@@ -51,60 +46,71 @@ def init(c):
             ZEROCONF = "avahi"
             ZEROOPTS = "%(project_name).local"
     python_plugin = (
-        input(f"Specify python plugin to configure uwsgi (default: python3): ")
+        input("Specify python plugin to configure uwsgi (default: python3): ")
         or "python3"
     )
-    database = (
-        input(f"We'll use '{PROJECT_DIRNAME}' as database name or specify the name: ")
-        or PROJECT_DIRNAME
+    INI_DIR = PROJECT_PATH / "uwsgiconf" / "local"
+    PYVERSION = f"{sys.version_info.major}.{sys.version_info.minor}"
+    print("Generating uwsgi user file")
+    vassal_project = Path(vassal_path) / f"{PROJECT_NAME}.ini"
+    vassal_file = INI_DIR / f"{USERNAME}.ini"
+    if EMPEROR_MODE and not vassal_project.exists():
+        vassal_template = INI_DIR / "vassal.ini.tpl"
+        vassal_text = vassal_template.read_text()
+        vassal_text = (
+            vassal_text.replace("__USERNAME__", USERNAME)
+            .replace("__ZEROCONF__", ZEROCONF)
+            .replace("__ZEROOPTS__", ZEROOPTS)
+        )
+        vassal_file.write_text(vassal_text)
+        vassal_project.symlink_to(vassal_file)
+    else:
+        vassal_template = INI_DIR / "standalone.ini.tpl"
+        vassal_file.write_text(vassal_template.read_text())
+    vassal_text = vassal_file.read_text()
+    vassal_text = (
+        vassal_text.replace("__PYTHON__", python_plugin)
+        .replace("__WORKAREA_ROOT__", f"{WORKAREA_ROOT}")
+        .replace("__PYVERSION__", PYVERSION)
+        .replace("__VENV_ROOT__", f"{VENV_ROOT}")
     )
-    username = input(f"Enter the database user name: ")
-    password = getpass.getpass(f"Enter the database user password: ")
+    vassal_file.write_text(vassal_text)
+    db_name = (
+        input(f"We'll use '{PROJECT_NAME}' as database name or specify the name: ")
+        or PROJECT_NAME
+    )
+    db_user = (
+        input("We'll use 'postgres' as database user name or specify the user name: ")
+        or "postgres"
+    )
+    db_host = (
+        input("We'll use '127.0.0.1' as database host or specify the host: ")
+        or "127.0.0.1"
+    )
+    db_port = (
+        input("We'll use '5432' as database posrt or specify the port: ") or "5432"
+    )
+    db_password = getpass.getpass("Enter the database user password: ")
+    print("Create env file")
+    if not ENV_FILE.exists():
+        ENV_FILE.write_text(ENV_TEMPLATE.read_text())
+    env_text = ENV_FILE.read_text()
+    env_text = (
+        env_text.replace("__NAME__", db_name)
+        .replace("__PASSWORD__", db_password)
+        .replace("__USERNAME__", db_user)
+        .replace("__HOST__", db_host)
+        .replace("__PORT__", db_port)
+        .replace("__SECRETKEY__", secrets.token_urlsafe(40))
+    )
+    ENV_FILE.write_text(env_text)
     print("Compiling pip file in requirements")
     c.run("make pip")
     print("Installing libraries in requirements")
     c.run("make dev")
-    if not os.path.exists("static"):
-        print("Making static directory")
-        c.run("mkdir static")
-    if not os.path.exists("media"):
-        print("Making media directory")
-        c.run("mkdir media")
-    ini_dir = f"{BASE_DIR}/uwsgiconf/local"
-    PYVERSION = f"{sys.version_info[0]}.{sys.version_info[1]}"
-    WORKAREA_ROOT = BASE_DIRNAME.replace("/", r"\/")  # noqa
-    print("Generating uwsgi user file")
-    if EMPEROR_MODE and not os.path.exists(f"{vassals}/{PROJECT_DIRNAME}.ini"):
-        c.run(f"cp {ini_dir}/vassal.ini.tpl {ini_dir}/{USERNAME}.ini")
-        c.run(
-            f'sed -i".bak" -e "s/USERNAME/{USERNAME}/g;s/ZEROCONF/{ZEROCONF}/g;'
-            f's/ZEROOPTS/{ZEROOPTS}/g;" {ini_dir}/{USERNAME}.ini'
-        )
-        c.run(
-            f"ln -s "
-            f"{BASE_DIR}/uwsgiconf/local/{USERNAME}.ini "
-            f"{vassals}/{PROJECT_DIRNAME}.ini"
-        )
-    else:
-        c.run(f"cp {ini_dir}/standalone.ini.tpl {ini_dir}/{USERNAME}.ini")
-    c.run(
-        f'sed -i".bak" -e "s/plugin = python3/plugin = {python_plugin}/g;"'
-        f" {ini_dir}/{USERNAME}.ini"
-    )
-    c.run(
-        f'sed -i".bak" -e "s/WORKAREA_ROOT/{WORKAREA_ROOT}/g;" {ini_dir}/{USERNAME}.ini'
-    )
-    c.run(f'sed -i".bak" -e "s/PYVERSION/{PYVERSION}/g;" {ini_dir}/{USERNAME}.ini')
-    c.run(f'sed -i".bak" -e "s/VENV_ROOT/{VENV_ROOT}/g;" {ini_dir}/{USERNAME}.ini')
-    print("Create env file")
-    if not os.path.exists(f"{ENV_FILE}"):
-        c.run(f"cp {ENV_FILE}.tpl {ENV_FILE}")
-    c.run(
-        f'sed -i".bak" -e '
-        f'"s/database/{database}/g;s/password/{password}/g;'
-        f's/secretkey/{SECRET_KEY}/g;s/username/{username}/g"'
-        f" {ENV_FILE}"
-    )
+    print("Creating static and media empty directories")
+    Path("static").mkdir(exist_ok=True)
+    Path("media").mkdir(exist_ok=True)
     print("Collect static files")
     c.run("make collectstatic")
     createdb(c)
@@ -113,9 +119,7 @@ def init(c):
     c.run("pre-commit install")
     print("*** Next steps ***")
     print(f"a) Check the uwsgiconf/local/{USERNAME}.ini and verify the python plugin")
-    print(f"b) Configure the file by {PROJECT_DIRNAME}/settings.py")
-    if EMPEROR_MODE:
-        c.run(f"python -m webbrowser -t http://{PROJECT_DIRNAME}.local/")
+    print(f"b) Configure the file by {PROJECT_NAME}/settings.py")
 
 
 @task
