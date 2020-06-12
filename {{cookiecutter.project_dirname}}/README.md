@@ -11,9 +11,9 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
   - [Virtual environment](#virtual-environment)
   - [Requirements](#requirements)
 - [Git](#git)
-    - [Git initialization](#git-initialization)
-    - [Git clone](#git-clone)
-    - [Git hooks](#git-hooks)
+  - [Git initialization](#git-initialization)
+  - [Git clone](#git-clone)
+  - [Git hooks](#git-hooks)
 - [Quickstart](#quickstart)
 - [Libraries](#libraries)
   - [List outdated libraries](#list-outdated-libraries)
@@ -53,7 +53,7 @@ To install and use virtualenv, please, visit the official [Python tutorial](http
 
 ## Git
 
-#### Git initialization
+### Git initialization
 
 In order to initialize git and sync the project with an existing repository:
 
@@ -62,7 +62,7 @@ In order to initialize git and sync the project with an existing repository:
 ({{cookiecutter.project_slug}}) $ inv gitinit git_repository_url
 ```
 
-#### Git clone
+### Git clone
 
 To get the existing project, change directory, clone the project repository and enter the newly created **{{cookiecutter.project_slug}}** directory:
 
@@ -74,7 +74,7 @@ To get the existing project, change directory, clone the project repository and 
 
 **NOTE** : Make sure you switch to the correct branch (e.g. `git checkout develop`)
 
-#### Git hooks
+### Git hooks
 
 To install pre-commit into your git hooks run the below command. pre-commit will now run on every commit. Every time you clone a project using pre-commit running pre-commit install should always be the first thing you do.
 
