@@ -1,19 +1,28 @@
+# directories
+.git
+.tox
+.vscode
+**/lost+found
+htmlcov
+k8s
+public
+uwsgiconf/local
+# files
+.coverage
 .dockerignore
 .editorconfig
+.env
 .env.tpl
-.git
 .gitignore
 .gitlab-ci.yml
 .pre-commit-config.yaml
-.vscode
+*.md
+**/LICENSE*
+**/README*
 Dockerfile
-LICENSE.md
-k8s
 Makefile
 pyproject.toml
-README.md
 requirements/*.ini
+requirements/common.txt
 setup.cfg
-scripts
 tasks.py
-uwsgiconf/local/*
