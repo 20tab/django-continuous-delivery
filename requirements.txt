@@ -19,7 +19,7 @@ ipython==7.15.0           # via -r requirements.ini
 isort[pyproject]==4.3.21  # via -r requirements.ini, flake8-isort
 jedi==0.17.0              # via -r requirements.ini, ipython
 mccabe==0.6.1             # via flake8
-more-itertools==8.3.0     # via pytest
+more-itertools==8.4.0     # via pytest
 packaging==20.4           # via pytest
 parso==0.7.0              # via jedi
 pathspec==0.8.0           # via black
@@ -29,7 +29,7 @@ pip-tools==5.2.1          # via -r requirements.ini
 pluggy==0.13.1            # via pytest
 prompt-toolkit==3.0.5     # via ipython
 ptyprocess==0.6.0         # via pexpect
-py==1.8.1                 # via pytest
+py==1.8.2                 # via pytest
 pycodestyle==2.6.0        # via flake8
 pydocstyle==5.0.2         # via flake8-docstrings
 pyflakes==2.2.0           # via flake8

@@ -17,6 +17,6 @@ sentry-sdk==0.14.4        # via -r requirements/prod.ini
 six==1.15.0               # via django-configurations
 sqlparse==0.3.1           # via django
 urllib3==1.25.9           # via sentry-sdk
-uwsgi==2.0.18             # via -r requirements/prod.ini
+uwsgi==2.0.19             # via -r requirements/prod.ini
 uwsgidecorators==1.1.0    # via -r requirements/prod.ini
 uwsgitop==0.11            # via -r requirements/prod.ini

@@ -33,7 +33,7 @@ ipython==7.15.0           # via ipdb
 isort[pyproject]==4.3.21  # via -r requirements/tests.ini, flake8-isort
 jedi==0.17.0              # via -r requirements/dev.ini, ipython
 mccabe==0.6.1             # via flake8
-more-itertools==8.3.0     # via pytest
+more-itertools==8.4.0     # via pytest
 mypy-extensions==0.4.3    # via mypy
 mypy==0.780               # via -r requirements/tests.ini, flake8-mypy
 nodeenv==1.4.0            # via pre-commit
@@ -48,7 +48,7 @@ pre-commit==2.5.1         # via -r requirements/tests.ini
 prompt-toolkit==3.0.5     # via ipython
 psycopg2==2.8.5           # via -r requirements/common.ini
 ptyprocess==0.6.0         # via pexpect
-py==1.8.1                 # via pytest, tox
+py==1.8.2                 # via pytest, tox
 pycodestyle==2.6.0        # via flake8
 pydocstyle==5.0.2         # via flake8-docstrings
 pyflakes==2.2.0           # via flake8
@@ -72,8 +72,8 @@ tox==3.15.2               # via -r requirements/tests.ini
 traitlets==4.3.3          # via ipython
 typed-ast==1.4.1          # via black, mypy
 typing-extensions==3.7.4.2  # via mypy
-uwsgi==2.0.18             # via -r requirements/dev.ini
-virtualenv==20.0.21       # via pre-commit, tox
+uwsgi==2.0.19             # via -r requirements/dev.ini
+virtualenv==20.0.23       # via pre-commit, tox
 wcwidth==0.2.4            # via prompt-toolkit, pytest
 
 # The following packages are considered to be unsafe in a requirements file:
