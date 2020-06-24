@@ -17,7 +17,7 @@ flake8==3.8.3             # via -r requirements.ini, flake8-bugbear, flake8-docs
 ipython-genutils==0.2.0   # via traitlets
 ipython==7.15.0           # via -r requirements.ini
 isort[pyproject]==4.3.21  # via -r requirements.ini, flake8-isort
-jedi==0.17.0              # via -r requirements.ini, ipython
+jedi==0.17.1              # via -r requirements.ini, ipython
 mccabe==0.6.1             # via flake8
 more-itertools==8.4.0     # via pytest
 packaging==20.4           # via pytest
@@ -47,7 +47,7 @@ tokenize-rt==4.0.0        # via pyupgrade
 toml==0.10.1              # via black, isort
 traitlets==4.3.3          # via ipython
 typed-ast==1.4.1          # via black
-wcwidth==0.2.4            # via prompt-toolkit, pytest
+wcwidth==0.2.5            # via prompt-toolkit, pytest
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

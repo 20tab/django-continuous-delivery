@@ -9,6 +9,9 @@ check:
 collectstatic:
 	python manage.py collectstatic --clear --noinput
 
+compilemessages:
+	python manage.py compilemessages -i .tox
+
 dev:
 	pip install -q -U pip~=20.1.0 pip-tools~=5.2.0
 	pip-sync requirements/dev.txt
@@ -18,6 +21,12 @@ fix:
 	isort --recursive -y
 	flake8
 	mypy .
+
+graph_models:
+	python manage.py graph_models -o models.svg
+
+messages:
+	python manage.py makemessages --add-location file
 
 migrate:
 	python manage.py migrate --noinput
