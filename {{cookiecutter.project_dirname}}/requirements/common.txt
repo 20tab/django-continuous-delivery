@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/common.txt requirements/common.ini
 #
-asgiref==3.2.7            # via django
+asgiref==3.2.10           # via django
 dj-database-url==0.5.0    # via -r requirements/common.ini
 dj-email-url==1.0.1       # via -r requirements/common.ini
 django-configurations==2.2  # via -r requirements/common.ini
