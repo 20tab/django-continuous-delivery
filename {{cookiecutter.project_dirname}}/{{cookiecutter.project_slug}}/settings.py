@@ -209,10 +209,11 @@ class Remote(ProjectDefault):
 
     try:
         import sentry_sdk  # noqa
-        from sentry_sdk.integrations.django import DjangoIntegration  # noqa
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
+        from sentry_sdk.integrations.django import DjangoIntegration  # noqa
+
         sentry_sdk.init(
             integrations=[DjangoIntegration()], send_default_pii=True,
         )
