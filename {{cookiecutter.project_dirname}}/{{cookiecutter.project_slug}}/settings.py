@@ -160,8 +160,6 @@ class ProjectDefault(Configuration):
 
     # LANGUAGES = (("en", "English"), ("it", "Italiano"))
 
-    # LOCALE_PATHS = (os.path.abspath(os.path.join(BASE_DIR, "locale")),)
-
 
 class Local(ProjectDefault):
     """The local settings."""
