@@ -22,6 +22,9 @@ fix:
 	flake8
 	mypy .
 
+graph_models:
+	python manage.py graph_models -o models.svg
+
 messages:
 	python manage.py makemessages --add-location file
 

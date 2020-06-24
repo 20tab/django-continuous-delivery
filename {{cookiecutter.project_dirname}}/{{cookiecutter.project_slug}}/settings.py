@@ -182,6 +182,52 @@ class Local(ProjectDefault):
         INSTALLED_APPS.append("debug_toolbar")
         MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
+    # Django Extensions
+    # https://django-extensions.readthedocs.io/en/stable/graph_models.html
+
+    try:
+        import django_extensions  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:  # pragma: no cover
+        INSTALLED_APPS.append("django_extensions")
+        SHELL_PLUS_PRINT_SQL = True
+        GRAPH_MODELS = {
+            "all_applications": True,
+            "arrow_shape": "diamond",
+            "disable_abstract_fields": False,
+            "disable_fields": False,
+            "exclude_columns": [
+                "date_joined",
+                "is_active",
+                "is_staff",
+                "is_superuser",
+                "last_login",
+            ],
+            "exclude_models": ",".join(
+                (
+                    "AbstractBaseSession",
+                    "AbstractBaseUser",
+                    "AbstractUser",
+                    "ContentType",
+                    "Group",
+                    "LogEntry",
+                    "Permission",
+                    "PermissionsMixin",
+                    "Session",
+                    "UserGroup",
+                )
+            ),
+            "group_models": True,
+            "hide_edge_labels": True,
+            "inheritance": False,
+            "language": "it",
+            "layout": "dot",
+            "relations_as_fields": True,
+            "theme": "original",
+            "verbose_names": True,
+        }
+
 
 class Testing(ProjectDefault):
     """The testing settings."""
