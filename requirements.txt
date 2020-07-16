@@ -12,10 +12,11 @@ click==7.1.2              # via black, pip-tools
 decorator==4.4.2          # via ipython, traitlets
 flake8-bugbear==20.1.4    # via -r requirements.ini
 flake8-docstrings==1.5.0  # via -r requirements.ini
-flake8-isort==3.0.0       # via -r requirements.ini
+flake8-isort==3.0.1       # via -r requirements.ini
 flake8==3.8.3             # via -r requirements.ini, flake8-bugbear, flake8-docstrings, flake8-isort
+ipdb==0.13.3              # via -r requirements.ini
 ipython-genutils==0.2.0   # via traitlets
-ipython==7.15.0           # via -r requirements.ini
+ipython==7.16.1           # via ipdb
 isort[pyproject]==4.3.21  # via -r requirements.ini, flake8-isort
 jedi==0.17.1              # via -r requirements.ini, ipython
 mccabe==0.6.1             # via flake8
@@ -29,7 +30,7 @@ pip-tools==5.2.1          # via -r requirements.ini
 pluggy==0.13.1            # via pytest
 prompt-toolkit==3.0.5     # via ipython
 ptyprocess==0.6.0         # via pexpect
-py==1.8.2                 # via pytest
+py==1.9.0                 # via pytest
 pycodestyle==2.6.0        # via flake8
 pydocstyle==5.0.2         # via flake8-docstrings
 pyflakes==2.2.0           # via flake8
@@ -37,8 +38,8 @@ pygments==2.6.1           # via ipython
 pyparsing==2.4.7          # via packaging
 pytest-django==3.9.0      # via -r requirements.ini
 pytest==5.4.3             # via pytest-django
-pyupgrade==2.6.1          # via -r requirements.ini
-regex==2020.6.8           # via black
+pyupgrade==2.7.0          # via -r requirements.ini
+regex==2020.7.14          # via black
 rope==0.17.0              # via -r requirements.ini
 six==1.15.0               # via packaging, pip-tools, traitlets
 snowballstemmer==2.0.0    # via pydocstyle
