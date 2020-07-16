@@ -14,4 +14,4 @@ fix:
 
 pip:
 	pip install -q -U pip~=20.1.0 pip-tools~=5.2.0
-	pip-compile $(p) -q -U -o requirements.txt requirements.ini
+	pip-compile -q -U -o requirements.txt requirements.ini
