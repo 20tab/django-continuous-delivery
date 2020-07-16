@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
-import os
 import string
+from pathlib import Path
 
 from configurations import Configuration, values
 
@@ -24,8 +24,8 @@ class ProjectDefault(Configuration):
     https://django-configurations.readthedocs.io
     """
 
-    # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Build paths inside the project like this: BASE_DIR / "subdir".
+    BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/stable/howto/deployment/checklist/
@@ -120,7 +120,7 @@ class ProjectDefault(Configuration):
 
     STATIC_URL = "/static/"
 
-    STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "static"))
+    STATIC_ROOT = BASE_DIR / "static"
 
     STATICFILES_STORAGE = (
         "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
@@ -131,11 +131,11 @@ class ProjectDefault(Configuration):
 
     MEDIA_URL = "/media/"
 
-    MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "media"))  # noqa{% else %}
+    MEDIA_ROOT = BASE_DIR / "media"  # noqa{% else %}
 
     # MEDIA_URL = "/media/"
 
-    # MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, "media")){% endif %}
+    # MEDIA_ROOT = BASE_DIR / "media"{% endif %}
 
     # Email Settings
     # https://docs.djangoproject.com/en/stable/topics/email/
