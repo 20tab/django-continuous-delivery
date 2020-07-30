@@ -245,6 +245,11 @@ class Testing(ProjectDefault):
 
     EMAIL = "dummy://"
 
+    # During testing, ensure that the STATICFILES_STORAGE setting is set to the default.
+    # https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/
+
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 
 class Remote(ProjectDefault):
     """The remote settings."""
