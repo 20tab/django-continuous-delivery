@@ -180,7 +180,8 @@ class Local(ProjectDefault):
     else:  # pragma: no cover
         INTERNAL_IPS = values.ListValue([], environ_name="ALLOWED_HOSTS")
         INSTALLED_APPS.append("debug_toolbar")
-        MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+        MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda x: True}
 
     # Django Extensions
     # https://django-extensions.readthedocs.io/en/stable/graph_models.html
