@@ -13,7 +13,7 @@ compilemessages:
 	python manage.py compilemessages -i .tox
 
 dev:
-	pip install -q -U pip~=20.1.0 pip-tools~=5.2.0
+	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
 	pip-sync requirements/dev.txt
 
 fix:
@@ -35,7 +35,7 @@ migrations:
 	python manage.py makemigrations --no-header
 
 pip:
-	pip install -q -U pip~=20.1.0 pip-tools~=5.2.0
+	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
 	pip-compile -q -U -o requirements/common.txt requirements/common.ini
 	pip-compile -q -U -o requirements/dev.txt requirements/dev.ini
 	pip-compile -q -U -o requirements/prod.txt requirements/prod.ini

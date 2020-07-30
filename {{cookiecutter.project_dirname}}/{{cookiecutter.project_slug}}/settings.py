@@ -180,7 +180,8 @@ class Local(ProjectDefault):
     else:  # pragma: no cover
         INTERNAL_IPS = values.ListValue([], environ_name="ALLOWED_HOSTS")
         INSTALLED_APPS.append("debug_toolbar")
-        MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+        MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda x: True}
 
     # Django Extensions
     # https://django-extensions.readthedocs.io/en/stable/graph_models.html
@@ -243,6 +244,11 @@ class Testing(ProjectDefault):
     # https://django-configurations.readthedocs.io/en/stable/values/
 
     EMAIL = "dummy://"
+
+    # During testing, ensure that the STATICFILES_STORAGE setting is set to the default.
+    # https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/
+
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 
 class Remote(ProjectDefault):
