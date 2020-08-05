@@ -9,7 +9,7 @@ asgiref==3.2.10           # via django
 attrs==19.3.0             # via black, flake8-bugbear, flake8-mypy, pytest
 backcall==0.2.0           # via ipython
 black==19.10b0            # via -r requirements/tests.ini
-cfgv==3.1.0               # via pre-commit
+cfgv==3.2.0               # via pre-commit
 click==7.1.2              # via black, pip-tools
 coverage==5.2.1           # via -r requirements/tests.ini
 decorator==4.4.2          # via ipython, traitlets
@@ -19,7 +19,7 @@ dj-email-url==1.0.1       # via -r requirements/common.ini
 django-configurations==2.2  # via -r requirements/common.ini
 django-debug-toolbar==2.2  # via -r requirements/dev.ini
 django-extensions==3.0.3  # via -r requirements/dev.ini
-django==3.1rc1            # via -r requirements/common.ini, django-debug-toolbar
+django==3.1               # via -r requirements/common.ini, django-debug-toolbar
 filelock==3.0.12          # via tox, virtualenv
 flake8-bugbear==20.1.4    # via -r requirements/tests.ini
 flake8-docstrings==1.5.0  # via -r requirements/tests.ini
@@ -27,11 +27,11 @@ flake8-isort==3.0.1       # via -r requirements/tests.ini
 flake8-mypy==17.8.0       # via -r requirements/tests.ini
 flake8==3.8.3             # via -r requirements/tests.ini, flake8-bugbear, flake8-docstrings, flake8-isort, flake8-mypy
 identify==1.4.25          # via pre-commit
-iniconfig==1.0.0          # via pytest
+iniconfig==1.0.1          # via pytest
 invoke==1.4.1             # via -r requirements/dev.ini
 ipdb==0.13.3              # via -r requirements/dev.ini, -r requirements/tests.ini
 ipython-genutils==0.2.0   # via traitlets
-ipython==7.16.1           # via ipdb
+ipython==7.17.0           # via ipdb
 isort[pyproject]==4.3.21  # via -r requirements/tests.ini, flake8-isort
 jedi==0.17.2              # via -r requirements/dev.ini, ipython
 mccabe==0.6.1             # via flake8
@@ -44,7 +44,7 @@ parso==0.7.1              # via jedi
 pathspec==0.8.0           # via black
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
-pip-tools==5.3.0          # via -r requirements/tests.ini
+pip-tools==5.3.1          # via -r requirements/tests.ini
 pluggy==0.13.1            # via pytest, tox
 pre-commit==2.6.0         # via -r requirements/tests.ini
 prompt-toolkit==3.0.5     # via ipython
@@ -58,7 +58,7 @@ pyflakes==2.2.0           # via flake8
 pygments==2.6.1           # via ipython
 pyparsing==2.4.7          # via packaging, pydot
 pytest-django==3.9.0      # via -r requirements/dev.ini
-pytest==6.0.0             # via pytest-django
+pytest==6.0.1             # via pytest-django
 python-dotenv==0.14.0     # via -r requirements/common.ini
 pytz==2020.1              # via django
 pyupgrade==2.7.2          # via -r requirements/dev.ini
@@ -76,7 +76,7 @@ traitlets==4.3.3          # via ipython
 typed-ast==1.4.1          # via black, mypy
 typing-extensions==3.7.4.2  # via mypy
 uwsgi==2.0.19.1           # via -r requirements/dev.ini
-virtualenv==20.0.28       # via pre-commit, tox
+virtualenv==20.0.30       # via pre-commit, tox
 wcwidth==0.2.5            # via prompt-toolkit
 
 # The following packages are considered to be unsafe in a requirements file:
