@@ -16,7 +16,7 @@ flake8-isort==3.0.1       # via -r requirements.ini
 flake8==3.8.3             # via -r requirements.ini, flake8-bugbear, flake8-docstrings, flake8-isort
 ipdb==0.13.3              # via -r requirements.ini
 ipython-genutils==0.2.0   # via traitlets
-ipython==7.16.1           # via ipdb
+ipython==7.17.0           # via ipdb
 isort[pyproject]==4.3.21  # via -r requirements.ini, flake8-isort
 jedi==0.17.2              # via -r requirements.ini, ipython
 mccabe==0.6.1             # via flake8
@@ -24,7 +24,7 @@ parso==0.7.1              # via jedi
 pathspec==0.8.0           # via black
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
-pip-tools==5.3.0          # via -r requirements.ini
+pip-tools==5.3.1          # via -r requirements.ini
 prompt-toolkit==3.0.5     # via ipython
 ptyprocess==0.6.0         # via pexpect
 pycodestyle==2.6.0        # via flake8
