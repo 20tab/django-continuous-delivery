@@ -9,7 +9,7 @@ certifi==2020.6.20        # via sentry-sdk
 dj-database-url==0.5.0    # via -r requirements/common.ini
 dj-email-url==1.0.1       # via -r requirements/common.ini
 django-configurations==2.2  # via -r requirements/common.ini
-django==3.1               # via -r requirements/common.ini
+django==3.1.1             # via -r requirements/common.ini
 psycopg2==2.8.5           # via -r requirements/common.ini
 python-dotenv==0.14.0     # via -r requirements/common.ini
 pytz==2020.1              # via django
