@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-deployment
-  namespace: {{cookiecutter.project_slug}}-production
+  namespace: {{cookiecutter.project_slug}}-integration
 spec:
   replicas: 1
   selector:
@@ -14,19 +14,12 @@ spec:
         component: backend
     spec:
       imagePullSecrets:
-        - name: regcred{% if cookiecutter.use_media_volume == "Yes" %}
-      volumes:
-        - name: media-storage
-          persistentVolumeClaim:
-            claimName: media-persistent-volume-claim{% endif %}
+        - name: regcred
       containers:
         - name: backend
           image: registry.gitlab.com/{{cookiecutter.gitlab_group_slug}}/{{cookiecutter.project_dirname}}:__IMAGE_TAG__
           ports:
-            - containerPort: 8000{% if cookiecutter.use_media_volume == "Yes" %}
-          volumeMounts:
-            - name: media-storage
-              mountPath: /app/media{% endif %}
+            - containerPort: 8000
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -91,7 +84,36 @@ spec:
                   name: secrets
                   key: SENTRY_DSN
             - name: SENTRY_ENVIRONMENT
-              value: $(DJANGO_CONFIGURATION)
+            value: $(DJANGO_CONFIGURATION){% if cookiecutter.use_media_volume == "Yes" %}
+            - name: DJANGO_AWS_DEFAULT_ACL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: S3_DEFAULT_ACL
+            - name: DJANGO_AWS_S3_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: S3_ACCESS_KEY_ID
+            - name: DJANGO_AWS_S3_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: S3_ACCESS_KEY_SECRET
+            - name: DJANGO_AWS_STORAGE_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: S3_BUCKET_NAME
+            - name: S3_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: S3_HOST
+            - name: DJANGO_AWS_S3_ENDPOINT_URL
+              value: "https://$(S3_HOST)"
+            - name: DJANGO_AWS_LOCATION
+              value: "$(DJANGO_CONFIGURATION)/media"{% endif %}
 
 ---
 
@@ -99,7 +121,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-cluster-ip-service
-  namespace: {{cookiecutter.project_slug}}-production
+  namespace: {{cookiecutter.project_slug}}-integration
 spec:
   type: ClusterIP
   selector:

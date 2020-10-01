@@ -5,18 +5,24 @@
 #    pip-compile --output-file=requirements/prod.txt requirements/prod.ini
 #
 asgiref==3.2.10           # via django
+boto3==1.15.9             # via django-storages
+botocore==1.18.9          # via boto3, s3transfer
 certifi==2020.6.20        # via sentry-sdk
 dj-database-url==0.5.0    # via -r requirements/common.ini
 dj-email-url==1.0.1       # via -r requirements/common.ini
 django-configurations==2.2  # via -r requirements/common.ini
-django==3.1.1             # via -r requirements/common.ini
-psycopg2==2.8.5           # via -r requirements/common.ini
+django-storages[boto3]==1.10.1  # via -r requirements/prod.ini
+django==3.1.2             # via -r requirements/common.ini, django-storages
+jmespath==0.10.0          # via boto3, botocore
+psycopg2==2.8.6           # via -r requirements/common.ini
+python-dateutil==2.8.1    # via botocore
 python-dotenv==0.14.0     # via -r requirements/common.ini
 pytz==2020.1              # via django
-sentry-sdk==0.14.4        # via -r requirements/prod.ini
-six==1.15.0               # via django-configurations
+s3transfer==0.3.3         # via boto3
+sentry-sdk==0.18.0        # via -r requirements/prod.ini
+six==1.15.0               # via django-configurations, python-dateutil
 sqlparse==0.3.1           # via django
-urllib3==1.25.10          # via sentry-sdk
+urllib3==1.25.10          # via botocore, sentry-sdk
 uwsgi==2.0.19.1           # via -r requirements/prod.ini
 uwsgidecorators==1.1.0    # via -r requirements/prod.ini
 uwsgitop==0.11            # via -r requirements/prod.ini
