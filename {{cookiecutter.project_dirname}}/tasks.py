@@ -150,7 +150,17 @@ def dumpdb(c):
     db_name, db_host, db_port, db_user = get_db()
     c.run(
         f"pg_dump -h {db_host} -p {db_port} -U {db_user} {db_name} | "
-        "bzip2 -9 > deploy/dump.sql.bz2"
+        "bzip2 -9 > backup/dump.sql.bz2"
+    )
+
+
+@task
+def restoredb(c, dump_filename):
+    """Restore database."""
+    db_name, db_host, db_port, db_user = get_db()
+    c.run(
+        f"bzip2 -c -d {dump_filename} | "
+        f"psql -q -o /dev/null -h {db_host} -p {db_port} -U {db_user} {db_name}"
     )
 
 
