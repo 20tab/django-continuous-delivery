@@ -160,6 +160,11 @@ class ProjectDefault(Configuration):
 
     # LANGUAGES = (("en", "English"), ("it", "Italiano"))
 
+    # Clickjacking Protection
+    # https://docs.djangoproject.com/en/stable/ref/clickjacking/
+
+    X_FRAME_OPTIONS = "SAMEORIGIN"  # Default: 'SAMEORIGIN'
+
 
 class Local(ProjectDefault):
     """The local settings."""
@@ -264,9 +269,44 @@ class Remote(ProjectDefault):
     else:  # pragma: no cover
         from sentry_sdk.integrations.django import DjangoIntegration  # noqa
 
-        sentry_sdk.init(
-            integrations=[DjangoIntegration()], send_default_pii=True,
-        )
+        sentry_sdk.init(integrations=[DjangoIntegration()], send_default_pii=True)
+
+    # Django Storages
+    # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.use_media_volume == "Yes" %}  # noqa
+
+    try:
+        import storages  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:  # pragma: no cover
+        AWS_DEFAULT_ACL = values.Value()
+
+        AWS_QUERYSTRING_AUTH = False
+
+        AWS_S3_ACCESS_KEY_ID = values.Value()
+
+        AWS_S3_SECRET_ACCESS_KEY = values.Value()
+
+        AWS_S3_ENDPOINT_URL = values.Value()
+
+        AWS_STORAGE_BUCKET_NAME = values.Value()
+
+        AWS_LOCATION = values.Value()
+
+        @property
+        def DEFAULT_FILE_STORAGE(self):
+            """Return the Django file storage backend."""
+            if all(
+                (
+                    self.AWS_S3_ACCESS_KEY_ID,
+                    self.AWS_S3_SECRET_ACCESS_KEY,
+                    self.AWS_STORAGE_BUCKET_NAME,
+                    self.AWS_S3_ENDPOINT_URL,
+                    self.AWS_LOCATION,
+                )
+            ):
+                return "storages.backends.s3boto3.S3Boto3Storage"  # pragma: no cover
+            return "django.core.files.storage.FileSystemStorage"  # noqa {% endif %}
 
 
 class Development(Remote):
@@ -275,7 +315,7 @@ class Development(Remote):
     # Debug
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
 
-    DEBUG = True
+    DEBUG = values.BooleanValue(False)
 
 
 class Integration(Remote):
@@ -306,8 +346,6 @@ class Production(Remote):
     SECURE_BROWSER_XSS_FILTER = True
 
     SECURE_CONTENT_TYPE_NOSNIFF = True
-
-    X_FRAME_OPTIONS = "DENY"  # Default: 'SAMEORIGIN'
 
     # Persistent connections
     # https://docs.djangoproject.com/en/stable/ref/databases/#general-notes
