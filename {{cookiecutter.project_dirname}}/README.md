@@ -48,7 +48,7 @@ To install and use virtualenv, please, visit the official [Python tutorial](http
 [Invoke](https://www.pyinvoke.org/) must be installed before initializing the project.
 
 ```shell
-({{cookiecutter.project_slug}}) $ pip install -U invoke
+$ pip install -U invoke
 ```
 
 ## Git
@@ -58,8 +58,8 @@ To install and use virtualenv, please, visit the official [Python tutorial](http
 In order to initialize git and sync the project with an existing repository:
 
 ```shell
-({{cookiecutter.project_slug}}) $ cd ~/projects/{{cookiecutter.project_slug}}
-({{cookiecutter.project_slug}}) $ inv gitinit git_repository_url
+$ cd ~/projects/{{cookiecutter.project_slug}}
+$ inv gitinit git_repository_url
 ```
 
 ### Git clone
@@ -67,9 +67,9 @@ In order to initialize git and sync the project with an existing repository:
 To get the existing project, change directory, clone the project repository and enter the newly created **{{cookiecutter.project_slug}}** directory:
 
 ```shell
-({{cookiecutter.project_slug}}) $ cd ~/projects/
-({{cookiecutter.project_slug}}) $ git clone GIT_REPOSITORY_URL {{cookiecutter.project_slug}}
-({{cookiecutter.project_slug}}) $ cd {{cookiecutter.project_slug}}
+$ cd ~/projects/
+$ git clone GIT_REPOSITORY_URL {{cookiecutter.project_slug}}
+$ cd {{cookiecutter.project_slug}}
 ```
 
 **NOTE** : Make sure you switch to the correct branch (e.g. `git checkout develop`)
@@ -79,7 +79,7 @@ To get the existing project, change directory, clone the project repository and 
 To install pre-commit into your git hooks run the below command. pre-commit will now run on every commit. Every time you clone a project using pre-commit running pre-commit install should always be the first thing you do.
 
 ```shell
-({{cookiecutter.project_slug}}) $ pre-commit install
+$ pre-commit install
 ```
 
 ## Quickstart
@@ -87,7 +87,7 @@ To install pre-commit into your git hooks run the below command. pre-commit will
 Invoke init and follow instructions, to configure the project:
 
 ```shell
-({{cookiecutter.project_slug}}) $ inv init
+$ inv init
 ```
 
 ## Libraries
@@ -97,7 +97,7 @@ Invoke init and follow instructions, to configure the project:
 To list all outdated installed libraries:
 
 ```shell
-({{cookiecutter.project_slug}}) $ pip list -o
+$ pip list -o
 ```
 
 ### Update libraries
@@ -107,13 +107,13 @@ Edit the appropriate .ini requirements file, to add/remove pinned libraries or m
 To update the compiled requirements files (`requirements/*.txt`), execute:
 
 ```shell
-({{cookiecutter.project_slug}}) $ make pip
+$ make pip
 ```
 
 Alternatively, in order to update specific dependent libraries to the latest version (e.g. urllib3), execute:
 ￼
 ```shell
-({{cookiecutter.project_slug}}) $ make pip p='-P urllib3'
+$ make pip p='-P urllib3'
 ```
 
 ### Install libraries
@@ -121,7 +121,7 @@ Alternatively, in order to update specific dependent libraries to the latest ver
 To install the just updated requirements (e.g. `requirements/dev.txt`), execute:
 
 ```shell
-({{cookiecutter.project_slug}}) $ make dev
+$ make dev
 ```
 
 ## Testing
@@ -129,7 +129,7 @@ To install the just updated requirements (e.g. `requirements/dev.txt`), execute:
 To run the full test suite, with coverage calculation, execute:
 
 ```shell
-({{cookiecutter.project_slug}}) $ make test
+$ make test
 ```
 
 ## Static files
@@ -137,7 +137,7 @@ To run the full test suite, with coverage calculation, execute:
 To collect static files, execute:
 
 ```shell
-({{cookiecutter.project_slug}}) $ make collectstatic
+$ make collectstatic
 ```
 
 ## Continuous Integration
@@ -155,7 +155,7 @@ The configuration file `.gitlab-ci.yml` should work as is, needing no further cu
 To create a local database (database settings from `.env`):
 
 ```shell
-({{cookiecutter.project_slug}}) $ inv createdb
+$ inv createdb
 ```
 
 ### Drop
@@ -163,7 +163,7 @@ To create a local database (database settings from `.env`):
 To drop the local database (database settings from `.env`):
 
 ```shell
-({{cookiecutter.project_slug}}) $ inv dropdb
+$ inv dropdb
 ```
 
 ### Reset
@@ -171,8 +171,8 @@ To drop the local database (database settings from `.env`):
 To reset database execute (database settings from `.env`):
 
 ```shell
-({{cookiecutter.project_slug}}) $ inv dropdb
-({{cookiecutter.project_slug}}) $ inv createdb
+$ inv dropdb
+$ inv createdb
 ```
 
 **NOTE**: Beware all data will be lost.
@@ -182,5 +182,5 @@ To reset database execute (database settings from `.env`):
 To dump the local database into `deploy/dump.sql.bz2` (database settings from `.env`):
 
 ```shell
-({{cookiecutter.project_slug}}) $ inv dumpdb
+$ inv dumpdb
 ```
