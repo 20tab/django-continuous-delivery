@@ -139,9 +139,11 @@ class ProjectDefault(Configuration):
 
     # Email Settings
     # https://docs.djangoproject.com/en/stable/topics/email/
-    # fmt: off
-    ADMINS = values.SingleNestedTupleValue((("admin", "errors@{{cookiecutter.domain_url}}"),))  # noqa
-    # fmt: on
+
+    ADMINS = values.SingleNestedTupleValue(
+        (("admin", "errors@{{cookiecutter.domain_url}}"),)
+    )
+
     DEFAULT_FROM_EMAIL = values.EmailValue("info@{{cookiecutter.domain_url}}")
 
     EMAIL_SUBJECT_PREFIX = "[{{cookiecutter.project_name}}] "

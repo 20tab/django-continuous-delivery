@@ -11,7 +11,8 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-# fmt: off
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{cookiecutter.project_slug}}.settings")  # noqa
-# fmt: on
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE", "{{cookiecutter.project_slug}}.settings"
+)
+
 application = get_asgi_application()

@@ -1,6 +1,7 @@
 # directories
 .git
 .tox
+.venv
 .vscode
 **/lost+found
 htmlcov
