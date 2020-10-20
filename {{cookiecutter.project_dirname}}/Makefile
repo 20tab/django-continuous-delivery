@@ -41,5 +41,13 @@ pip:
 	pip-compile -q -U -o requirements/prod.txt requirements/prod.ini
 	pip-compile -q -U -o requirements/tests.txt requirements/tests.ini
 
+ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
+  simpletestargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(simpletestargs):;@true)
+endif
+
+simpletest:
+	python manage.py test --configuration=Testing  $(simpletestargs)
+
 test:
 	tox -e coverage,reporthtml,report
