@@ -22,6 +22,7 @@ def create_env_file():
         .replace("__SECRETKEY__", secrets.token_urlsafe(40))
     )
     Path(".env").write_text(env_text)
+    print("Generated '.env' file.")
 
 
 def create_venv_directory():
@@ -41,21 +42,24 @@ def format_files():
 
 def generate_requirements():
     """Generate requirements files."""
+    requirements_dir = "requirements"
     PIP_COMPILE = [f"{VENV}/bin/pip-compile", "-q", "-U", "-o"]
-    subprocess.run(PIP_COMPILE + ["requirements/common.txt", "requirements/common.ini"])
-    subprocess.run(PIP_COMPILE + ["requirements/dev.txt", "requirements/dev.ini"])
-    subprocess.run(PIP_COMPILE + ["requirements/prod.txt", "requirements/prod.ini"])
-    subprocess.run(PIP_COMPILE + ["requirements/tests.txt", "requirements/tests.ini"])
+    for env in ["common", "dev", "prod", "tests"]:
+        output_file = f"{requirements_dir}/{env}.txt"
+        subprocess.run(PIP_COMPILE + [output_file, f"{requirements_dir}/{env}.ini"])
+        print(f"Generated '/{output_file}' file.")
 
 
 def create_static_directory():
     """Create the static dirctory."""
     Path("static").mkdir(exist_ok=True)
+    print("Generated '/static' directory.")
 
 
 def create_media_directory():
     """Create the media dirctory."""
     Path("media").mkdir(exist_ok=True)
+    print("Generated '/media' directory.")
 
 
 def main():
