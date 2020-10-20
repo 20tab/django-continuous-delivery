@@ -132,6 +132,24 @@ To run the full test suite, with coverage calculation, execute:
 $ make test
 ```
 
+To run the full test suite, without coverage calculation, execute:
+
+```shell
+$ make simpletest
+```
+
+To run a single test suite, without coverage calculation, execute:
+
+```shell
+$ make simpletest app.tests.single.Test.to_execute
+```
+
+The _simpletest_ command accept dashed arguments with a particular syntax, such as:
+
+```shell
+$ make simpletest app.tests.single.Test.to_execute -- --keepdb
+```
+
 ## Static files
 
 To collect static files, execute:
