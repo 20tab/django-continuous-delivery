@@ -12,7 +12,7 @@ VENV = ".venv"
 
 def create_env_file():
     """Create env file from the template."""
-    env_text = Path(".env.tpl").read_text()
+    env_text = Path(".env_template").read_text()
     env_text = (
         env_text.replace("__NAME__", PROJECT_SLUG)
         .replace("__PASSWORD__", "postgres")

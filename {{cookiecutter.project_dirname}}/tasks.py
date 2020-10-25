@@ -13,7 +13,7 @@ USERNAME = getpass.getuser()
 PROJECT_PATH = Path(__file__).parent
 PROJECT_NAME = PROJECT_PATH.name
 ENV_FILE = PROJECT_PATH / ".env"
-ENV_TEMPLATE = PROJECT_PATH / ".env.tpl"
+ENV_TEMPLATE = PROJECT_PATH / ".env_template"
 WORKAREA_ROOT = PROJECT_PATH.parent
 VASSAL_DIR = WORKAREA_ROOT / "vassals"
 
@@ -55,7 +55,7 @@ def init(c):
     vassal_project = Path(vassal_path) / f"{PROJECT_NAME}.ini"
     vassal_file = INI_DIR / f"{USERNAME}.ini"
     if EMPEROR_MODE and not vassal_project.exists():
-        vassal_template = INI_DIR / "vassal.ini.tpl"
+        vassal_template = INI_DIR / "vassal.ini_template"
         vassal_text = vassal_template.read_text()
         vassal_text = (
             vassal_text.replace("__USERNAME__", USERNAME)
@@ -65,7 +65,7 @@ def init(c):
         vassal_file.write_text(vassal_text)
         vassal_project.symlink_to(vassal_file)
     else:
-        vassal_template = INI_DIR / "standalone.ini.tpl"
+        vassal_template = INI_DIR / "standalone.ini_template"
         vassal_file.write_text(vassal_template.read_text())
     vassal_text = vassal_file.read_text()
     vassal_text = (
