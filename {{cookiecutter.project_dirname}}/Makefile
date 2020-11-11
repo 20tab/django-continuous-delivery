@@ -1,8 +1,6 @@
-# Develop
-
 check:
 	black --check .
-	isort --check-only .
+	isort --check .
 	flake8
 	mypy .
 
@@ -40,6 +38,10 @@ pip:
 	pip-compile -q -U -o requirements/dev.txt requirements/dev.ini
 	pip-compile -q -U -o requirements/prod.txt requirements/prod.ini
 	pip-compile -q -U -o requirements/tests.txt requirements/tests.ini
+
+prod:
+	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
+	pip-sync requirements/prod.txt
 
 ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
   simpletestargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
