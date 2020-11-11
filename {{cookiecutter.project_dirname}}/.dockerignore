@@ -13,7 +13,7 @@ uwsgiconf/local
 .dockerignore
 .editorconfig
 .env
-.env.tpl
+.env_template
 .gitignore
 .gitlab-ci.yml
 .pre-commit-config.yaml
