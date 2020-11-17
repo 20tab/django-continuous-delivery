@@ -2,6 +2,7 @@
 """Define hooks to be run after project generation."""
 
 import secrets
+import shutil
 import subprocess
 import venv
 from pathlib import Path
@@ -26,8 +27,13 @@ def create_env_file():
 
 
 def create_venv_directory():
-    """Create the venv dirctory."""
+    """Create the venv directory."""
     venv.create(VENV, clear=True, with_pip=True)
+
+
+def remove_venv_directory():
+    """Remove the venv directory."""
+    shutil.rmtree(VENV, ignore_errors=True)
 
 
 def install_requirements():
@@ -51,13 +57,13 @@ def generate_requirements():
 
 
 def create_static_directory():
-    """Create the static dirctory."""
+    """Create the static directory."""
     Path("static").mkdir(exist_ok=True)
     print("Generated '/static' directory.")
 
 
 def create_media_directory():
-    """Create the media dirctory."""
+    """Create the media directory."""
     Path("media").mkdir(exist_ok=True)
     print("Generated '/media' directory.")
 
@@ -69,6 +75,7 @@ def main():
     install_requirements()
     format_files()
     generate_requirements()
+    remove_venv_directory()
     create_static_directory()
     if "{{cookiecutter.use_media_volume}}" == "Yes":
         create_media_directory()
