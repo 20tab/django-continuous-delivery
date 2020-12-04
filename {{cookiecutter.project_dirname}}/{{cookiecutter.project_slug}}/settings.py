@@ -127,7 +127,7 @@ class ProjectDefault(Configuration):
     )
 
     # Stored files
-    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.use_media_volume == "Yes" %}  # noqa
+    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.use_media == "Yes" %}  # noqa
 
     MEDIA_URL = "/media/"
 
@@ -274,7 +274,7 @@ class Remote(ProjectDefault):
         sentry_sdk.init(integrations=[DjangoIntegration()], send_default_pii=True)
 
     # Django Storages
-    # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.use_media_volume == "Yes" %}  # noqa
+    # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.use_media == "Yes" %}  # noqa
 
     try:
         import storages  # noqa

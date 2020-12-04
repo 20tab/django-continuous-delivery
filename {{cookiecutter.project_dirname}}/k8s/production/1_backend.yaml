@@ -84,7 +84,7 @@ spec:
                   name: secrets
                   key: SENTRY_DSN
             - name: SENTRY_ENVIRONMENT
-              value: $(DJANGO_CONFIGURATION){% if cookiecutter.use_media_volume == "Yes" %}
+              value: $(DJANGO_CONFIGURATION){% if cookiecutter.use_media == "Yes" %}
             - name: DJANGO_AWS_DEFAULT_ACL
               valueFrom:
                 secretKeyRef:

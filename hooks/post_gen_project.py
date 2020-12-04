@@ -77,7 +77,7 @@ def main():
     generate_requirements()
     remove_venv_directory()
     create_static_directory()
-    if "{{cookiecutter.use_media_volume}}" == "Yes":
+    if "{{cookiecutter.use_media}}" == "Yes":
         create_media_directory()
 
 

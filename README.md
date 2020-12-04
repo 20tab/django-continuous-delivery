@@ -31,7 +31,7 @@ project_slug [myprojectname]:
 project_dirname [myprojectname]:
 domain_url [myprojectname.com]:
 gitlab_group_slug [myprojectname]:
-Select use_media_volume:
+Select use_media:
 1 - Yes
 2 - No
 Choose from 1, 2 [1]:
