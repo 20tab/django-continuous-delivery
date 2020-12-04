@@ -114,6 +114,8 @@ spec:
               value: "https://$(S3_HOST)"
             - name: DJANGO_AWS_LOCATION
               value: "$(DJANGO_CONFIGURATION)/media"{% endif %}
+            - name: UWSGI_WORKERS
+              value: "8"
 
 ---
 
