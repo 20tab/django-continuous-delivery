@@ -30,10 +30,18 @@ project_name: My project name
 project_slug [myprojectname]:
 project_dirname [myprojectname]:
 domain_url [myprojectname.com]:
+database_url [postgres://postgres:postgres@postgres:5432/myprojectname]:
 gitlab_group_slug [myprojectname]:
 Select use_media:
 1 - Yes
 2 - No
 Choose from 1, 2 [1]:
+Generated '.env' file.
+Generated '/requirements/common.txt' file.
+Generated '/requirements/dev.txt' file.
+Generated '/requirements/prod.txt' file.
+Generated '/requirements/tests.txt' file.
+Generated '/static' directory.
+Generated '/media' directory.
 $ cd myprojectname
 ```
