@@ -11,10 +11,8 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
   - [Virtual environment](#virtual-environment)
   - [Requirements](#requirements)
 - [Git](#git)
-  - [Git initialization](#git-initialization)
   - [Git clone](#git-clone)
   - [Git hooks](#git-hooks)
-- [Quickstart](#quickstart)
 - [Libraries](#libraries)
   - [List outdated libraries](#list-outdated-libraries)
   - [Update libraries](#update-libraries)
@@ -23,11 +21,6 @@ A [Django](https://docs.djangoproject.com) project using [uWSGI](https://uwsgi-d
 - [Static files](#static-files)
 - [Continuous Integration](#continuous-integration)
   - [Gitlab CI](#gitlab-ci)
-- [Database](#database)
-  - [Create](#create)
-  - [Drop](#drop)
-  - [Reset](#reset)
-  - [Dump](#dump)
 
 ## Conventions
 
@@ -43,24 +36,7 @@ We suggest updating pip to the latest version and using a virtual environment to
 **IMPORTANT**: Please, create an empty virtual environment, with the right python version, and activate it.
 To install and use virtualenv, please, visit the official [Python tutorial](https://docs.python.org/3/tutorial/venv.html)
 
-### Requirements
-
-[Invoke](https://www.pyinvoke.org/) must be installed before initializing the project.
-
-```shell
-$ pip install -U invoke
-```
-
 ## Git
-
-### Git initialization
-
-In order to initialize git and sync the project with an existing repository:
-
-```shell
-$ cd ~/projects/{{cookiecutter.project_slug}}
-$ inv gitinit git_repository_url
-```
 
 ### Git clone
 
@@ -82,14 +58,6 @@ To install pre-commit into your git hooks run the below command. pre-commit will
 $ pre-commit install
 ```
 
-## Quickstart
-
-Invoke init and follow instructions, to configure the project:
-
-```shell
-$ inv init
-```
-
 ## Libraries
 
 ### List outdated libraries
@@ -108,12 +76,6 @@ To update the compiled requirements files (`requirements/*.txt`), execute:
 
 ```shell
 $ make pip
-```
-
-Alternatively, in order to update specific dependent libraries to the latest version (e.g. urllib3), execute:
-￼
-```shell
-$ make pip p='-P urllib3'
 ```
 
 ### Install libraries
@@ -165,40 +127,3 @@ Depending on the CI tool, you might need to configure Django environment variabl
 ### Gitlab CI
 
 The configuration file `.gitlab-ci.yml` should work as is, needing no further customization.
-
-## Database
-
-### Create
-
-To create a local database (database settings from `.env`):
-
-```shell
-$ inv createdb
-```
-
-### Drop
-
-To drop the local database (database settings from `.env`):
-
-```shell
-$ inv dropdb
-```
-
-### Reset
-
-To reset database execute (database settings from `.env`):
-
-```shell
-$ inv dropdb
-$ inv createdb
-```
-
-**NOTE**: Beware all data will be lost.
-
-### Dump
-
-To dump the local database into `deploy/dump.sql.bz2` (database settings from `.env`):
-
-```shell
-$ inv dumpdb
-```

@@ -11,7 +11,7 @@ compilemessages:
 	python manage.py compilemessages -i .tox
 
 dev:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
+	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
 	pip-sync requirements/dev.txt
 
 fix:
@@ -33,14 +33,14 @@ migrations:
 	python manage.py makemigrations --no-header
 
 pip:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
-	pip-compile -q -U -o requirements/common.txt requirements/common.ini
-	pip-compile -q -U -o requirements/dev.txt requirements/dev.ini
-	pip-compile -q -U -o requirements/prod.txt requirements/prod.ini
-	pip-compile -q -U -o requirements/tests.txt requirements/tests.ini
+	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
+	pip-compile -q -U -o requirements/common.txt requirements/common.in
+	pip-compile -q -U -o requirements/dev.txt requirements/dev.in
+	pip-compile -q -U -o requirements/prod.txt requirements/prod.in
+	pip-compile -q -U -o requirements/tests.txt requirements/tests.in
 
 prod:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
+	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
 	pip-sync requirements/prod.txt
 
 ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
@@ -49,7 +49,7 @@ ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
 endif
 
 simpletest:
-	python manage.py test --configuration=Testing  $(simpletestargs)
+	python manage.py test --configuration=Testing $(simpletestargs)
 
 test:
 	tox -e coverage,reporthtml,report
