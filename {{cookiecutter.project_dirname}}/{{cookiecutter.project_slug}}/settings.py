@@ -25,7 +25,7 @@ class ProjectDefault(Configuration):
     """
 
     # Build paths inside the project like this: BASE_DIR / "subdir".
-    BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+    BASE_DIR = Path(__file__).resolve().parent.parent
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/stable/howto/deployment/checklist/
@@ -72,9 +72,9 @@ class ProjectDefault(Configuration):
                     "django.template.context_processors.request",
                     "django.contrib.auth.context_processors.auth",
                     "django.contrib.messages.context_processors.messages",
-                ]
+                ],
             },
-        }
+        },
     ]
 
     WSGI_APPLICATION = "{{cookiecutter.project_slug}}.wsgi.application"
