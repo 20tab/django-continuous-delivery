@@ -1,5 +1,5 @@
-# pip-compile --output-file prod.txt prod.ini
--r common.ini
+# pip-compile --output-file prod.txt prod.in
+-r common.in
 
 # for {% if cookiecutter.use_media == "Yes" %}s3
 django-storages[boto3]~=1.10.0

@@ -2,16 +2,18 @@ check:
 	black --check .
 	isort --check .
 	flake8
+	mypy .
 
 dev:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
+	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
 	pip-sync requirements.txt
 
 fix:
 	black .
 	isort .
 	flake8
+	mypy .
 
 pip:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.3.0
-	pip-compile -q -U -o requirements.txt requirements.ini
+	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
+	pip-compile -q -U -o requirements.txt requirements.in

@@ -1,4 +1,4 @@
-# pip-compile --output-file common.txt common.ini
+# pip-compile --output-file common.txt common.in
 
 dj-database-url~=0.5.0
 dj-email-url~=1.0.0
