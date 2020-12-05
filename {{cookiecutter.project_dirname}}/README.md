@@ -70,7 +70,7 @@ $ pip list -o
 
 ### Update libraries
 
-Edit the appropriate .ini requirements file, to add/remove pinned libraries or modify their versions.
+Edit the appropriate requirements file `*.in`, to add/remove pinned libraries or modify their versions.
 
 To update the compiled requirements files (`requirements/*.txt`), execute:
 

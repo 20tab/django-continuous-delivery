@@ -46,7 +46,7 @@ def generate_requirements():
     PIP_COMPILE = [f"{VENV}/bin/pip-compile", "-q", "-U", "-o"]
     for env in ["common", "dev", "prod", "tests"]:
         output_file = f"{requirements_dir}/{env}.txt"
-        subprocess.run(PIP_COMPILE + [output_file, f"{requirements_dir}/{env}.ini"])
+        subprocess.run(PIP_COMPILE + [output_file, f"{requirements_dir}/{env}.in"])
         print(f"Generated '/{output_file}' file.")
 
 
