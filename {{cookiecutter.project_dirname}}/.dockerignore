@@ -1,5 +1,7 @@
 # directories
 .git
+.mypy_cache
+.pytest_cache
 .tox
 .venv
 .vscode
@@ -7,7 +9,6 @@
 htmlcov
 k8s
 public
-uwsgiconf/local
 # files
 .coverage
 .dockerignore
@@ -23,7 +24,8 @@ uwsgiconf/local
 Dockerfile
 Makefile
 pyproject.toml
-requirements/*.ini
+requirements/*.in
 requirements/common.txt
+requirements/dev.txt
 setup.cfg
-tasks.py
+uwsgiconf/local.ini
