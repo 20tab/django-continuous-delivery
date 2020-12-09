@@ -43,13 +43,16 @@ prod:
 	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
 	pip-sync requirements/prod.txt
 
+simplecoverage:
+	coverage run --concurrency=multiprocessing manage.py test --noinput --parallel --debug-sql && coverage combine && coverage report
+
 ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
   simpletestargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
   $(eval $(simpletestargs):;@true)
 endif
 
 simpletest:
-	python manage.py test --configuration=Testing $(simpletestargs)
+	python manage.py test --configuration=Testing --parallel --debug-sql $(simpletestargs)
 
 test:
 	tox -e coverage,reporthtml,report

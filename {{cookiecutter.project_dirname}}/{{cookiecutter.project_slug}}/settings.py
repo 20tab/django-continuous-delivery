@@ -257,6 +257,13 @@ class Testing(ProjectDefault):
 
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
+    # The MD5 based password hasher is much less secure but faster
+    # https://docs.djangoproject.com/en/3.1/topics/auth/passwords/
+
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
+
 
 class Remote(ProjectDefault):
     """The remote settings."""
