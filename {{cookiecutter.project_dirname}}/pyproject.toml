@@ -1,2 +1,10 @@
 [tool.black]
-target-version = ['py38']
+target-version = ["py38"]
+
+[tool.isort]
+atomic = true
+profile = "black"
+combine_as_imports = true
+default_section = "THIRDPARTY"
+known_first_party = ["{{cookiecutter.project_slug}}"]
+known_third_party = "django"
