@@ -26,6 +26,5 @@ Makefile
 pyproject.toml
 requirements/*.in
 requirements/common.txt
-requirements/dev.txt
 setup.cfg
 uwsgiconf/local.ini
