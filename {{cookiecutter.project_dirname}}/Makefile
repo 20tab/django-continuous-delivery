@@ -11,7 +11,7 @@ compilemessages:
 	python manage.py compilemessages -i .tox
 
 dev:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
+	pip install -q -U pip~=20.3.0 pip-tools~=5.5.0
 	pip-sync requirements/dev.txt
 
 fix:
@@ -33,14 +33,14 @@ migrations:
 	python manage.py makemigrations --no-header
 
 pip:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
+	pip install -q -U pip~=20.3.0 pip-tools~=5.5.0
 	pip-compile -q -U -o requirements/common.txt requirements/common.in
 	pip-compile -q -U -o requirements/dev.txt requirements/dev.in
 	pip-compile -q -U -o requirements/prod.txt requirements/prod.in
 	pip-compile -q -U -o requirements/tests.txt requirements/tests.in
 
 prod:
-	pip install -q -U pip~=20.2.0 pip-tools~=5.4.0
+	pip install -q -U pip~=20.3.0 pip-tools~=5.5.0
 	pip-sync requirements/prod.txt
 
 simplecoverage:
