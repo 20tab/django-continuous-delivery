@@ -302,6 +302,8 @@ class Remote(ProjectDefault):
 
         AWS_LOCATION = values.Value()
 
+        AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
+
         @property
         def DEFAULT_FILE_STORAGE(self):
             """Return the Django file storage backend."""
@@ -312,6 +314,7 @@ class Remote(ProjectDefault):
                     self.AWS_STORAGE_BUCKET_NAME,
                     self.AWS_S3_ENDPOINT_URL,
                     self.AWS_LOCATION,
+                    self.AWS_S3_FILE_OVERWRITE,
                 )
             ):
                 return "storages.backends.s3boto3.S3Boto3Storage"  # pragma: no cover
