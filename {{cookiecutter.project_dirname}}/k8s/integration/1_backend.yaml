@@ -114,6 +114,11 @@ spec:
               value: "https://$(S3_HOST)"
             - name: DJANGO_AWS_LOCATION
               value: "$(DJANGO_CONFIGURATION)/media"{% endif %}
+            - name: DJANGO_AWS_S3_FILE_OVERWRITE
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: S3_FILE_OVERWRITE
             - name: UWSGI_WORKERS
               value: "1"
 
