@@ -288,33 +288,31 @@ class Remote(ProjectDefault):
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
-        AWS_DEFAULT_ACL = values.Value()
+        AWS_ACCESS_KEY_ID = values.Value()
+
+        AWS_DEFAULT_ACL = values.Value("public-read")
+
+        AWS_LOCATION = values.Value("")
 
         AWS_QUERYSTRING_AUTH = False
 
-        AWS_S3_ACCESS_KEY_ID = values.Value()
-
-        AWS_S3_SECRET_ACCESS_KEY = values.Value()
-
         AWS_S3_ENDPOINT_URL = values.Value()
 
-        AWS_STORAGE_BUCKET_NAME = values.Value()
-
-        AWS_LOCATION = values.Value()
-
         AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
+
+        AWS_SECRET_ACCESS_KEY = values.Value()
+
+        AWS_STORAGE_BUCKET_NAME = values.Value()
 
         @property
         def DEFAULT_FILE_STORAGE(self):
             """Return the Django file storage backend."""
             if all(
                 (
-                    self.AWS_S3_ACCESS_KEY_ID,
-                    self.AWS_S3_SECRET_ACCESS_KEY,
-                    self.AWS_STORAGE_BUCKET_NAME,
+                    self.AWS_ACCESS_KEY_ID,
                     self.AWS_S3_ENDPOINT_URL,
-                    self.AWS_LOCATION,
-                    self.AWS_S3_FILE_OVERWRITE,
+                    self.AWS_SECRET_ACCESS_KEY,
+                    self.AWS_STORAGE_BUCKET_NAME,
                 )
             ):
                 return "storages.backends.s3boto3.S3Boto3Storage"  # pragma: no cover
