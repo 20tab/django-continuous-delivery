@@ -1,6 +1,19 @@
 [tool.black]
 target-version = ["py38"]
 
+[tool.coverage.run]
+branch = true
+omit = [
+    ".venv/*",
+    "*/asgi.py",
+    "*/migrations/*",
+    "*/management/*",
+    "*/tests/*",
+    "*/wsgi.py",
+    "manage.py",
+]
+source = ["."]
+
 [tool.isort]
 atomic = true
 profile = "black"
@@ -8,3 +21,7 @@ combine_as_imports = true
 default_section = "THIRDPARTY"
 known_first_party = ["{{cookiecutter.project_slug}}"]
 known_third_party = "django"
+
+[tool.pytest.ini_options]
+DJANGO_CONFIGURATION = "Testing"
+DJANGO_SETTINGS_MODULE = "{{cookiecutter.project_slug}}.settings"

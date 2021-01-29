@@ -4,9 +4,11 @@
 django-debug-toolbar~=3.2.0
 django-extensions~=3.1.0
 ipdb~=0.13.0
-jedi~=0.17.0
+pip-tools~=5.5.0
+pre-commit~=2.9.0
 pydot~=1.4.0
 pytest-django~=4.1.0
+python-dotenv~=0.15.0
 pyupgrade~=2.7.0
 rope~=0.18.0
 uwsgi~=2.0.0

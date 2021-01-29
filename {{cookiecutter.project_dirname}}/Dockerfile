@@ -41,12 +41,3 @@ COPY . .
 CMD python manage.py migrate --noinput && \
     python manage.py collectstatic --clear --noinput && \
     uwsgi uwsgiconf/docker.ini
-
-
-FROM base AS test
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        libpq-dev \
-    && pip3 install --no-cache-dir -U pip tox
-CMD tox -e coverage,reporthtml,report

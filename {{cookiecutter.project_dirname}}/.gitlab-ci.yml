@@ -1,25 +1,39 @@
 stages:
-- test
-- coverage
-- build
-- deploy
+- Test
+- Build
+- Deploy
+- Report
 
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
 
+cache:
+  paths:
+    - ~/.cache/pip/
+
 test:
-  stage: test
-  image: python:3.8
+  stage: Test
+  image: python:3.8-buster
   services:
     - postgres:12
   before_script:
-    - pip install tox
+    - pip install -r requirements/tests.txt
+    - black --check .
+    - isort --check .
+    - flake8
+    - mypy .
   variables:
     DATABASE_URL: "postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}"
+    DJANGO_CONFIGURATION: "Testing"
+    DJANGO_SETTINGS_MODULE: "{{cookiecutter.project_slug}}.settings"
     POSTGRES_PASSWORD: "postgres"
   script:
-    - tox -e coverage,report,reporthtml
+    - python manage.py behave --simple
+    - coverage run --concurrency=multiprocessing manage.py test --noinput --parallel --reverse
+    - coverage combine
+    - coverage html
+    - coverage report
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
     paths:
@@ -27,7 +41,7 @@ test:
     expire_in: 1 day
 
 pages:
-  stage: coverage
+  stage: Report
   image: busybox
   script:
     - mv htmlcov public
@@ -36,12 +50,14 @@ pages:
       - public
   dependencies:
     - test
+  only:
+    - develop
 
 build:
-  stage: build
-  image: docker:19-git
+  stage: Build
+  image: docker:20-git
   services:
-    - docker:19-dind
+    - docker:20-dind
   before_script:
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
@@ -54,9 +70,9 @@ build:
     - master
 
 .deploy:
-  stage: deploy
+  stage: Deploy
   image:
-    name: bitnami/kubectl:1.17
+    name: bitnami/kubectl:latest
     entrypoint: [""]
   before_script:
     - kubectl config set-cluster my-cluster --server=${KUBE_URL} --certificate-authority="${KUBE_CA_PEM_FILE}"

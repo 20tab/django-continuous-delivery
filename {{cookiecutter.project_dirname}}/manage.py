@@ -3,12 +3,15 @@
 import os
 import sys
 
-from dotenv import find_dotenv, load_dotenv
-
 
 def main():
     """Run administrative tasks."""
-    load_dotenv(find_dotenv())  # does not override already set variables
+    try:
+        from dotenv import find_dotenv, load_dotenv  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:
+        load_dotenv(find_dotenv())  # does not override already set variables
     os.environ.setdefault(
         "DJANGO_SETTINGS_MODULE", "{{cookiecutter.project_slug}}.settings"
     )
