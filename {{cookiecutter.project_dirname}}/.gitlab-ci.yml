@@ -68,6 +68,7 @@ build:
   only:
     - develop
     - master
+    - tags
 
 .deploy:
   stage: Deploy
@@ -86,7 +87,7 @@ deploy_development:
     - develop
   environment: development
   script:
-    - sed -i "s/__IMAGE_TAG__/develop-$CI_COMMIT_SHA/" k8s/development/1_backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/development/1_backend.yaml
     - kubectl apply -f k8s/development/
 
 rollback_development:
@@ -96,7 +97,7 @@ rollback_development:
   environment: development
   when: manual
   script:
-    - sed -i "s/__IMAGE_TAG__/develop-$CI_COMMIT_BEFORE_SHA/" k8s/development/1_backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/development/1_backend.yaml
     - kubectl apply -f k8s/development/
 
 deploy_integration:
@@ -105,7 +106,7 @@ deploy_integration:
     - master
   environment: integration
   script:
-    - sed -i "s/__IMAGE_TAG__/master-$CI_COMMIT_SHA/" k8s/integration/1_backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/integration/1_backend.yaml
     - kubectl apply -f k8s/integration/
 
 rollback_integration:
@@ -115,7 +116,7 @@ rollback_integration:
   environment: integration
   when: manual
   script:
-    - sed -i "s/__IMAGE_TAG__/master-$CI_COMMIT_BEFORE_SHA/" k8s/integration/1_backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/integration/1_backend.yaml
     - kubectl apply -f k8s/integration/
 
 deploy_production:
@@ -124,7 +125,7 @@ deploy_production:
     - tags
   environment: production
   script:
-    - sed -i "s/__IMAGE_TAG__/master-$CI_COMMIT_SHA/" k8s/production/1_backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_SHA/" k8s/production/1_backend.yaml
     - kubectl apply -f k8s/production/
 
 rollback_production:
@@ -134,5 +135,5 @@ rollback_production:
   environment: production
   when: manual
   script:
-    - sed -i "s/__IMAGE_TAG__/master-$CI_COMMIT_BEFORE_SHA/" k8s/production/1_backend.yaml
+    - sed -i "s/__IMAGE_TAG__/$CI_COMMIT_REF_NAME-$CI_COMMIT_BEFORE_SHA/" k8s/production/1_backend.yaml
     - kubectl apply -f k8s/production/
