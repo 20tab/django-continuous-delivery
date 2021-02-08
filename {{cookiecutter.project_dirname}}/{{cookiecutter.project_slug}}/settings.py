@@ -232,7 +232,7 @@ class Local(ProjectDefault):
             "language": "it",
             "layout": "dot",
             "relations_as_fields": True,
-            "theme": "original",
+            "theme": "django2018",
             "verbose_names": True,
         }
 
@@ -246,6 +246,10 @@ class Testing(ProjectDefault):
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
 
     DEBUG = False
+
+    # Application definition
+
+    INSTALLED_APPS = ProjectDefault.INSTALLED_APPS.copy()
 
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/
@@ -263,6 +267,16 @@ class Testing(ProjectDefault):
     PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
+
+    # Behave
+    # https://behave-django.readthedocs.io/en/latest/installation.html
+
+    try:
+        import behave_django  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:  # pragma: no cover
+        INSTALLED_APPS.append("behave_django")
 
 
 class Remote(ProjectDefault):
