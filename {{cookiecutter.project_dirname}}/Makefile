@@ -14,7 +14,7 @@ compilemessages:
 	python manage.py compilemessages
 
 coverage:
-	coverage run --concurrency=multiprocessing manage.py test --configuration=Testing --noinput --parallel --debug-sql
+	coverage run manage.py test --configuration=Testing --noinput --parallel
 	coverage combine
 	coverage html
 	coverage report
@@ -64,6 +64,8 @@ ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
 endif
 
 simpletest:
-	python manage.py test --configuration=Testing --debug-sql $(simpletestargs)
+	# You can pass more arguments as follow:
+	# $ make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
+	python manage.py test --configuration=Testing $(simpletestargs)
 
 test: check behave coverage
