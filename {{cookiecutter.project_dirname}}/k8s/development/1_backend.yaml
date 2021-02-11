@@ -60,11 +60,13 @@ spec:
                   key: AWS_ACCESS_KEY_ID
             - name: DJANGO_AWS_LOCATION
               value: "$(DJANGO_CONFIGURATION)/media"
-            - name: DJANGO_AWS_S3_ENDPOINT_URL
+            - name: DJANGO_AWS_S3_HOST
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: AWS_S3_ENDPOINT_URL
+                  key: AWS_S3_HOST
+            - name: DJANGO_AWS_S3_ENDPOINT_URL
+              values: "https://$(DJANGO_AWS_S3_HOST)"
             - name: DJANGO_AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
@@ -75,7 +77,6 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: AWS_STORAGE_BUCKET_NAME{% endif %}
-            
             - name: DJANGO_DEBUG
               valueFrom:
                 secretKeyRef:
