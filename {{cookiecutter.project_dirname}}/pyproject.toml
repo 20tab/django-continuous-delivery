@@ -22,7 +22,9 @@ atomic = true
 profile = "black"
 combine_as_imports = true
 default_section = "THIRDPARTY"
-known_first_party = ["{{cookiecutter.project_slug}}"]
+known_first_party = [
+    "{{cookiecutter.project_slug}}",
+]
 known_third_party = "django"
 
 [tool.pytest.ini_options]
