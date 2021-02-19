@@ -21,23 +21,35 @@ spec:
           ports:
             - containerPort: 8000
           env:
+            # postgres
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: POSTGRES_HOST
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: POSTGRES_PORT
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: secrets
                   key: POSTGRES_USER
+            # django
             - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-cluster-ip-service:5432/$(POSTGRES_DB)
+              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)
             - name: DJANGO_ADMINS
               valueFrom:
                 secretKeyRef:
@@ -66,7 +78,7 @@ spec:
                   name: secrets
                   key: AWS_S3_HOST
             - name: DJANGO_AWS_S3_ENDPOINT_URL
-              values: "https://$(DJANGO_AWS_S3_HOST)"
+              value: "https://$(DJANGO_AWS_S3_HOST)"
             - name: DJANGO_AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
@@ -102,6 +114,7 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: EMAIL_URL
+            # sentry
             - name: SENTRY_DSN
               valueFrom:
                 secretKeyRef:
@@ -109,6 +122,7 @@ spec:
                   key: SENTRY_DSN
             - name: SENTRY_ENVIRONMENT
               value: $(DJANGO_CONFIGURATION)
+            # uwsgi
             - name: UWSGI_WORKERS
               value: "8"
 
