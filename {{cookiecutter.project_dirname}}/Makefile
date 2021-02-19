@@ -68,4 +68,4 @@ simpletest:
 	# $ make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
 	python manage.py test --configuration=Testing $(simpletestargs)
 
-test: check behave coverage
+test: check coverage behave
