@@ -29,11 +29,11 @@ test:
     DJANGO_SETTINGS_MODULE: "{{cookiecutter.project_slug}}.settings"
     POSTGRES_PASSWORD: "postgres"
   script:
-    - python manage.py behave --simple
     - coverage run --concurrency=multiprocessing manage.py test --noinput --parallel --reverse
     - coverage combine
     - coverage html
     - coverage report
+    - python manage.py behave --simple
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
     paths:
