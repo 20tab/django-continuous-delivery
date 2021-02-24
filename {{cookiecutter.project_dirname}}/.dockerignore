@@ -1,29 +1,22 @@
 # directories
-.git
-.mypy_cache
-.pytest_cache
-.venv
-.vscode
+.*
+**/__pycache__
 **/lost+found
 htmlcov
 k8s
+media
 public
+static
 # files
-.coverage
-.dockerignore
-.editorconfig
-.env
-.env_template
-.gitignore
-.gitlab-ci.yml
-.pre-commit-config.yaml
 *.md
+*.svg
+*.txt
 **/LICENSE*
 **/README*
+docker-compose.yml
 Dockerfile
 Makefile
-pyproject.toml
+# pyproject.toml
 requirements/*.in
-requirements/common.txt
-setup.cfg
+# setup.cfg
 uwsgiconf/local.ini
