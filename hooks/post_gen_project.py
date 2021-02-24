@@ -42,11 +42,11 @@ def format_files():
 
 def generate_requirements():
     """Generate requirements files."""
-    requirements_dir = "requirements"
+    requirements_path = Path("requirements")
     PIP_COMPILE = [f"{VENV}/bin/pip-compile", "-q", "-U", "-o"]
-    for env in ["common", "dev", "prod", "tests"]:
-        output_file = f"{requirements_dir}/{env}.txt"
-        subprocess.run(PIP_COMPILE + [output_file, f"{requirements_dir}/{env}.in"])
+    for in_file in requirements_path.glob("*.in"):
+        output_file = requirements_path / f"{in_file.stem}.txt"
+        subprocess.run(PIP_COMPILE + [output_file, in_file])
         print(f"Generated '/{output_file}' file.")
 
 
