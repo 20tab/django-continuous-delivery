@@ -1,0 +1,38 @@
+version: "3.4"
+
+services:
+  backend:
+    build:
+      args:
+        USER: ${USER}
+      context: .
+      target: local
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DJANGO_ADMINS=${DJANGO_ADMINS}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_CONFIGURATION=${DJANGO_CONFIGURATION}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_DEFAULT_FROM_EMAIL=${DJANGO_DEFAULT_FROM_EMAIL}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_SERVER_EMAIL=${DJANGO_SERVER_EMAIL}
+      - EMAIL_URL=${EMAIL_URL}
+    ports:
+      - "8000:8000"
+    user: ${USER}
+    volumes:
+      - ".:/app"
+
+  postgres:
+    environment:
+      - POSTGRES_DB={{cookiecutter.project_slug}}
+      - POSTGRES_INITDB_ARGS=--no-sync
+      - POSTGRES_PASSWORD=postgres
+    image: postgres:12
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data: {}
