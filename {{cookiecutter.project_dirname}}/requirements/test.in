@@ -1,4 +1,4 @@
-# pip-compile --output-file tests.txt tests.in
+# pip-compile --output-file test.txt test.in
 -r common.in
 
 behave-django~=1.4.0
