@@ -20,7 +20,7 @@ services:
       - DJANGO_SERVER_EMAIL=${DJANGO_SERVER_EMAIL}
       - EMAIL_URL=${EMAIL_URL}
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     user: ${USER}
     volumes:
       - ".:/app"
@@ -31,6 +31,8 @@ services:
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
     image: postgres:12
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
 
