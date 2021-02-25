@@ -49,6 +49,7 @@ CMD ./scripts/test.sh
 
 FROM base AS local
 
+ARG USER=appuser
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gettext \
         graphviz \
