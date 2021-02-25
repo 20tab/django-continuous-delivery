@@ -13,8 +13,8 @@ static
 *.txt
 **/LICENSE*
 **/README*
-docker-compose.yml
-Dockerfile
+docker-compose*.yml
+Dockerfile*
 Makefile
 # pyproject.toml
 requirements/*.in
