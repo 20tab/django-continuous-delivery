@@ -65,7 +65,7 @@ $ pre-commit install
 To list all outdated installed libraries:
 
 ```shell
-$ pip list -o
+$ make outdated
 ```
 
 ### Update libraries

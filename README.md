@@ -16,7 +16,7 @@ In the following instructions:
 [Cookiecutter](https://cookiecutter.readthedocs.io) must be installed before initializing the project.
 
 ```console
-$ pip install --user cookiecutter
+$ python3 -m pip install --user cookiecutter
 ```
 
 ## 🚀️ Quickstart
