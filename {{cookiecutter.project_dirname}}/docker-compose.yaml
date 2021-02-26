@@ -23,7 +23,8 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
     user: ${USER}
     volumes:
-      - ".:/app"
+      - ".:/app"{% if cookiecutter.use_media == "Yes" %}
+      - media:/app/media{% endif %}
 
   postgres:
     environment:
@@ -36,5 +37,6 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-volumes:
+volumes:{% if cookiecutter.use_media == "Yes" %}
+  media: {}{% endif %}
   pg_data: {}
