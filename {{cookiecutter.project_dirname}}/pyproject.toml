@@ -9,11 +9,9 @@ disable_warnings = ["no-data-collected"]
 omit = [
     ".venv/*",
     "*/asgi.py",
-    "*/migrations/*",
-    "*/management/*",
-    "*/tests/*",
     "*/wsgi.py",
     "manage.py",
+    "venv/*",
 ]
 source = ["."]
 
