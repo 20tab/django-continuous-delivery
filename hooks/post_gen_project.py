@@ -13,9 +13,7 @@ VENV = ".venv"
 def create_env_file():
     """Create env file from the template."""
     env_text = Path(".env_template").read_text()
-    env_text = env_text.replace(
-        "__DATABASE_URL__", "{{cookiecutter.database_url}}"
-    ).replace("__SECRETKEY__", secrets.token_urlsafe(40))
+    env_text = env_text.replace("__SECRETKEY__", secrets.token_urlsafe(40))
     Path(".env").write_text(env_text)
     print("Generated '.env' file.")
 
