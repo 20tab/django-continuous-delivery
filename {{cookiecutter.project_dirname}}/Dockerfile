@@ -53,7 +53,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev \
         make
 COPY ./requirements/local.txt requirements/local.txt
-RUN python3 -m pip install --no-cache-dir -r requirements/local.txt
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc \
+        libc6-dev \
+    && python3 -m pip install --no-cache-dir -r requirements/local.txt \
+    && apt-get purge -y --auto-remove \
+        gcc \
+        libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
 COPY --chown=$APPUSER . .
 USER $APPUSER
 CMD python3 manage.py migrate --noinput && \
