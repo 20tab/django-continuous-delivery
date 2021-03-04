@@ -1,9 +1,10 @@
 FROM python:3.8-slim-buster AS base
 
+ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser
-ENV APPUSER=$USER DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 WORKDIR=/app
+ENV APPUSER=$USER LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 WORKDIR=/app
 WORKDIR $WORKDIR
-RUN useradd --home-dir $WORKDIR $APPUSER
+RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \
@@ -49,9 +50,11 @@ FROM base AS local
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gettext \
+        git \
         graphviz \
         libpq-dev \
-        make
+        make \
+        openssh-client
 COPY ./requirements/local.txt requirements/local.txt
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc \
