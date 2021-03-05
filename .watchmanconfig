@@ -1,0 +1,15 @@
+{
+    "ignore_dirs": [
+        ".cache",
+        ".coverages",
+        ".mypy_cache",
+        ".vscode",
+        "features",
+        "htmlcov",
+        "k8s",
+        "requirements",
+        "scripts",
+        "static",
+        "uwsgiconf"
+    ]
+}

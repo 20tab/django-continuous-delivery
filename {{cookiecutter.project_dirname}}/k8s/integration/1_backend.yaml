@@ -21,35 +21,12 @@ spec:
           ports:
             - containerPort: 8000
           env:
-            # postgres
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_DB
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_HOST
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_PORT
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: secrets
-                  key: POSTGRES_USER
             # django
             - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DATABASE_URL
             - name: DJANGO_ADMINS
               valueFrom:
                 secretKeyRef:

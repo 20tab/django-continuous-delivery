@@ -176,3 +176,6 @@ spooler/
 
 # Others
 *.bak
+.bash_history
+.local
+.ipython

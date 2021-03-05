@@ -51,6 +51,7 @@ class ProjectDefault(Configuration):
 
     MIDDLEWARE = [
         "django.middleware.security.SecurityMiddleware",
+        "whitenoise.middleware.WhiteNoiseMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
         "django.middleware.csrf.CsrfViewMiddleware",
@@ -123,7 +124,7 @@ class ProjectDefault(Configuration):
     STATIC_ROOT = BASE_DIR / "static"
 
     STATICFILES_STORAGE = (
-        "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+        "whitenoise.storage.CompressedManifestStaticFilesStorage"
     )
 
     # Stored files

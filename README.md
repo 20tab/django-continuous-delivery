@@ -16,7 +16,7 @@ In the following instructions:
 [Cookiecutter](https://cookiecutter.readthedocs.io) must be installed before initializing the project.
 
 ```console
-$ pip install --user cookiecutter
+$ python3 -m pip install --user cookiecutter
 ```
 
 ## 🚀️ Quickstart
@@ -30,7 +30,6 @@ project_name: My project name
 project_slug [myprojectname]:
 project_dirname [myprojectname]:
 domain_url [myprojectname.com]:
-database_url [postgres://postgres:postgres@postgres:5432/myprojectname]:
 gitlab_group_slug [myprojectname]:
 Select use_media:
 1 - Yes

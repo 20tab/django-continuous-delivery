@@ -43,7 +43,7 @@ flake8==3.8.4
     #   flake8-docstrings
     #   flake8-isort
     #   flake8-mypy
-identify==1.5.13
+identify==1.5.14
     # via pre-commit
 ipdb==0.13.4
     # via -r requirements.in
@@ -63,7 +63,7 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
-mypy==0.800
+mypy==0.812
     # via
     #   -r requirements.in
     #   flake8-mypy
@@ -81,7 +81,7 @@ pip-tools==5.5.0
     # via -r requirements.in
 pre-commit==2.10.1
     # via -r requirements.in
-prompt-toolkit==3.0.14
+prompt-toolkit==3.0.16
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -91,7 +91,7 @@ pydocstyle==5.1.1
     # via flake8-docstrings
 pyflakes==2.2.0
     # via flake8
-pygments==2.7.4
+pygments==2.8.0
     # via ipython
 pyupgrade==2.10.0
     # via -r requirements.in

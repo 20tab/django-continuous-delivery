@@ -1,30 +1,24 @@
 behave:
-	python manage.py behave --configuration=Testing --simple
+	./scripts/behave.sh
 
 check:
-	black -q --check .
-	isort -q --check .
-	flake8
-	mypy .
+	./scripts/check.sh
 
 collectstatic:
-	python manage.py collectstatic --clear --noinput
+	python3 manage.py collectstatic --clear --noinput
 
 compilemessages:
-	python manage.py compilemessages
+	python3 manage.py compilemessages
 
 coverage:
-	coverage run manage.py test --configuration=Testing --noinput --parallel
-	coverage combine
-	coverage html
-	coverage report
+	./scripts/coverage.sh
 
-dev:
-	pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
-	pip-sync requirements/dev.txt
+local:
+	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+	pip-sync requirements/local.txt
 
 dumpgroups:
-	python manage.py dumpdata auth.Group --indent 2 --natural-foreign --natural-primary -o fixtures/auth_groups.json
+	python3 manage.py dumpdata auth.Group --indent 2 --natural-foreign --natural-primary -o fixtures/auth_groups.json
 
 fix:
 	black .
@@ -33,30 +27,37 @@ fix:
 	mypy .
 
 graph_models:
-	python manage.py graph_models -o models.svg
+	python3 manage.py graph_models -o models.svg
 
 loadgroups:
-	python manage.py loaddata fixtures/auth_groups.json
+	python3 manage.py loaddata fixtures/auth_groups.json
 
 messages:
-	python manage.py makemessages --add-location file
+	python3 manage.py makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --all
 
 migrate:
-	python manage.py migrate --noinput
+	python3 manage.py migrate --noinput
 
 migrations:
-	python manage.py makemigrations --no-header
+	python3 manage.py makemigrations --no-header
+
+outdated:
+	python3 -m pip list --outdated
 
 pip:
-	pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+	pip-compile -q -U -o requirements/base.txt requirements/base.in
 	pip-compile -q -U -o requirements/common.txt requirements/common.in
-	pip-compile -q -U -o requirements/dev.txt requirements/dev.in
-	pip-compile -q -U -o requirements/prod.txt requirements/prod.in
-	pip-compile -q -U -o requirements/tests.txt requirements/tests.in
+	pip-compile -q -U -o requirements/local.txt requirements/local.in
+	pip-compile -q -U -o requirements/remote.txt requirements/remote.in
+	pip-compile -q -U -o requirements/test.txt requirements/test.in
 
-prod:
-	pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
-	pip-sync requirements/prod.txt
+remote:
+	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+	pip-sync requirements/remote.txt
+
+report:
+	./scripts/report.sh
 
 ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
   simpletestargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
@@ -66,6 +67,7 @@ endif
 simpletest:
 	# You can pass more arguments as follow:
 	# $ make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
-	python manage.py test --configuration=Testing $(simpletestargs)
+	python3 manage.py test --configuration=Testing $(simpletestargs)
 
-test: check behave coverage
+test:
+	./scripts/test.sh

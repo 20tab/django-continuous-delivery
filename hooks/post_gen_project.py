@@ -13,9 +13,7 @@ VENV = ".venv"
 def create_env_file():
     """Create env file from the template."""
     env_text = Path(".env_template").read_text()
-    env_text = env_text.replace(
-        "__DATABASE_URL__", "{{cookiecutter.database_url}}"
-    ).replace("__SECRETKEY__", secrets.token_urlsafe(40))
+    env_text = env_text.replace("__SECRETKEY__", secrets.token_urlsafe(40))
     Path(".env").write_text(env_text)
     print("Generated '.env' file.")
 
@@ -42,11 +40,11 @@ def format_files():
 
 def generate_requirements():
     """Generate requirements files."""
-    requirements_dir = "requirements"
+    requirements_path = Path("requirements")
     PIP_COMPILE = [f"{VENV}/bin/pip-compile", "-q", "-U", "-o"]
-    for env in ["common", "dev", "prod", "tests"]:
-        output_file = f"{requirements_dir}/{env}.txt"
-        subprocess.run(PIP_COMPILE + [output_file, f"{requirements_dir}/{env}.in"])
+    for in_file in requirements_path.glob("*.in"):
+        output_file = requirements_path / f"{in_file.stem}.txt"
+        subprocess.run(PIP_COMPILE + [output_file, in_file])
         print(f"Generated '/{output_file}' file.")
 
 
