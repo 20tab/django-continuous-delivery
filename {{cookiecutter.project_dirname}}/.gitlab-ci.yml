@@ -14,8 +14,8 @@ test:
   services:
     - docker:20-dind
   variables:
-    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/devcontinuousdelivery"
-    POSTGRES_DB: "devcontinuousdelivery"
+    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}"
+    POSTGRES_DB: "{{cookiecutter.project_slug}}"
     POSTGRES_INITDB_ARGS: "--no-sync"
     POSTGRES_PASSWORD: "postgres"
   before_script:
