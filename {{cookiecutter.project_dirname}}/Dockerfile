@@ -25,6 +25,16 @@ COPY --chown=$APPUSER ./requirements/common.txt requirements/common.txt
 RUN python3 -m pip install --no-cache-dir -r requirements/common.txt
 
 
+FROM base AS test
+
+ENV DJANGO_CONFIGURATION=Testing
+COPY --chown=$APPUSER ./requirements/test.txt requirements/test.txt
+RUN python3 -m pip install --no-cache-dir -r requirements/test.txt
+COPY --chown=$APPUSER . .
+USER $APPUSER
+CMD ./scripts/test.sh
+
+
 FROM base AS remote
 
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
@@ -34,16 +44,6 @@ USER $APPUSER
 CMD python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --clear --noinput && \
     uwsgi uwsgiconf/docker.ini
-
-
-FROM base AS test
-
-ENV DJANGO_CONFIGURATION=Testing
-COPY --chown=$APPUSER ./requirements/test.txt requirements/test.txt
-RUN python3 -m pip install --no-cache-dir -r requirements/test.txt
-COPY --chown=$APPUSER . .
-USER $APPUSER
-CMD ./scripts/test.sh
 
 
 FROM base AS local
