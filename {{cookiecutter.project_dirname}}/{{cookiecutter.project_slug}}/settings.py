@@ -123,10 +123,6 @@ class ProjectDefault(Configuration):
 
     STATIC_ROOT = BASE_DIR / "static"
 
-    STATICFILES_STORAGE = (
-        "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    )
-
     # Stored files
     # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.use_media == "Yes" %}  # noqa
 
@@ -177,6 +173,11 @@ class Local(ProjectDefault):
     INSTALLED_APPS = ProjectDefault.INSTALLED_APPS.copy()
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
+
+    # Secure Proxy SSL Header
+    # https://docs.djangoproject.com/en/stable/ref/settings/#secure-proxy-ssl-header
+
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
     # Django Debug Toolbar
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
@@ -282,6 +283,11 @@ class Testing(ProjectDefault):
 
 class Remote(ProjectDefault):
     """The remote settings."""
+
+    # Static files (CSS, JavaScript, Images)
+    # https://docs.djangoproject.com/en/stable/howto/static-files/
+
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
     # Sentry
     # https://sentry.io/for/django/
