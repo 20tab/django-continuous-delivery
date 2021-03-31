@@ -13,8 +13,7 @@ compilemessages:
 coverage:
 	./scripts/coverage.sh
 
-local:
-	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+local: pip_update
 	pip-sync requirements/local.txt
 
 dumpgroups:
@@ -44,16 +43,17 @@ migrations:
 outdated:
 	python3 -m pip list --outdated
 
-pip:
-	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+pip: pip_update
 	pip-compile -q -U -o requirements/base.txt requirements/base.in
 	pip-compile -q -U -o requirements/common.txt requirements/common.in
 	pip-compile -q -U -o requirements/local.txt requirements/local.in
 	pip-compile -q -U -o requirements/remote.txt requirements/remote.in
 	pip-compile -q -U -o requirements/test.txt requirements/test.in
 
-remote:
-	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=5.5.0
+pip_update:
+	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=6.0.0
+
+remote: pip_update
 	pip-sync requirements/remote.txt
 
 report:
@@ -65,7 +65,7 @@ ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
 endif
 
 simpletest:
-	# You can pass more arguments as follow:
+	# You can pass more arguments as follows:
 	# $ make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
 	python3 manage.py test --configuration=Testing $(simpletestargs)
 
