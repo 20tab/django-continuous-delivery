@@ -163,6 +163,11 @@ class ProjectDefault(Configuration):
 
     X_FRAME_OPTIONS = "SAMEORIGIN"  # Default: 'SAMEORIGIN'
 
+    # Default primary key field type
+    # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
+
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 class Local(ProjectDefault):
     """The local settings."""
@@ -176,7 +181,7 @@ class Local(ProjectDefault):
     # Secure Proxy SSL Header
     # https://docs.djangoproject.com/en/stable/ref/settings/#secure-proxy-ssl-header
 
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
     # Django Debug Toolbar
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
@@ -263,7 +268,7 @@ class Testing(ProjectDefault):
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
     # The MD5 based password hasher is much less secure but faster
-    # https://docs.djangoproject.com/en/3.1/topics/auth/passwords/
+    # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
 
     PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
