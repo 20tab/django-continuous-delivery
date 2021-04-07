@@ -99,8 +99,8 @@ spec:
                   key: SENTRY_DSN
             - name: SENTRY_ENVIRONMENT
               value: $(DJANGO_CONFIGURATION)
-            # uwsgi
-            - name: UWSGI_WORKERS
+            # gunicorn
+            - name: WEB_CONCURRENCY
               value: "8"
 
 ---

@@ -1,8 +1,8 @@
 # pip-compile --output-file remote.txt remote.in
 -r common.in
 
-# for s3
 django-storages[boto3]~=1.11.0
-# for sentry
+gunicorn~=20.0.0
 sentry-sdk~=0.19.0
+uvicorn[standard]~=0.13.0
 whitenoise[brotli]~=5.2.0
