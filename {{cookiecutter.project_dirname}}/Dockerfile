@@ -43,7 +43,7 @@ COPY --chown=$APPUSER . .
 USER $APPUSER
 CMD python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --clear --noinput && \
-    uwsgi uwsgiconf/docker.ini
+    gunicorn mangiatutto.asgi:application
 
 
 FROM base AS local

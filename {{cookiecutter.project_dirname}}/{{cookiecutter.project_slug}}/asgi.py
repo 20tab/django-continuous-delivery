@@ -9,10 +9,14 @@ https://docs.djangoproject.com/en/stable/howto/deployment/asgi/
 
 import os
 
+import configurations
 from django.core.asgi import get_asgi_application
 
+os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "{{cookiecutter.project_slug}}.settings"
 )
+
+configurations.setup()
 
 application = get_asgi_application()
