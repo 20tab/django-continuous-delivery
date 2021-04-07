@@ -51,7 +51,6 @@ class ProjectDefault(Configuration):
 
     MIDDLEWARE = [
         "django.middleware.security.SecurityMiddleware",
-        "whitenoise.middleware.WhiteNoiseMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
         "django.middleware.csrf.CsrfViewMiddleware",
@@ -284,8 +283,12 @@ class Testing(ProjectDefault):
 class Remote(ProjectDefault):
     """The remote settings."""
 
-    # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/stable/howto/static-files/
+    # WhiteNoise
+    # http://whitenoise.evans.io/en/stable/django.html
+
+    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
+
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
