@@ -179,3 +179,4 @@ spooler/
 .bash_history
 .local
 .ipython
+*.local*
