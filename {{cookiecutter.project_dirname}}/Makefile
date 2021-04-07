@@ -13,9 +13,6 @@ compilemessages:
 coverage:
 	./scripts/coverage.sh
 
-local: pip_update
-	pip-sync requirements/local.txt
-
 dumpgroups:
 	python3 manage.py dumpdata auth.Group --indent 2 --natural-foreign --natural-primary -o fixtures/auth_groups.json
 
@@ -31,8 +28,11 @@ graph_models:
 loadgroups:
 	python3 manage.py loaddata fixtures/auth_groups.json
 
+local: pip_update
+	pip-sync requirements/local.txt
+
 messages:
-	python3 manage.py makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --all
+	python3 manage.py makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --ignore gunicorn.conf.py -l it
 
 migrate:
 	python3 manage.py migrate --noinput
