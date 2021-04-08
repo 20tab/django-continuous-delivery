@@ -153,6 +153,11 @@ class ProjectDefault(Configuration):
 
     EMAIL = values.EmailURLValue("console://")
 
+    # Cache URL
+    # https://django-configurations.readthedocs.io/en/stable/values/
+
+    CACHES = values.CacheURLValue("locmem://")
+
     # Translation
     # https://docs.djangoproject.com/en/stable/topics/i18n/translation/
 
