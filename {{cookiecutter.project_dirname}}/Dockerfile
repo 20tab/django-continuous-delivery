@@ -43,7 +43,7 @@ COPY --chown=$APPUSER . .
 USER $APPUSER
 CMD python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --clear --noinput && \
-    gunicorn mangiatutto.asgi:application
+    gunicorn {{cookiecutter.project_dirname}}.asgi:application
 
 
 FROM base AS local

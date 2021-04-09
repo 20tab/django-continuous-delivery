@@ -28,7 +28,7 @@ services:
 
   postgres:
     environment:
-      - POSTGRES_DB=mangiatutto
+      - POSTGRES_DB={{cookiecutter.project_slug}}
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
     image: postgres:12
