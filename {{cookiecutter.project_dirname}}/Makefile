@@ -51,7 +51,7 @@ pip: pip_update
 	pip-compile -q -U -o requirements/test.txt requirements/test.in
 
 pip_update:
-	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=6.0.0 setuptools~=54.2.0 wheel~=0.36.0
+	python3 -m pip install -q -U pip~=21.0.0 pip-tools~=6.0.0 setuptools~=56.0.0 wheel~=0.36.0
 
 remote: pip_update
 	pip-sync requirements/remote.txt
