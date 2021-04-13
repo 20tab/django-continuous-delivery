@@ -60,6 +60,14 @@ $ pre-commit install
 
 ## Libraries
 
+### Self documentation of Makefile commands
+
+To show the Makefile self documentation help:
+
+```shell
+$ make
+```
+
 ### List outdated libraries
 
 To list all outdated installed libraries:
