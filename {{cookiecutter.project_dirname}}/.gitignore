@@ -157,7 +157,7 @@ cython_debug/
 [._]*.un~
 
 # VisualStudioCode
-.devcontainer/
+.devcontainer*
 .vscode/
 
 # Redis
