@@ -57,8 +57,8 @@ build:
   before_script:
     - "docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY"
   script:
-    - "docker pull $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION_BEFORE_REF || true"
-    - "docker build --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION_BEFORE_REF -t $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION_REF --target remote --pull ."
+    - "docker pull $CI_REGISTRY/$CI_PROJECT_PATH:test-$VERSION_REF || true"
+    - "docker build --cache-from $CI_REGISTRY/$CI_PROJECT_PATH:test-$VERSION_REF -t $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION_REF --target remote --pull ."
     - "docker push $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION_REF"
   after_script:
     - "docker logout $CI_REGISTRY"
