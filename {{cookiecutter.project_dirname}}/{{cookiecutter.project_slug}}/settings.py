@@ -293,6 +293,45 @@ class Testing(ProjectDefault):
 class Remote(ProjectDefault):
     """The remote settings."""
 
+    # Debug
+    # https://docs.djangoproject.com/en/stable/ref/settings/#debug
+
+    DEBUG = False
+
+    # Email URL
+    # https://django-configurations.readthedocs.io/en/stable/values/
+
+    EMAIL = values.EmailURLValue()
+
+    # Security
+    # https://docs.djangoproject.com/en/stable/topics/security/
+
+    CSRF_COOKIE_SECURE = True
+
+    SECURE_BROWSER_XSS_FILTER = True
+
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    SECURE_HSTS_SECONDS = 60
+
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+    SECURE_SSL_REDIRECT = False
+
+    SECURE_HSTS_PRELOAD = True
+
+    X_FRAME_OPTIONS = "DENY"
+
+    # Persistent connections
+    # https://docs.djangoproject.com/en/stable/ref/databases/#general-notes
+
+    CONN_MAX_AGE = None
+
+    # Session auth
+    # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
+
+    SESSION_COOKIE_SECURE = True
+
     # WhiteNoise
     # http://whitenoise.evans.io/en/stable/django.html
 
@@ -359,7 +398,7 @@ class Development(Remote):
     # Debug
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
 
-    DEBUG = values.BooleanValue(False)
+    DEBUG = False
 
 
 class Integration(Remote):
@@ -378,20 +417,3 @@ class Production(Remote):
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
 
     DEBUG = False
-
-    # Email URL
-    # https://django-configurations.readthedocs.io/en/stable/values/
-
-    EMAIL = values.EmailURLValue()
-
-    # Security
-    # https://docs.djangoproject.com/en/stable/topics/security/
-
-    SECURE_BROWSER_XSS_FILTER = True
-
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-
-    # Persistent connections
-    # https://docs.djangoproject.com/en/stable/ref/databases/#general-notes
-
-    # CONN_MAX_AGE = None
