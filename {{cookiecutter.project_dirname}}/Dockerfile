@@ -32,7 +32,7 @@ COPY --chown=$APPUSER ./requirements/test.txt requirements/test.txt
 RUN python3 -m pip install --no-cache-dir -r requirements/test.txt
 COPY --chown=$APPUSER . .
 USER $APPUSER
-CMD ./scripts/test.sh
+CMD ./scripts/test.sh --reverse
 
 
 FROM base AS remote
