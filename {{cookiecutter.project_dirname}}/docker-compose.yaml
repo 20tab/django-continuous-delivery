@@ -7,11 +7,13 @@ services:
       args:
         USER: ${USER}
       context: .
-      target: ${BACKEND_TARGET:-local}
+      target: ${BACKEND_BUILD_TARGET:-remote}
+    image: ${BACKEND_IMAGE_NAME:-{{cookiecutter.project_slug}}_backend}:${BACKEND_IMAGE_TAG:-latest}
     depends_on:
       - postgres
     environment:
-      - DATABASE_URL
+      - CACHE_URL
+      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}}
       - DJANGO_ADMINS
       - DJANGO_ALLOWED_HOSTS
       - DJANGO_CONFIGURATION
@@ -19,19 +21,18 @@ services:
       - DJANGO_DEFAULT_FROM_EMAIL
       - DJANGO_SECRET_KEY
       - DJANGO_SERVER_EMAIL
+      - DJANGO_SESSION_COOKIE_DOMAIN
       - EMAIL_URL
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     user: ${USER}
-    volumes:
-      - ".:/app"
 
   postgres:
     environment:
       - POSTGRES_DB={{cookiecutter.project_slug}}
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
-    image: postgres:12
+    image: postgres:13
     volumes:
       - pg_data:/var/lib/postgresql/data
 
