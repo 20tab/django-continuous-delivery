@@ -4,3 +4,6 @@ target-version = ["py38"]
 [tool.isort]
 atomic = true
 profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = true
