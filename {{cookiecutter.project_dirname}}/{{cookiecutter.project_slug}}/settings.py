@@ -175,6 +175,11 @@ class ProjectDefault(Configuration):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+    # Session auth
+    # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
+
+    SESSION_COOKIE_DOMAIN = values.Value()
+
 
 class Local(ProjectDefault):
     """The local settings."""
