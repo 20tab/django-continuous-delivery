@@ -101,8 +101,8 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: SENTRY_DSN
-            - name: DJANGO_SENTRY_DSN
+                  key: DJANGO_SENTRY_DSN
+            - name: SENTRY_ENVIRONMENT
               value: $(DJANGO_CONFIGURATION)
             # gunicorn
             - name: WEB_CONCURRENCY
