@@ -77,6 +77,8 @@ class ProjectDefault(Configuration):
         },
     ]
 
+    ASGI_APPLICATION = "{{cookiecutter.project_slug}}.asgi.application"
+
     WSGI_APPLICATION = "{{cookiecutter.project_slug}}.wsgi.application"
 
     # Database
@@ -173,6 +175,11 @@ class ProjectDefault(Configuration):
 
     DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+    # Session auth
+    # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
+
+    SESSION_COOKIE_DOMAIN = values.Value()
+
 
 class Local(ProjectDefault):
     """The local settings."""
@@ -266,6 +273,11 @@ class Testing(ProjectDefault):
     # https://django-configurations.readthedocs.io/en/stable/values/
 
     EMAIL = "dummy://"
+
+    # Cache URL
+    # https://django-configurations.readthedocs.io/en/stable/values/
+
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 
     # During testing, ensure that the STATICFILES_STORAGE setting is set to the default.
     # https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/
@@ -390,30 +402,3 @@ class Remote(ProjectDefault):
             ):
                 return "storages.backends.s3boto3.S3Boto3Storage"  # pragma: no cover
             return "django.core.files.storage.FileSystemStorage"  # noqa {% endif %}
-
-
-class Development(Remote):
-    """The development settings."""
-
-    # Debug
-    # https://docs.djangoproject.com/en/stable/ref/settings/#debug
-
-    DEBUG = False
-
-
-class Integration(Remote):
-    """The integratrion settings."""
-
-    # Debug
-    # https://docs.djangoproject.com/en/stable/ref/settings/#debug
-
-    DEBUG = False
-
-
-class Production(Remote):
-    """The production settings."""
-
-    # Debug
-    # https://docs.djangoproject.com/en/stable/ref/settings/#debug
-
-    DEBUG = False

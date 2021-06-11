@@ -20,4 +20,4 @@ pip: pip_update
 	pip-compile -q -U -o requirements.txt requirements.in
 
 pip_update:
-	python3 -m pip install -q -U pip~=21.1.0 pip-tools~=6.1.0 setuptools~=56.0.0 wheel~=0.36.0
+	python3 -m pip install -q -U pip~=21.1.0 pip-tools~=6.1.0 setuptools~=57.0.0 wheel~=0.36.0

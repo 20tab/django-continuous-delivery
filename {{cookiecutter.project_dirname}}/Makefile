@@ -13,14 +13,20 @@ compilemessages:
 coverage:
 	./scripts/coverage.sh
 
+createsuperuser:
+	python3 manage.py createsuperuser --noinput
+
 dumpgroups:
-	python3 manage.py dumpdata auth.Group --indent 2 --natural-foreign --natural-primary -o fixtures/auth_groups.json
+	python3 manage.py dumpdata auth.Group --natural-foreign --natural-primary -o fixtures/auth_groups.json
 
 fix:
 	black .
 	isort .
 	flake8
 	mypy .
+
+flush:
+	python manage.py flush --noinput
 
 graph_models:
 	python3 manage.py graph_models -o models.svg
@@ -51,7 +57,7 @@ pip: pip_update
 	pip-compile -q -U -o requirements/test.txt requirements/test.in
 
 pip_update:
-	python3 -m pip install -q -U pip~=21.1.0 pip-tools~=6.1.0 setuptools~=56.0.0 wheel~=0.36.0
+	python3 -m pip install -q -U pip~=21.1.0 pip-tools~=6.1.0 setuptools~=57.0.0 wheel~=0.36.0
 
 remote: pip_update
 	pip-sync requirements/remote.txt

@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster AS base
+FROM python:3.9-slim-buster AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser

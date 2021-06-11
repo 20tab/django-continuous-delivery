@@ -22,6 +22,11 @@ spec:
             - containerPort: 8000
           env:
             # django
+            - name: CACHE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: CACHE_URL
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -96,7 +101,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: secrets
-                  key: SENTRY_DSN
+                  key: DJANGO_SENTRY_DSN
             - name: SENTRY_ENVIRONMENT
               value: $(DJANGO_CONFIGURATION)
             # gunicorn

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-black -q --check .
-isort -q --check .
+set -ex
+
+black --check .
+isort --check .
 flake8
 mypy .
