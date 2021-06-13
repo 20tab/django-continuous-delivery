@@ -38,7 +38,9 @@ sentry_release:
 
 test:
   stage: Test
-  image: docker:20
+  image: docker/compose:debian-1.29.2
+  services:
+    - docker:20-dind
   variables:
     COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
     BACKEND_CONTAINER_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}_backend"
