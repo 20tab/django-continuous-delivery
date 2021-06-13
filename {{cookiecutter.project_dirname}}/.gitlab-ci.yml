@@ -8,9 +8,9 @@ stages:
 variables:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
-  SENTRY_ORG: 20tab
+  SENTRY_ORG: $SENTRY_ORG
   SENTRY_PROJECT_NAME: {{cookiecutter.project_slug}}-backend
-  SENTRY_URL: https://sentry.20tab.com/
+  SENTRY_URL: $SENTRY_URL
   VERSION_BEFORE_REF: $CI_COMMIT_BEFORE_SHA
   VERSION_REF: $CI_COMMIT_SHA
 
