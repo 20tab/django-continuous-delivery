@@ -5,7 +5,7 @@ services:
   backend:
     build:
       args:
-        USER: ${USER}
+        USER: ${USER:-appuser}
       context: .
       target: ${BACKEND_BUILD_TARGET:-remote}
     image: ${BACKEND_IMAGE_NAME:-{{cookiecutter.project_slug}}_backend}:${BACKEND_IMAGE_TAG:-latest}
@@ -25,7 +25,7 @@ services:
       - EMAIL_URL
     ports:
       - "${BACKEND_PORT:-8000}:8000"
-    user: ${USER}
+    user: ${USER:-appuser}
 
   postgres:
     environment:
