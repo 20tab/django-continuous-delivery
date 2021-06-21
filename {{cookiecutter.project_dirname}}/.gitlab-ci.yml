@@ -17,6 +17,8 @@ variables:
 sentry_release:
   stage: .pre
   image: docker:20
+  services:
+    - docker:20-dind
   script:
     - RELEASE_START=$(date +%s)
     - >
@@ -27,7 +29,7 @@ sentry_release:
       -e SENTRY_DSN
       -e SENTRY_ORG
       -e SENTRY_URL
-      getsentry/sentry-cli sh -c
+      getsentry/sentry-cli:latest sh -c
       "sentry-cli releases new $VERSION_REF -p $SENTRY_PROJECT_NAME --log-level=debug;
       sentry-cli releases set-commits $VERSION_REF --auto;
       sentry-cli releases finalize $VERSION_REF"
@@ -42,11 +44,11 @@ test:
   services:
     - docker:20-dind
   variables:
-    COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
     BACKEND_CONTAINER_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}_backend"
     BACKEND_BUILD_TARGET: "test"
     BACKEND_IMAGE_NAME: "gitlabci_{{cookiecutter.project_slug}}_backend"
     BACKEND_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
+    COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
   script:
     - docker-compose build
     - docker-compose run --name ${BACKEND_CONTAINER_NAME} backend
@@ -91,16 +93,45 @@ build:
     - master
     - tags
 
+.development:
+  variables:
+    DEPLOY_ENVIRONMENT: development
+  environment:
+    name: Development
+    url: https://dev.{{cookiecutter.domain_url}}
+  only:
+    - develop
+
+.integration:
+  variables:
+    DEPLOY_ENVIRONMENT: integration
+  environment:
+    name: Integration
+    url: https://test.{{cookiecutter.domain_url}}
+  only:
+    - master
+
+.production:
+  variables:
+    DEPLOY_ENVIRONMENT: production
+  environment:
+    name: Production
+    url: https://www.{{cookiecutter.domain_url}}
+  only:
+    - tags
+
 .deploy-base:
   stage: Deploy
   image:
     name: docker:20
+  services:
+    - docker:20-dind
   script:
     - >
       docker run --rm -v $PWD:/app -v $KUBE_CA_PEM_FILE:$KUBE_CA_PEM_FILE
       -e KUBECONFIG=/tmp/.kube/config
+      -e DEPLOY_ENVIRONMENT
       -e DEPLOY_VERSION
-      -e CI_ENVIRONMENT_SLUG
       -e KUBE_CA_PEM_FILE
       -e KUBE_TOKEN
       -e KUBE_URL
@@ -112,61 +143,48 @@ build:
   before_script:
     - export DEPLOY_VERSION=$VERSION_REF
 
+deploy_development:
+  extends:
+    - .development
+    - .deploy
+
+deploy_integration:
+  extends:
+    - .integration
+    - .deploy
+
+deploy_production:
+  extends:
+    - .production
+    - .deploy
+
 .rollback:
   extends: .deploy-base
   before_script:
     - export DEPLOY_VERSION=$VERSION_BEFORE_REF
-
-deploy_development:
-  environment:
-    name: development
-  extends: .deploy
-  only:
-    - develop
+  when: manual
 
 rollback_development:
-  environment:
-    name: development
-  extends: .rollback
-  only:
-    - develop
-  when: manual
-
-deploy_integration:
-  environment:
-    name: integration
-  extends: .deploy
-  only:
-    - master
+  extends:
+    - .development
+    - .rollback
 
 rollback_integration:
-  environment:
-    name: integration
-  extends: .rollback
-  only:
-    - master
-  when: manual
-
-deploy_production:
-  environment:
-    name: production
-  extends: .deploy
-  only:
-    - tags
+  extends:
+    - .integration
+    - .rollback
 
 rollback_production:
-  environment:
-    name: production
-  extends: .rollback
-  only:
-    - tags
-  when: manual
-
+  extends:
+    - .production
+    - .rollback
 
 .sentry_deploy_success:
   stage: Sentry
   when: on_success
   image: docker:20
+  services:
+    - docker:20-dind
   script:
     - RELEASE_END=$(date +%s)
     - >
@@ -175,7 +193,7 @@ rollback_production:
       -e SENTRY_DSN
       -e SENTRY_ORG
       -e SENTRY_URL
-      getsentry/sentry-cli sentry-cli releases deploys $VERSION_REF new -e $SENTRY_ENV -t $((RELEASE_END-RELEASE_START))
+      getsentry/sentry-cli:latest sentry-cli releases deploys $VERSION_REF new -e $SENTRY_ENV -t $((RELEASE_END-RELEASE_START))
 
 sentry_success_development:
   extends: .sentry_deploy_success
@@ -202,6 +220,8 @@ sentry_success_production:
   stage: Sentry
   when: on_failure
   image: docker:20
+  services:
+    - docker:20-dind
   script:
     - >
       docker run --rm
@@ -209,7 +229,7 @@ sentry_success_production:
       -e SENTRY_DSN
       -e SENTRY_ORG
       -e SENTRY_URL
-      getsentry/sentry-cli sentry-cli send-event -m "Deploy to $SENTRY_ENV failed."
+      getsentry/sentry-cli:latest sentry-cli send-event -m "Deploy to $SENTRY_ENV failed."
 
 sentry_failure_development:
   extends: .sentry_deploy_failure
