@@ -91,6 +91,11 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: DJANGO_SERVER_EMAIL
+            - name: DJANGO_SESSION_COOKIE_DOMAIN
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: DJANGO_SESSION_COOKIE_DOMAIN
             - name: EMAIL_URL
               valueFrom:
                 secretKeyRef:
