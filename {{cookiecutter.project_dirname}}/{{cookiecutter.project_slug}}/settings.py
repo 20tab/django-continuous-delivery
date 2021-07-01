@@ -301,6 +301,13 @@ class Testing(ProjectDefault):
     else:  # pragma: no cover
         INSTALLED_APPS.append("behave_django")
 
+    # Stored files
+    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.use_media == "Yes" %}  # noqa
+
+    MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"  # noqa{% else %}
+
+    # MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"{% endif %}
+
 
 class Remote(ProjectDefault):
     """The remote settings."""
