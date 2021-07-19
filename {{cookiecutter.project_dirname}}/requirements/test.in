@@ -1,6 +1,7 @@
 # pip-compile --output-file test.txt test.in
 -r common.in
 
+bandit~=1.6.0
 behave-django~=1.4.0
 black~=21.6b0
 coverage[toml]~=5.5.0

@@ -21,6 +21,11 @@ repos:
         args: ["--remove"]
       - id: mixed-line-ending
       - id: trailing-whitespace
+  - repo: https://github.com/PyCQA/bandit
+    rev: "1.7.0"
+    hooks:
+      - id: bandit
+        args: ["--exclude", ".venv,tests"]
   - repo: https://github.com/psf/black
     rev: "21.6b0"
     hooks:
