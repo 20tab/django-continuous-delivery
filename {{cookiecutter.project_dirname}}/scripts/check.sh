@@ -6,3 +6,4 @@ black --check .
 isort --check .
 flake8
 mypy .
+bandit -r .
