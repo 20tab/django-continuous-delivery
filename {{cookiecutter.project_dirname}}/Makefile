@@ -25,11 +25,12 @@ createsuperuser:  ## Django createsuperuser
 	python3 manage.py createsuperuser --noinput
 
 .PHONY: dumpgroups
-dumpgroups:  ## Django dump auth.Group data 
+dumpgroups:  ## Django dump auth.Group data
 	python3 manage.py dumpdata auth.Group --natural-foreign --natural-primary -o fixtures/auth_groups.json
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
+	bandit -r -q -x tests .
 	black .
 	isort .
 	flake8
@@ -44,7 +45,7 @@ graph_models:  ## Django generate graph models
 	python3 manage.py graph_models -o models.svg
 
 .PHONY: loadgroups
-loadgroups:  ## Django load auth.Group data 
+loadgroups:  ## Django load auth.Group data
 	python3 manage.py loaddata fixtures/auth_groups.json
 
 .PHONY: local
@@ -77,7 +78,7 @@ pip: pip_update  ## Compile requirements
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=21.1.0 pip-tools~=6.1.0 setuptools~=57.0.0 wheel~=0.36.0
+	python3 -m pip install -q -U pip~=21.2.0 pip-tools~=6.2.0 setuptools~=57.4.0 wheel~=0.36.0
 
 .PHONY: remote
 remote: pip_update  ## Install remote requirements and dependencies
@@ -103,6 +104,6 @@ test:  ## Run test
 	./scripts/test.sh
 
 .PHONY: help
-help: 
+help:
 	@echo "[Help] Makefile list commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

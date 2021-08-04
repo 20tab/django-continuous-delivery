@@ -409,3 +409,15 @@ class Remote(ProjectDefault):
             ):
                 return "storages.backends.s3boto3.S3Boto3Storage"  # pragma: no cover
             return "django.core.files.storage.FileSystemStorage"  # noqa {% endif %}
+
+
+class Development(Remote):
+    """The development settings."""
+
+
+class Integration(Remote):
+    """The integratrion settings."""
+
+
+class Production(Remote):
+    """The production settings."""

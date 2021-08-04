@@ -4,4 +4,4 @@ set -ex
 
 coverage combine
 coverage html
-coverage report
+coverage report -m

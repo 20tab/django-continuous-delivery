@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ["py38"]
+target-version = ["py39"]
 
 [tool.coverage.run]
 branch = true
@@ -10,7 +10,7 @@ omit = [
     ".venv/*",
     "*/asgi.py",
     "*/wsgi.py",
-    "manage.py",
+    "manage*.py",
     "venv/*",
 ]
 source = ["."]
@@ -24,6 +24,13 @@ known_first_party = [
     "{{cookiecutter.project_slug}}",
 ]
 known_third_party = "django"
+skip = [
+    ".vscode-server",
+]
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
