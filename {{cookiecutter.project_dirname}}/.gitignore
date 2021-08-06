@@ -180,3 +180,6 @@ spooler/
 .local
 .ipython
 *.local*
+/data/
+/manage_local.py
+/media_test
