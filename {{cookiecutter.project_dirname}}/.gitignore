@@ -22,7 +22,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -143,11 +142,10 @@ cython_debug/
 
 # END https://github.com/github/gitignore/blob/master/Python.gitignore
 
+# START local
+
 # JetBrains
 .idea/
-
-# Eclipse / Kate
-*.swp
 
 # SublimeText
 *.sublime-project
@@ -170,10 +168,6 @@ cython_debug/
 /static/
 media/
 
-# uWSGI
-*.log*
-spooler/
-
 # Others
 *.bak
 .bash_history
@@ -183,3 +177,5 @@ spooler/
 /data/
 /manage_local.py
 /media_test
+
+# END local
