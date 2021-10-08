@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster AS base
+FROM python:3.9-slim-bullseye AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser
@@ -8,7 +8,6 @@ RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \
-        mime-support \
     && rm -rf /var/lib/apt/lists/*
 COPY --chown=$APPUSER ./requirements/base.txt requirements/base.txt
 RUN apt-get update && apt-get install -y --no-install-recommends \

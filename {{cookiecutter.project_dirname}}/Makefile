@@ -30,11 +30,11 @@ dumpgroups:  ## Django dump auth.Group data
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
-	bandit -r -q -x tests .
 	black .
 	isort .
 	flake8
 	mypy .
+	bandit -r -q -x tests .
 
 .PHONY: flush
 flush:  ## Django flush
@@ -53,7 +53,7 @@ local: pip_update  ## Install local requirements and dependencies
 	pip-sync requirements/local.txt
 
 .PHONY: messages
-messages:  # Django makemessages
+messages:  ## Django makemessages
 	python3 manage.py makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --ignore gunicorn.conf.py -l it
 
 .PHONY: migrate
