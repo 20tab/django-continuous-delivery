@@ -19,6 +19,8 @@ sentry_release:
   image: docker:20
   services:
     - docker:20-dind
+  rules:
+    - if: ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_TAG) && $SENTRY_DSN
   script:
     - RELEASE_START=$(date +%s)
     - >
@@ -33,10 +35,6 @@ sentry_release:
       "sentry-cli releases new $VERSION_REF -p $SENTRY_PROJECT_NAME --log-level=debug;
       sentry-cli releases set-commits $VERSION_REF --auto;
       sentry-cli releases finalize $VERSION_REF"
-  only:
-    - develop
-    - master
-    - tags
 
 test:
   stage: Test
@@ -181,7 +179,6 @@ rollback_production:
 
 .sentry_deploy_success:
   stage: Sentry
-  when: on_success
   image: docker:20
   services:
     - docker:20-dind
@@ -197,28 +194,30 @@ rollback_production:
 
 sentry_success_development:
   extends: .sentry_deploy_success
-  variables:
-    SENTRY_ENV: Development
-  only:
-    - develop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $SENTRY_DSN
+      when: on_success
+      variables:
+        SENTRY_ENV: Development
 
 sentry_success_integration:
   extends: .sentry_deploy_success
-  variables:
-    SENTRY_ENV: Integration
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $SENTRY_DSN
+      when: on_success
+      variables:
+        SENTRY_ENV: Integration
 
 sentry_success_production:
   extends: .sentry_deploy_success
-  variables:
-    SENTRY_ENV: Production
-  only:
-    - tags
+  rules:
+    - if: $CI_COMMIT_TAG && $SENTRY_DSN
+      when: on_success
+      variables:
+        SENTRY_ENV: Production
 
 .sentry_deploy_failure:
   stage: Sentry
-  when: on_failure
   image: docker:20
   services:
     - docker:20-dind
@@ -233,21 +232,24 @@ sentry_success_production:
 
 sentry_failure_development:
   extends: .sentry_deploy_failure
-  variables:
-    SENTRY_ENV: Development
-  only:
-    - develop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $SENTRY_DSN
+      when: on_failure
+      variables:
+        SENTRY_ENV: Development
 
 sentry_failure_integration:
   extends: .sentry_deploy_failure
-  variables:
-    SENTRY_ENV: Integration
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $SENTRY_DSN
+      when: on_failure
+      variables:
+        SENTRY_ENV: Integration
 
 sentry_failure_production:
   extends: .sentry_deploy_failure
-  variables:
-    SENTRY_ENV: Production
-  only:
-    - tags
+  rules:
+    - if: $CI_COMMIT_TAG && $SENTRY_DSN
+      when: on_failure
+      variables:
+        SENTRY_ENV: Production

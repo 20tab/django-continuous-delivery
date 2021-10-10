@@ -36,10 +36,11 @@ Select use_media:
 2 - No
 Choose from 1, 2 [1]:
 Generated '.env' file.
+Generated '/requirements/remote.txt' file.
 Generated '/requirements/common.txt' file.
-Generated '/requirements/dev.txt' file.
-Generated '/requirements/prod.txt' file.
-Generated '/requirements/tests.txt' file.
+Generated '/requirements/test.txt' file.
+Generated '/requirements/base.txt' file.
+Generated '/requirements/local.txt' file.
 Generated '/static' directory.
 Generated '/media' directory.
 $ cd myprojectname

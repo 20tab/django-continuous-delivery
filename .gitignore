@@ -22,7 +22,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -142,15 +141,10 @@ cython_debug/
 
 # END https://github.com/github/gitignore/blob/master/Python.gitignore
 
+# START local
+
 # JetBrains
 .idea/
-
-# Eclipse / Kate
-*.swp
-
-# SublimeText
-*.sublime-project
-*.sublime-workspace
 
 # Vim
 [._]*.un~
@@ -164,3 +158,5 @@ cython_debug/
 
 # requirements
 */requirements/*.txt
+
+# END local
