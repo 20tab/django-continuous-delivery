@@ -34,7 +34,6 @@ fix:  ## Fix code formatting, linting and sorting imports
 	python3 -m isort .
 	python3 -m flake8
 	python3 -m mypy .
-	python3 -m bandit -r -q -x tests .
 
 .PHONY: flush
 flush:  ## Django flush
