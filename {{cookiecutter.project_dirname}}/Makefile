@@ -30,15 +30,14 @@ dumpgroups:  ## Django dump auth.Group data
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
-	black .
-	isort .
-	flake8
-	mypy .
-	bandit -r -q -x tests .
+	python3 -m black .
+	python3 -m isort .
+	python3 -m flake8
+	python3 -m mypy .
 
 .PHONY: flush
 flush:  ## Django flush
-	python manage.py flush --noinput
+	python3 manage.py flush --noinput
 
 .PHONY: graph_models
 graph_models:  ## Django generate graph models
@@ -50,7 +49,7 @@ loadgroups:  ## Django load auth.Group data
 
 .PHONY: local
 local: pip_update  ## Install local requirements and dependencies
-	pip-sync requirements/local.txt
+	python3 -m piptools sync requirements/local.txt
 
 .PHONY: messages
 messages:  ## Django makemessages
@@ -70,11 +69,11 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	pip-compile -q -U -o requirements/base.txt requirements/base.in
-	pip-compile -q -U -o requirements/common.txt requirements/common.in
-	pip-compile -q -U -o requirements/local.txt requirements/local.in
-	pip-compile -q -U -o requirements/remote.txt requirements/remote.in
-	pip-compile -q -U -o requirements/test.txt requirements/test.in
+	python3 -m piptools compile -q -U -o requirements/base.txt requirements/base.in
+	python3 -m piptools compile -q -U -o requirements/common.txt requirements/common.in
+	python3 -m piptools compile -q -U -o requirements/local.txt requirements/local.in
+	python3 -m piptools compile -q -U -o - requirements/remote.in | grep '==' > requirements/remote.txt 
+	python3 -m piptools compile -q -U -o requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
@@ -82,7 +81,7 @@ pip_update:  ## Update requirements and dependencies
 
 .PHONY: remote
 remote: pip_update  ## Install remote requirements and dependencies
-	pip-sync requirements/remote.txt
+	python3 -m piptools sync requirements/remote.txt
 
 .PHONY: report
 report:  ## Run coverage report
