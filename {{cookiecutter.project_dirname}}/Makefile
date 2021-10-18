@@ -72,12 +72,20 @@ pip: pip_update  ## Compile requirements
 	python3 -m piptools compile -q -U -o requirements/base.txt requirements/base.in
 	python3 -m piptools compile -q -U -o requirements/common.txt requirements/common.in
 	python3 -m piptools compile -q -U -o requirements/local.txt requirements/local.in
-	python3 -m piptools compile -q -U -o - requirements/remote.in | grep '==' > requirements/remote.txt 
+	python3 -m piptools compile -q -U -o - requirements/remote.in | grep '==' > requirements/remote.txt
 	python3 -m piptools compile -q -U -o requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=21.2.0 pip-tools~=6.3.0 setuptools~=58.2.0 wheel~=0.37.0
+	python3 -m pip install -q -U pip~=21.3.0 pip-tools~=6.4.0 setuptools~=58.2.0 wheel~=0.37.0
+
+.PHONY: precommit
+precommit:  ## Fix code formatting, linting and sorting imports
+	python3 -m pre_commit run --all-files
+
+.PHONY: precommit_update
+precommit_update:  ## Update pre_commit
+	python3 -m pre_commit autoupdate
 
 .PHONY: remote
 remote: pip_update  ## Install remote requirements and dependencies
@@ -96,11 +104,14 @@ endif
 simpletest:  ## Run debugging test
 	# You can pass more arguments as follows:
 	# make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
-	python3 manage.py test --configuration=Testing $(simpletestargs)
+	python3 manage.py test --configuration=Testing --timing $(simpletestargs)
 
 .PHONY: test
 test:  ## Run test
 	./scripts/test.sh
+
+.PHONY: update
+update: pip precommit_update ## Run update
 
 .PHONY: help
 help:
