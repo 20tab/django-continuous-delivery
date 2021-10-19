@@ -87,6 +87,10 @@ precommit:  ## Fix code formatting, linting and sorting imports
 precommit_update:  ## Update pre_commit
 	python3 -m pre_commit autoupdate
 
+.PHONY: pytest
+pytest:  ## Run debugging test
+	python3 -m pytest --durations 10
+
 .PHONY: remote
 remote: pip_update  ## Install remote requirements and dependencies
 	python3 -m piptools sync requirements/remote.txt
