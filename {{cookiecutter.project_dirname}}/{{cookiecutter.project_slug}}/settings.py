@@ -218,6 +218,7 @@ class Local(ProjectDefault):
     else:  # pragma: no cover
         INSTALLED_APPS.append("django_extensions")
         SHELL_PLUS_PRINT_SQL = True
+        SHELL_PLUS_PRINT_SQL_TRUNCATE = None
         GRAPH_MODELS = {
             "all_applications": True,
             "arrow_shape": "diamond",
