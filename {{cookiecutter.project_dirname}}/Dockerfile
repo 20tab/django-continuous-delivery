@@ -3,6 +3,8 @@ FROM python:3.9-slim-bullseye AS base
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser
 ENV APPUSER=$USER LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 WORKDIR=/app
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR $WORKDIR
 RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
@@ -27,6 +29,7 @@ RUN python3 -m pip install --no-cache-dir -r requirements/common.txt
 FROM base AS test
 
 ENV DJANGO_CONFIGURATION=Testing
+ENV PATH="/opt/venv/bin:$PATH"
 COPY --chown=$APPUSER ./requirements/test.txt requirements/test.txt
 RUN python3 -m pip install --no-cache-dir -r requirements/test.txt
 COPY --chown=$APPUSER . .
@@ -36,6 +39,7 @@ CMD ./scripts/test.sh --reverse
 
 FROM base AS remote
 
+ENV PATH="/opt/venv/bin:$PATH"
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --no-cache-dir -r requirements/remote.txt
 COPY --chown=$APPUSER . .
@@ -55,6 +59,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         make \
         openssh-client
 COPY ./requirements/local.txt requirements/local.txt
+RUN chown -R $APPUSER:$APPUSER /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 RUN python3 -m pip install --no-cache-dir -r requirements/local.txt
 COPY --chown=$APPUSER . .
 USER $APPUSER
