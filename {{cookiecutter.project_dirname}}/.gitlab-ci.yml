@@ -1,13 +1,18 @@
 stages:
   - Test
+  - Pact-verify
+  - Pact-check
   - Build
   - Deploy
+  - Pact-tag
   - Report
   - Sentry
 
 variables:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
+  PACT_CONSUMER_NAME: {{cookiecutter.project_slug}}-frontend
+  PACT_PROVIDER_NAME: {{cookiecutter.project_slug}}-backend
   SENTRY_ORG: $SENTRY_ORG
   SENTRY_PROJECT_NAME: {{cookiecutter.project_slug}}-backend
   SENTRY_URL: $SENTRY_URL
@@ -20,7 +25,7 @@ sentry_release:
   services:
     - docker:20-dind
   rules:
-    - if: ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_TAG) && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "develop"
   script:
     - RELEASE_START=$(date +%s)
     - >
@@ -59,9 +64,59 @@ test:
       - htmlcov
     expire_in: 1 day
 
+pact-verify-test:
+  stage: Pact-verify
+  image: docker:20
+  services:
+    - docker:20-dind
+  variables:
+    BACKEND_BUILD_TARGET: "test"
+    BACKEND_IMAGE_NAME: "gitlabci_{{cookiecutter.project_slug}}_backend"
+    BACKEND_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
+    COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
+  rules:
+    - if: $PACT_ENABLED && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != "master" && $CI_JOB_TRIGGERED != "true"
+      allow_failure: true
+  before_script:
+    - if [ "$CI_COMMIT_BRANCH" ]; then PACT_CONSUMER_TAG="branch:$CI_COMMIT_BRANCH"; else PACT_CONSUMER_TAG="tag:$CI_COMMIT_TAG"; fi
+  script:
+    - docker-compose build
+    - >
+      docker-compose run --rm backend ./scripts/pact_verify.sh
+      --pact-provider-version=$VERSION_REF
+      --pact-verify-consumer-tag=$PACT_CONSUMER_TAG
+      --pact-verify-consumer-tag="env:development"
+      --pact-publish-results
+  after_script:
+    - docker-compose down -v
+
+pact-verify-webhook:
+  stage: Pact-verify
+  image: docker:20
+  services:
+    - docker:20-dind
+  variables:
+    COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
+    BACKEND_IMAGE_NAME: "gitlabci_{{cookiecutter.project_slug}}_backend"
+    BACKEND_BUILD_TARGET: "test"
+  rules:
+    - if: $PACT_ENABLED && $CI_JOB_TRIGGERED == "true"
+      allow_failure: true
+  script:
+    - docker-compose build
+    - >
+      docker-compose run --rm backend ./scripts/pact_verify.sh
+      --pact-provider-version=$VERSION_REF
+      --pact-verify-consumer-tag=$PACT_CONSUMER_TAG
+      --pact-publish-results
+  after_script:
+    - docker-compose down -v
+
 pages:
   stage: Report
   image: busybox
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - mkdir public
     - mv htmlcov public/htmlcov
@@ -70,12 +125,12 @@ pages:
       - public
   dependencies:
     - test
-  only:
-    - develop
 
 build:
   stage: Build
   image: docker:20
+  rules:
+    - if: ($CI_COMMIT_BRANCH == "develop" ||  $CI_COMMIT_BRANCH == "master" ||  $CI_COMMIT_TAG) && $CI_JOB_TRIGGERED != "true"
   services:
     - docker:20-dind
   before_script:
@@ -86,72 +141,98 @@ build:
     - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$VERSION_REF
   after_script:
     - docker logout $CI_REGISTRY
-  only:
-    - develop
-    - master
-    - tags
 
 .development:
-  variables:
-    ENVIRONMENT_SLUG: dev
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" && $CI_JOB_TRIGGERED != "true"
+      variables:
+        ENVIRONMENT_SLUG: dev
   environment:
     name: Development
     url: https://dev.{{cookiecutter.domain_url}}
-  only:
-    - develop
-
 .staging:
-  variables:
-    ENVIRONMENT_SLUG: stage
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" && $CI_JOB_TRIGGERED != "true"
+      variables:
+        ENVIRONMENT_SLUG: stage
   environment:
     name: Staging
     url: https://stage.{{cookiecutter.domain_url}}
-  only:
-    - master
 
 .production:
-  variables:
-    ENVIRONMENT_SLUG: prod
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_JOB_TRIGGERED != "true"
+      variables:
+        ENVIRONMENT_SLUG: prod
   environment:
     name: Production
     url: https://www.{{cookiecutter.domain_url}}
-  only:
-    - tags
 
-.deploy:
+.can-i-deploy:
+  stage: Pact-check
+  dependencies:
+    - test
+  image:
+    name: docker:20
+  services:
+    - docker:20-dind
+  script:
+    - >
+      docker run --rm
+      -e PACT_BROKER_BASE_URL
+      -e PACT_BROKER_PASSWORD
+      -e PACT_BROKER_USERNAME
+      pactfoundation/pact-cli:latest-node14 pact-broker can-i-deploy
+      --pacticipant $PACT_PROVIDER_NAME
+      --version $VERSION_REF
+      --to "env:$DEPLOY_ENVIRONMENT"
+
+can-i-deploy_development:
+  extends:
+    - .development
+    - .can-i-deploy
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH == "develop" && $CI_JOB_TRIGGERED != "true"
+      allow_failure: false
+
+can-i-deploy_staging:
+  extends:
+    - .staging
+    - .can-i-deploy
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH == "master" && $CI_JOB_TRIGGERED != "true"
+      allow_failure: false
+
+can-i-deploy_production:
+  extends:
+    - .production
+    - .can-i-deploy
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_TAG && $CI_JOB_TRIGGERED != "true"
+      allow_failure: false
+
+.deploy-base:
   stage: Deploy
   image:
     name: docker:20
   services:
     - docker:20-dind
-  variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform
-  before_script:
-    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
     - >
-      docker run --rm
-      -u `id -u`
-      -v ${PWD}:${PWD}
-      -w ${PWD}
-      -e CI_JOB_TOKEN
-      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{cookiecutter.project_slug}}-${ENVIRONMENT_SLUG}
-      -e TF_ROOT
-      -e TF_VAR_digitalocean_cluster_name="${DIGITALOCEAN_CLUSTER_NAME}"
-      -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"
-      -e TF_VAR_environment="${CI_ENVIRONMENT_NAME}"
-      -e TF_VAR_project_description
-      -e TF_VAR_project_domain="${DOMAIN}"
-      -e TF_VAR_service_container_image
-      -e TF_VAR_service_container_port
-      -e TF_VAR_service_replicas
-      registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
-  artifacts:
-    name: plan
-    paths:
-      - ${TF_ROOT}/plan.cache
-    reports:
-      terraform: ${TF_ROOT}/plan.json
+      docker run --rm -v $PWD:/app -v $KUBE_CA_PEM_FILE:$KUBE_CA_PEM_FILE
+      -e KUBECONFIG=/tmp/.kube/config
+      -e DEPLOY_ENVIRONMENT
+      -e DEPLOY_VERSION
+      -e KUBE_CA_PEM_FILE
+      -e KUBE_TOKEN
+      -e KUBE_URL
+      --entrypoint=""
+      bitnami/kubectl:latest /app/scripts/deploy.sh
+
+.deploy:
+  extends: .deploy-base
+  before_script:
+    - export DEPLOY_VERSION=$VERSION_REF
 
 deploy_development:
   extends:
@@ -168,26 +249,43 @@ deploy_production:
     - .production
     - .deploy
 
-.rollback:
-  extends: .deploy-base
-  before_script:
-    - export DEPLOY_VERSION=$VERSION_BEFORE_REF
-  when: manual
+.create-version-tag:
+  image:
+    name: docker:20
+  services:
+    - docker:20-dind
+  stage: Pact-tag
 
-rollback_development:
-  extends:
-    - .development
-    - .rollback
+create-version-tag_features:
+  extends: .create-version-tag
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != "develop" && $CI_COMMIT_BRANCH != "master" && $CI_JOB_TRIGGERED != "true"
+  script:
+    - >
+      docker run --rm
+      -e PACT_BROKER_BASE_URL
+      -e PACT_BROKER_PASSWORD
+      -e PACT_BROKER_USERNAME
+      pactfoundation/pact-cli:latest-node14 pact-broker create-version-tag
+      --pacticipant $PACT_PROVIDER_NAME
+      --version $VERSION_REF
+      --tag "branch:$CI_COMMIT_BRANCH"
 
-rollback_staging:
-  extends:
-    - .staging
-    - .rollback
-
-rollback_production:
-  extends:
-    - .production
-    - .rollback
+create-version-tag_development:
+  extends: .create-version-tag
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH == "develop" && $CI_JOB_TRIGGERED != "true"
+  script:
+    - >
+      docker run --rm
+      -e PACT_BROKER_BASE_URL
+      -e PACT_BROKER_PASSWORD
+      -e PACT_BROKER_USERNAME
+      pactfoundation/pact-cli:latest-node14 pact-broker create-version-tag
+      --pacticipant $PACT_PROVIDER_NAME
+      --version $VERSION_REF
+      --tag "env:development"
+      --tag "branch:develop"
 
 .sentry_deploy_success:
   stage: Sentry
@@ -207,7 +305,7 @@ rollback_production:
 sentry_success_development:
   extends: .sentry_deploy_success
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "develop"
       when: on_success
       variables:
         SENTRY_ENV: Development
@@ -215,15 +313,15 @@ sentry_success_development:
 sentry_success_staging:
   extends: .sentry_deploy_success
   rules:
-    - if: $CI_COMMIT_BRANCH == "master" && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "master"
       when: on_success
       variables:
-        SENTRY_ENV: staging
+        SENTRY_ENV: Staging
 
 sentry_success_production:
   extends: .sentry_deploy_success
   rules:
-    - if: $CI_COMMIT_TAG && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_TAG
       when: on_success
       variables:
         SENTRY_ENV: Production
@@ -245,7 +343,7 @@ sentry_success_production:
 sentry_failure_development:
   extends: .sentry_deploy_failure
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "develop"
       when: on_failure
       variables:
         SENTRY_ENV: Development
@@ -253,15 +351,15 @@ sentry_failure_development:
 sentry_failure_staging:
   extends: .sentry_deploy_failure
   rules:
-    - if: $CI_COMMIT_BRANCH == "master" && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "master"
       when: on_failure
       variables:
-        SENTRY_ENV: staging
+        SENTRY_ENV: Staging
 
 sentry_failure_production:
   extends: .sentry_deploy_failure
   rules:
-    - if: $CI_COMMIT_TAG && $SENTRY_DSN
+    - if: $SENTRY_DSN && $CI_COMMIT_TAG
       when: on_failure
       variables:
         SENTRY_ENV: Production
