@@ -179,3 +179,9 @@ media/
 /media_test
 
 # END local
+
+# Terraform
+.terraform.lock*
+.terraform/
+*.tfstate*
+*.tfvars

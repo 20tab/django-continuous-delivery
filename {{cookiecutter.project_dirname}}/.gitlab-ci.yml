@@ -93,62 +93,74 @@ build:
 
 .development:
   variables:
-    DEPLOY_ENVIRONMENT: development
+    ENVIRONMENT_SLUG: dev
   environment:
     name: Development
     url: https://dev.{{cookiecutter.domain_url}}
   only:
     - develop
 
-.integration:
+.staging:
   variables:
-    DEPLOY_ENVIRONMENT: integration
+    ENVIRONMENT_SLUG: stage
   environment:
-    name: Integration
-    url: https://test.{{cookiecutter.domain_url}}
+    name: Staging
+    url: https://stage.{{cookiecutter.domain_url}}
   only:
     - master
 
 .production:
   variables:
-    DEPLOY_ENVIRONMENT: production
+    ENVIRONMENT_SLUG: prod
   environment:
     name: Production
     url: https://www.{{cookiecutter.domain_url}}
   only:
     - tags
 
-.deploy-base:
+.deploy:
   stage: Deploy
   image:
     name: docker:20
   services:
     - docker:20-dind
+  variables:
+    TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  before_script:
+    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
     - >
-      docker run --rm -v $PWD:/app -v $KUBE_CA_PEM_FILE:$KUBE_CA_PEM_FILE
-      -e KUBECONFIG=/tmp/.kube/config
-      -e DEPLOY_ENVIRONMENT
-      -e DEPLOY_VERSION
-      -e KUBE_CA_PEM_FILE
-      -e KUBE_TOKEN
-      -e KUBE_URL
-      --entrypoint=""
-      bitnami/kubectl:latest /app/scripts/deploy.sh
-
-.deploy:
-  extends: .deploy-base
-  before_script:
-    - export DEPLOY_VERSION=$VERSION_REF
+      docker run --rm
+      -u `id -u`
+      -v ${PWD}:${PWD}
+      -w ${PWD}
+      -e CI_JOB_TOKEN
+      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{cookiecutter.project_slug}}-${ENVIRONMENT_SLUG}
+      -e TF_ROOT
+      -e TF_VAR_digitalocean_cluster_name="${DIGITALOCEAN_CLUSTER_NAME}"
+      -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"
+      -e TF_VAR_environment="${CI_ENVIRONMENT_NAME}"
+      -e TF_VAR_project_description
+      -e TF_VAR_project_domain="${DOMAIN}"
+      -e TF_VAR_service_container_image
+      -e TF_VAR_service_container_port
+      -e TF_VAR_service_replicas
+      registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
+  artifacts:
+    name: plan
+    paths:
+      - ${TF_ROOT}/plan.cache
+    reports:
+      terraform: ${TF_ROOT}/plan.json
 
 deploy_development:
   extends:
     - .development
     - .deploy
 
-deploy_integration:
+deploy_staging:
   extends:
-    - .integration
+    - .staging
     - .deploy
 
 deploy_production:
@@ -167,9 +179,9 @@ rollback_development:
     - .development
     - .rollback
 
-rollback_integration:
+rollback_staging:
   extends:
-    - .integration
+    - .staging
     - .rollback
 
 rollback_production:
@@ -200,13 +212,13 @@ sentry_success_development:
       variables:
         SENTRY_ENV: Development
 
-sentry_success_integration:
+sentry_success_staging:
   extends: .sentry_deploy_success
   rules:
     - if: $CI_COMMIT_BRANCH == "master" && $SENTRY_DSN
       when: on_success
       variables:
-        SENTRY_ENV: Integration
+        SENTRY_ENV: staging
 
 sentry_success_production:
   extends: .sentry_deploy_success
@@ -238,13 +250,13 @@ sentry_failure_development:
       variables:
         SENTRY_ENV: Development
 
-sentry_failure_integration:
+sentry_failure_staging:
   extends: .sentry_deploy_failure
   rules:
     - if: $CI_COMMIT_BRANCH == "master" && $SENTRY_DSN
       when: on_failure
       variables:
-        SENTRY_ENV: Integration
+        SENTRY_ENV: staging
 
 sentry_failure_production:
   extends: .sentry_deploy_failure

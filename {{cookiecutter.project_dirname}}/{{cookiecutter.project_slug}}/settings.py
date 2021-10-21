@@ -416,8 +416,8 @@ class Development(Remote):
     """The development settings."""
 
 
-class Integration(Remote):
-    """The integratrion settings."""
+class Staging(Remote):
+    """The staging settings."""
 
 
 class Production(Remote):
