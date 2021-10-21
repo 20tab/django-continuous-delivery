@@ -4,6 +4,6 @@
   "project_dirname": "{{ cookiecutter.project_name | slugify(separator='') }}",
   "domain_url": "{{ cookiecutter.project_name | slugify(separator='') }}.com",
   "gitlab_group_slug": "{{ cookiecutter.project_name | slugify(separator='') }}",
-  "use_media": ["Yes", "No"],
+  "media_storage": ["local", "s3"],
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }

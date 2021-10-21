@@ -125,7 +125,7 @@ class ProjectDefault(Configuration):
     STATIC_ROOT = BASE_DIR / "static"
 
     # Stored files
-    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.use_media == "Yes" %}  # noqa
+    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage == "s3" %}  # noqa
 
     MEDIA_URL = "/media/"
 
@@ -303,7 +303,7 @@ class Testing(ProjectDefault):
         INSTALLED_APPS.append("behave_django")
 
     # Stored files
-    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.use_media == "Yes" %}  # noqa
+    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage == "s3" %}  # noqa
 
     MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"  # noqa{% else %}
 
@@ -374,7 +374,7 @@ class Remote(ProjectDefault):
         sentry_sdk.init(integrations=[DjangoIntegration()], send_default_pii=True)
 
     # Django Storages
-    # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.use_media == "Yes" %}  # noqa
+    # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.media_storage == "s3" %}  # noqa
 
     try:
         import storages  # noqa

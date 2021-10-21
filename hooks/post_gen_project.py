@@ -69,7 +69,7 @@ def main():
     generate_requirements()
     remove_venv_directory()
     create_static_directory()
-    if "{{cookiecutter.use_media}}" == "Yes":
+    if "{{cookiecutter.media_storage}}" == "s3":
         create_media_directory()
 
 

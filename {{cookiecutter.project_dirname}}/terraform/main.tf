@@ -1,6 +1,6 @@
 locals {
-  project_name = "{{cookiecutter.project_name}}"
-  project_slug = "{{cookiecutter.project_slug}}"
+  project_name     = "{{cookiecutter.project_name}}"
+  project_slug     = "{{cookiecutter.project_slug}}"
   environment_slug = { development = "dev", staging = "stage", production = "prod" }[lower(var.environment)]
 
   service_name = "${local.project_name} ${var.environment} {{cookiecutter.service_name}}"
@@ -36,6 +36,11 @@ provider "digitalocean" {
 
 data "digitalocean_kubernetes_cluster" "main" {
   name = var.digitalocean_cluster_name
+}
+
+data "digitalocean_spaces_bucket" "main" {
+  name   = var.digitalocean_spaces_bucket_name
+  region = var.digitalocean_spaces_bucket_region
 }
 
 provider "kubernetes" {
@@ -105,41 +110,20 @@ resource "kubernetes_deployment" "backend" {
           }
 
           env {
-            name = "DJANGO_ADMINS"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_ADMINS"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_ADMINS"
+            value = var.django_admins
           }
 
           env {
-            name = "DJANGO_ALLOWED_HOSTS"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_ALLOWED_HOSTS"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_ALLOWED_HOSTS"
+            value = var.django_allowed_hosts
           }
 
           env {
-            name = "DJANGO_CONFIGURATION"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_CONFIGURATION"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_CONFIGURATION"
+            value = var.django_configuration
           }
-          {% if cookiecutter.use_media == "Yes" %}
+          # {% if cookiecutter.media_storage == "s3" %}
           env {
             name = "DJANGO_AWS_ACCESS_KEY_ID"
 
@@ -153,20 +137,8 @@ resource "kubernetes_deployment" "backend" {
           }
 
           env {
-            name = "DJANGO_AWS_LOCATION"
-            value= "$(DJANGO_CONFIGURATION)/media"
-          }
-
-          env {
-            name = "DJANGO_AWS_S3_HOST"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "AWS_S3_HOST"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_AWS_LOCATION"
+            value = "${local.environment_slug}/media"
           }
 
           env {
@@ -182,39 +154,18 @@ resource "kubernetes_deployment" "backend" {
           }
 
           env {
-            name = "DJANGO_AWS_STORAGE_BUCKET_NAME"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "AWS_STORAGE_BUCKET_NAME"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_AWS_STORAGE_BUCKET_NAME"
+            value = var.digitalocean_spaces_bucket_name
           }
-          {% endif %}
+          # {% endif %}
           env {
-            name = "DJANGO_DEBUG"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_DEBUG"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_DEBUG"
+            value = var.django_debug
           }
 
           env {
-            name = "DJANGO_DEFAULT_FROM_EMAIL"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_DEFAULT_FROM_EMAIL"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_DEFAULT_FROM_EMAIL"
+            value = var.django_default_from_email
           }
 
           env {
@@ -230,27 +181,13 @@ resource "kubernetes_deployment" "backend" {
           }
 
           env {
-            name = "DJANGO_SERVER_EMAIL"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_SERVER_EMAIL"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_SERVER_EMAIL"
+            value = var.django_server_email
           }
 
           env {
-            name = "DJANGO_SESSION_COOKIE_DOMAIN"
-
-            value_from {
-
-              secret_key_ref {
-                key  = "DJANGO_SESSION_COOKIE_DOMAIN"
-                name = "secrets"
-              }
-            }
+            name  = "DJANGO_SESSION_COOKIE_DOMAIN"
+            value = var.project_domain
           }
 
           env {
@@ -278,8 +215,8 @@ resource "kubernetes_deployment" "backend" {
           }
 
           env {
-            name = "WEB_CONCURRENCY"
-            value= "1"
+            name  = "WEB_CONCURRENCY"
+            value = "1"
           }
         }
       }
