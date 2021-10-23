@@ -48,12 +48,6 @@ def generate_requirements():
         print(f"Generated '/{output_file}' file.")
 
 
-def create_static_directory():
-    """Create the static directory."""
-    Path("static").mkdir(exist_ok=True)
-    print("Generated '/static' directory.")
-
-
 def create_media_directory():
     """Create the media directory."""
     Path("media").mkdir(exist_ok=True)
@@ -69,7 +63,7 @@ def main():
     generate_requirements()
     remove_venv_directory()
     create_static_directory()
-    if "{{cookiecutter.media_storage}}" == "s3":
+    if "{{ cookiecutter.media_storage }}" == "local":
         create_media_directory()
 
 

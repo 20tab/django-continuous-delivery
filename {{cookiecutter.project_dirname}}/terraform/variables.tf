@@ -6,7 +6,7 @@ variable "digitalocean_cluster_name" {
 variable "digitalocean_spaces_bucket_name" {
   description = "The DigitalOcean spaces bucket name."
   type        = string
-  default     = "{{cookiecutter.project_slug}}"
+  default     = "{{ cookiecutter.project_slug }}"
 }
 
 variable "digitalocean_spaces_bucket_region" {

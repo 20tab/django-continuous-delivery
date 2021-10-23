@@ -3,7 +3,9 @@
   "project_slug": "{{ cookiecutter.project_name | slugify(separator='') }}",
   "service_slug": "{{ cookiecutter.project_slug }}",
   "project_dirname": ["{{ cookiecutter.service_slug }}", "{{ cookiecutter.project_slug }}"],
-  "domain_url": "{{ cookiecutter.project_name | slugify(separator='') }}.com",
+  "project_url_dev": null,
+  "project_url_stage": null,
+  "project_url_prod": null,
   "media_storage": ["local", "s3"],
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }

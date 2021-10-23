@@ -1,10 +1,10 @@
 locals {
-  project_name     = "{{cookiecutter.project_name}}"
-  project_slug     = "{{cookiecutter.project_slug}}"
+  project_name     = "{{ cookiecutter.project_name }}"
+  project_slug     = "{{ cookiecutter.project_slug }}"
   environment_slug = { development = "dev", staging = "stage", production = "prod" }[lower(var.environment)]
 
-  service_name = "${local.project_name} ${var.environment} {{cookiecutter.service_name}}"
-  service_slug = "${local.project_slug}-${local.environment_slug}-{{cookiecutter.service_slug}}"
+  service_name = "${local.project_name} ${var.environment} {{ cookiecutter.service_name }}"
+  service_slug = "${local.project_slug}-${local.environment_slug}-{{ cookiecutter.service_slug }}"
   service_labels = {
     component   = local.service_slug
     domain      = var.project_domain

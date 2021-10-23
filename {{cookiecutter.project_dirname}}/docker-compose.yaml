@@ -8,12 +8,12 @@ services:
         USER: ${USER:-appuser}
       context: .
       target: ${BACKEND_BUILD_TARGET:-remote}
-    image: ${BACKEND_IMAGE_NAME:-{{cookiecutter.project_slug}}_backend}:${BACKEND_IMAGE_TAG:-latest}
+    image: ${BACKEND_IMAGE_NAME:-{{ cookiecutter.project_slug }}_backend}:${BACKEND_IMAGE_TAG:-latest}
     depends_on:
       - postgres
     environment:
       - CACHE_URL
-      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}}
+      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{ cookiecutter.project_slug} }}
       - DJANGO_ADMINS
       - DJANGO_ALLOWED_HOSTS
       - DJANGO_CONFIGURATION
@@ -33,7 +33,7 @@ services:
 
   postgres:
     environment:
-      - POSTGRES_DB={{cookiecutter.project_slug}}
+      - POSTGRES_DB={{ cookiecutter.project_slug }}
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
     image: postgres:13-bullseye
