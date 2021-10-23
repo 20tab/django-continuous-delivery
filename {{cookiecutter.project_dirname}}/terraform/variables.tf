@@ -1,3 +1,10 @@
+variable "cache_url" {
+  description = "The cache connection url."
+  type        = string
+  default     = "locmem://"
+  sensitive   = true
+}
+
 variable "digitalocean_cluster_name" {
   description = "The DigitalOcean cluster name."
   type        = string
@@ -54,20 +61,32 @@ variable "django_server_email" {
   default     = "info@20tab.com"
 }
 
+variable "email_url" {
+  type        = string
+  description = "The email server connection url."
+  sensitive   = true
+}
+
 variable "environment" {
   type        = string
   description = "The name of the deploy environment, e.g. \"Production\"."
 }
 
-variable "project_description" {
-  description = "The project description."
+variable "media_storage" {
+  description = "The media storage solution."
   type        = string
-  default     = ""
+  default     = "s3"
 }
 
-variable "project_domain" {
-  description = "The project domain."
+variable "project_url" {
+  description = "The project url."
   type        = string
+}
+
+variable "sentry_dsn" {
+  description = "The Sentry project DSN."
+  type        = string
+  sensitive   = true
 }
 
 variable "service_container_image" {

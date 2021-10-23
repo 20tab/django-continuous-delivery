@@ -17,7 +17,7 @@ backports.entry-points-selectable==1.1.0
 binaryornot==0.4.4
     # via cookiecutter
 black==21.9b0
-    # via -r requirements/test.in
+    # via -r requirements/common.in
 certifi==2021.10.8
     # via requests
 cfgv==3.3.1
@@ -59,7 +59,7 @@ flake8-isort==4.0.0
     # via -r requirements/test.in
 flake8-mypy==17.8.0
     # via -r requirements/test.in
-identify==2.3.0
+identify==2.3.1
     # via pre-commit
 idna==3.3
     # via requests
@@ -106,7 +106,7 @@ pexpect==4.8.0
 pickleshare==0.7.5
     # via ipython
 pip-tools==6.2.0
-    # via -r requirements/local.in
+    # via -r requirements/common.in
 platformdirs==2.4.0
     # via
     #   black
@@ -115,7 +115,7 @@ poyo==0.5.0
     # via cookiecutter
 pre-commit==2.13.0
     # via -r requirements/local.in
-prompt-toolkit==3.0.20
+prompt-toolkit==3.0.21
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
@@ -135,7 +135,7 @@ pyupgrade==2.23.3
     # via -r requirements/local.in
 pyyaml==6.0
     # via pre-commit
-regex==2021.10.21
+regex==2021.10.23
     # via black
 requests==2.26.0
     # via cookiecutter
@@ -174,7 +174,7 @@ typing-extensions==3.10.0.2
     #   mypy
 urllib3==1.26.7
     # via requests
-virtualenv==20.8.1
+virtualenv==20.9.0
     # via pre-commit
 wcwidth==0.2.5
     # via prompt-toolkit

@@ -13,7 +13,7 @@ services:
       - postgres
     environment:
       - CACHE_URL
-      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{ cookiecutter.project_slug} }}
+      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{ cookiecutter.project_slug }}}
       - DJANGO_ADMINS
       - DJANGO_ALLOWED_HOSTS
       - DJANGO_CONFIGURATION

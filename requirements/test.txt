@@ -13,7 +13,7 @@ attrs==21.2.0
 binaryornot==0.4.4
     # via cookiecutter
 black==21.9b0
-    # via -r requirements/test.in
+    # via -r requirements/common.in
 certifi==2021.10.8
     # via requests
 chardet==4.0.0
@@ -25,6 +25,7 @@ click==8.0.3
     #   -r requirements/common.in
     #   black
     #   cookiecutter
+    #   pip-tools
 cookiecutter==1.7.3
     # via -r requirements/common.in
 coverage[toml]==5.5
@@ -70,6 +71,10 @@ mypy-extensions==0.4.3
     #   mypy
 pathspec==0.9.0
     # via black
+pep517==0.12.0
+    # via pip-tools
+pip-tools==6.2.0
+    # via -r requirements/common.in
 platformdirs==2.4.0
     # via black
 poyo==0.5.0
@@ -84,7 +89,7 @@ python-dateutil==2.8.2
     # via arrow
 python-slugify==5.0.2
     # via cookiecutter
-regex==2021.10.21
+regex==2021.10.23
     # via black
 requests==2.26.0
     # via cookiecutter
@@ -103,7 +108,9 @@ toml==0.10.2
     #   coverage
     #   mypy
 tomli==1.2.1
-    # via black
+    # via
+    #   black
+    #   pep517
 types-python-slugify==0.1.2
     # via -r requirements/common.in
 typing-extensions==3.10.0.2
@@ -112,3 +119,9 @@ typing-extensions==3.10.0.2
     #   mypy
 urllib3==1.26.7
     # via requests
+wheel==0.37.0
+    # via pip-tools
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip
+# setuptools
