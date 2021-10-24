@@ -10,7 +10,7 @@ https://docs.djangoproject.com/en/stable/howto/deployment/wsgi/
 import os
 
 os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.project_slug }}.settings"
+    "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.project_dirname }}.settings"
 )
 os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
 

@@ -59,7 +59,7 @@ class ProjectDefault(Configuration):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ]
 
-    ROOT_URLCONF = "{{ cookiecutter.project_slug }}.urls"
+    ROOT_URLCONF = "{{ cookiecutter.project_dirname }}.urls"
 
     TEMPLATES = [
         {
@@ -77,9 +77,9 @@ class ProjectDefault(Configuration):
         },
     ]
 
-    ASGI_APPLICATION = "{{ cookiecutter.project_slug }}.asgi.application"
+    ASGI_APPLICATION = "{{ cookiecutter.project_dirname }}.asgi.application"
 
-    WSGI_APPLICATION = "{{ cookiecutter.project_slug }}.wsgi.application"
+    WSGI_APPLICATION = "{{ cookiecutter.project_dirname }}.wsgi.application"
 
     # Database
     # https://docs.djangoproject.com/en/stable/ref/settings/#databases
@@ -125,11 +125,13 @@ class ProjectDefault(Configuration):
     STATIC_ROOT = BASE_DIR / "static"
 
     # Stored files
-    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage == "s3" %}  # noqa
+    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage == "local" %}  # noqa
 
     MEDIA_URL = "/media/"
 
     MEDIA_ROOT = BASE_DIR / "media"  # noqa{% else %}
+
+    # Uncomment when using local media
 
     # MEDIA_URL = "/media/"
 
@@ -303,9 +305,11 @@ class Testing(ProjectDefault):
         INSTALLED_APPS.append("behave_django")
 
     # Stored files
-    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage == "s3" %}  # noqa
+    # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage != "none" %}  # noqa
 
     MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"  # noqa{% else %}
+
+    # Uncomment when using media
 
     # MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"{% endif %}
 
@@ -376,40 +380,15 @@ class Remote(ProjectDefault):
     # Django Storages
     # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.media_storage == "s3" %}  # noqa
 
-    try:
-        import storages  # noqa
-    except ModuleNotFoundError:  # pragma: no cover
-        pass
-    else:  # pragma: no cover
-        AWS_ACCESS_KEY_ID = values.Value()
+    AWS_LOCATION = values.Value("")
 
-        AWS_DEFAULT_ACL = values.Value("public-read")
+    AWS_S3_ENDPOINT_URL = values.Value()
 
-        AWS_LOCATION = values.Value("")
+    AWS_S3_FILE_OVERWRITE = values.BooleanValue()
 
-        AWS_QUERYSTRING_AUTH = False
+    AWS_STORAGE_BUCKET_NAME = values.Value()
 
-        AWS_S3_ENDPOINT_URL = values.Value()
-
-        AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
-
-        AWS_SECRET_ACCESS_KEY = values.Value()
-
-        AWS_STORAGE_BUCKET_NAME = values.Value()
-
-        @property
-        def DEFAULT_FILE_STORAGE(self):
-            """Return the Django file storage backend."""
-            if all(
-                (
-                    self.AWS_ACCESS_KEY_ID,
-                    self.AWS_S3_ENDPOINT_URL,
-                    self.AWS_SECRET_ACCESS_KEY,
-                    self.AWS_STORAGE_BUCKET_NAME,
-                )
-            ):
-                return "storages.backends.s3boto3.S3Boto3Storage"  # pragma: no cover
-            return "django.core.files.storage.FileSystemStorage"  # noqa {% endif %}
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
 
 
 class Development(Remote):

@@ -12,7 +12,9 @@ from cookiecutter.main import cookiecutter
 from slugify import slugify
 
 GITLAB_TOKEN_ENV_VAR = "GITLAB_PRIVATE_TOKEN"
-MEDIA_STORAGE_CHOICES = ["local", "s3"]
+MEDIA_STORAGE_CHOICES = ["local", "s3", "none"]
+MEDIA_STORAGE_DEFAULT = "s3"
+DO_SPACES_REGION_DEFAULT = "fra1"
 OUTPUT_BASE_DIR = os.getenv("OUTPUT_BASE_DIR")
 
 
@@ -84,17 +86,37 @@ def create_media_directory(service_dir):
 def init_gitlab(
     gitlab_group_slug,
     gitlab_private_token,
-    service_dir,
     project_name,
     project_slug,
+    service_dir,
+    service_slug,
+    project_url_dev,
+    project_url_stage,
+    project_url_prod,
+    digitalocean_token,
+    sentry_dsn,
+    digitalocean_spaces_access_id,
+    digitalocean_spaces_bucket_region,
+    digitalocean_spaces_secret_key,
+    create_group_variables,
 ):
     """Initialize the Gitlab repositories."""
     env = {
+        "TF_VAR_create_group_variables": create_group_variables,
+        "TF_VAR_digitalocean_spaces_access_id": digitalocean_spaces_access_id,
+        "TF_VAR_digitalocean_spaces_bucket_region": digitalocean_spaces_bucket_region,
+        "TF_VAR_digitalocean_spaces_secret_key": digitalocean_spaces_secret_key,
+        "TF_VAR_digitalocean_token": digitalocean_token,
         "TF_VAR_gitlab_group_slug": gitlab_group_slug,
         "TF_VAR_gitlab_token": gitlab_private_token,
-        "TF_VAR_service_dir": service_dir,
         "TF_VAR_project_name": project_name,
         "TF_VAR_project_slug": project_slug,
+        "TF_VAR_project_url_dev": project_url_dev,
+        "TF_VAR_project_url_prod": project_url_prod,
+        "TF_VAR_project_url_stage": project_url_stage,
+        "TF_VAR_sentry_dsn": sentry_dsn,
+        "TF_VAR_service_dir": service_dir,
+        "TF_VAR_service_slug": service_slug,
     }
     subprocess.run(
         ["terraform", "init", "-reconfigure", "-input=false"],
@@ -132,12 +154,18 @@ def slugify_option(ctx, param, value):
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")
+@click.option("--digitalocean-token")
+@click.option("--sentry-dsn")
 @click.option(
     "--media-storage",
-    default="s3",
+    default=MEDIA_STORAGE_DEFAULT,
     type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
 )
+@click.option("--digitalocean-spaces-access-id")
+@click.option("--digitalocean-spaces-bucket-region")
+@click.option("--digitalocean-spaces-secret-key")
 @click.option("--use-gitlab/--no-gitlab", is_flag=True, default=None)
+@click.option("--create-group-variables", is_flag=True, default=None)
 @click.option("--gitlab-private-token", envvar=GITLAB_TOKEN_ENV_VAR)
 @click.option("--gitlab-group-slug")
 def init_handler(
@@ -149,8 +177,14 @@ def init_handler(
     project_url_dev,
     project_url_stage,
     project_url_prod,
+    digitalocean_token,
+    sentry_dsn,
     media_storage,
+    digitalocean_spaces_access_id,
+    digitalocean_spaces_bucket_region,
+    digitalocean_spaces_secret_key,
     use_gitlab,
+    create_group_variables,
     gitlab_private_token,
     gitlab_group_slug,
 ):
@@ -181,6 +215,12 @@ def init_handler(
         default=f"www.{project_slug}.com",
         type=str,
     )
+    digitalocean_token = digitalocean_token or click.prompt(
+        "DigitalOcean token", hide_input=True
+    )
+    sentry_dsn = sentry_dsn or click.prompt(
+        "Sentry DSN (leave blank if unused)", hide_input=True, default=""
+    )
     output_dir = OUTPUT_BASE_DIR or output_dir
     service_dir = (Path(output_dir) / project_dirname).resolve()
     if Path(service_dir).is_dir() and click.confirm(
@@ -207,35 +247,70 @@ def init_handler(
         media_storage
         or click.prompt(
             "Media storage",
-            default="s3",
+            default=MEDIA_STORAGE_DEFAULT,
             type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
         )
     ).lower()
     if media_storage == "local":
         create_media_directory()
+    elif media_storage == "s3":
+        digitalocean_spaces_bucket_region = (
+            digitalocean_spaces_bucket_region
+            or click.prompt(
+                "DigitalOcean Spaces region", default=DO_SPACES_REGION_DEFAULT
+            )
+        )
+        digitalocean_spaces_access_id = digitalocean_spaces_access_id or click.prompt(
+            "DigitalOcean Spaces Access Key ID", hide_input=True
+        )
+        digitalocean_spaces_secret_key = digitalocean_spaces_secret_key or click.prompt(
+            "DigitalOcean Spaces Secret Access Key", hide_input=True
+        )
     use_gitlab = (
         use_gitlab
         if use_gitlab is not None
-        else click.confirm("Do you want to configure Gitlab?", default=True)
+        else click.confirm(
+            click.style("Do you want to configure Gitlab?", fg="yellow"), default=True
+        )
     )
     if use_gitlab:
         gitlab_group_slug = gitlab_group_slug or click.prompt(
             "Gitlab group slug", default=project_slug
         )
         click.confirm(
-            f'Make sure the Gitlab "{gitlab_group_slug}" group exists '
-            "before proceeding. Continue?",
+            click.style(
+                f'Make sure the Gitlab "{gitlab_group_slug}" group exists '
+                "before proceeding. Continue?",
+                fg="yellow",
+            ),
             abort=True,
         )
         gitlab_private_token = gitlab_private_token or click.prompt(
             "Gitlab private token (with API scope enabled)", hide_input=True
         )
+        create_group_variables = (
+            create_group_variables
+            if create_group_variables is not None
+            else click.confirm(
+                "Do you want to create Gitlab group variables?", default=False
+            )
+        )
         init_gitlab(
             gitlab_group_slug,
             gitlab_private_token,
-            service_dir,
             project_name,
             project_slug,
+            service_dir,
+            service_slug,
+            project_url_dev,
+            project_url_stage,
+            project_url_prod,
+            digitalocean_token,
+            sentry_dsn,
+            digitalocean_spaces_access_id,
+            digitalocean_spaces_bucket_region,
+            digitalocean_spaces_secret_key,
+            create_group_variables,
         )
 
 

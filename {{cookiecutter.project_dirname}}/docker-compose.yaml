@@ -2,13 +2,13 @@ version: "3.4"
 
 services:
 
-  backend:
+  {{ cookiecutter.service_slug }}:
     build:
       args:
         USER: ${USER:-appuser}
       context: .
       target: ${BACKEND_BUILD_TARGET:-remote}
-    image: ${BACKEND_IMAGE_NAME:-{{ cookiecutter.project_slug }}_backend}:${BACKEND_IMAGE_TAG:-latest}
+    image: ${BACKEND_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}}:${BACKEND_IMAGE_TAG:-latest}
     depends_on:
       - postgres
     environment:
