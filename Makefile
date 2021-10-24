@@ -143,7 +143,7 @@ CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 .PHONY: verifypacts
 verifypacts:  ## Verify pact for all remote environments
 	./scripts/pact_verify.sh -v --pact-verify-consumer-tag="env:development"
-	./scripts/pact_verify.sh -v --pact-verify-consumer-tag="env:integration"
+	./scripts/pact_verify.sh -v --pact-verify-consumer-tag="env:staging"
 	# ./scripts/pact_verify.sh -v --pact-verify-consumer-tag="env:production"
 
 .PHONY: verifybranchpacts

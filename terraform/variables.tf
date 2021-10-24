@@ -41,12 +41,6 @@ variable "gitlab_token" {
   sensitive   = true
 }
 
-variable "project_description" {
-  description = "The project description."
-  type        = string
-  default     = ""
-}
-
 variable "project_name" {
   description = "The project name."
   type        = string

@@ -23,14 +23,14 @@ locals {
   database_name     = "${local.project_slug}-${local.environment_slug}-database"
   database_password = digitalocean_database_user.main.password
   database_port     = data.digitalocean_database_cluster.main.port
-  database_user     = "${local.project_slug}-${local.environment_slug}-database-user"
   database_url      = "postgres://${local.database_user}:${local.database_password}@${local.database_host}:${local.database_port}/${local.database_name}"
+  database_user     = "${local.project_slug}-${local.environment_slug}-database-user"
 
   s3_endpoint_url = "https://${var.digitalocean_spaces_bucket_region}.digitaloceanspaces.com"
 }
 
 terraform {
-  backend "local" {
+  backend "http" {
   }
 
   required_providers {

@@ -5,6 +5,7 @@ import os
 import secrets
 import shutil
 import subprocess
+from functools import partial
 from pathlib import Path
 
 import click
@@ -16,6 +17,9 @@ MEDIA_STORAGE_CHOICES = ["local", "s3", "none"]
 MEDIA_STORAGE_DEFAULT = "s3"
 DIGITALOCEAN_SPACES_REGION_DEFAULT = "fra1"
 OUTPUT_BASE_DIR = os.getenv("OUTPUT_BASE_DIR")
+
+
+warning = partial(click.style, fg="yellow")
 
 
 def init_service(
@@ -90,8 +94,8 @@ def init_gitlab(
     project_slug,
     service_dir,
     service_slug,
-    sentry_dsn,
     create_group_variables,
+    sentry_dsn,
     digitalocean_token,
     digitalocean_spaces_access_id,
     digitalocean_spaces_bucket_region,
@@ -211,10 +215,9 @@ def run(
     output_dir = OUTPUT_BASE_DIR or output_dir
     service_dir = (Path(output_dir) / project_dirname).resolve()
     if Path(service_dir).is_dir() and click.confirm(
-        click.style(
+        warning(
             f'A directory "{service_dir}" already exists and '
             "must be deleted. Continue?",
-            fg="yellow",
         )
     ):
         shutil.rmtree(service_dir)
@@ -246,19 +249,16 @@ def run(
     use_gitlab = (
         use_gitlab
         if use_gitlab is not None
-        else click.confirm(
-            click.style("Do you want to configure Gitlab?", fg="yellow"), default=True
-        )
+        else click.confirm(warning("Do you want to configure Gitlab?"), default=True)
     )
     if use_gitlab:
         gitlab_group_slug = gitlab_group_slug or click.prompt(
             "Gitlab group slug", default=project_slug
         )
         click.confirm(
-            click.style(
+            warning(
                 f'Make sure the Gitlab "{gitlab_group_slug}" group exists '
-                "before proceeding. Continue?",
-                fg="yellow",
+                "before proceeding. Continue?"
             ),
             abort=True,
         )
@@ -269,9 +269,7 @@ def run(
             create_group_variables
             if create_group_variables is not None
             else click.confirm(
-                click.style(
-                    "Do you want to create Gitlab group variables?", fg="yellow"
-                ),
+                warning("Do you want to create Gitlab group variables?"),
                 default=False,
             )
         )
@@ -309,8 +307,8 @@ def run(
             project_slug,
             service_dir,
             service_slug,
-            sentry_dsn,
             create_group_variables,
+            sentry_dsn,
             digitalocean_token,
             digitalocean_spaces_access_id,
             digitalocean_spaces_bucket_region,
