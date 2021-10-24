@@ -133,9 +133,9 @@ def init_gitlab(
     )
 
 
-def change_output_owner(service_dir, user_id):
+def change_output_owner(service_dir, uid):
     """Change the owner of the output directory recursively."""
-    user_id is not None and subprocess.run(f"chown -R {user_id} {service_dir}")
+    uid is not None and subprocess.run(["chown", "-R", uid, service_dir])
 
 
 def slugify_option(ctx, param, value):
@@ -165,6 +165,7 @@ def slugify_option(ctx, param, value):
 @click.option("--create-group-variables", is_flag=True, default=None)
 @click.option("--gitlab-private-token", envvar=GITLAB_TOKEN_ENV_VAR)
 @click.option("--gitlab-group-slug")
+@click.option("--uid", type=int)
 def run(
     output_dir,
     project_name,
@@ -184,6 +185,7 @@ def run(
     create_group_variables,
     gitlab_private_token,
     gitlab_group_slug,
+    uid,
 ):
     """Init the bootstrap handler."""
     project_slug = slugify(
@@ -314,6 +316,7 @@ def run(
             digitalocean_spaces_bucket_region,
             digitalocean_spaces_secret_key,
         )
+    change_output_owner(service_dir, uid)
 
 
 if __name__ == "__main__":
