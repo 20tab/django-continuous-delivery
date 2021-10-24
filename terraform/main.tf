@@ -180,6 +180,8 @@ resource "gitlab_project_variable" "project_urls" {
 }
 
 resource "gitlab_project_variable" "sentry_dsn" {
+  count = var.sentry_dsn == "" ? 0 : 1
+
   project   = gitlab_project.main.id
   key       = "SENTRY_DSN"
   value     = var.sentry_dsn
