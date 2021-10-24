@@ -246,7 +246,7 @@ can-i-deploy_production:
       -e TF_VAR_email_url="${EMAIL_URL}"
       -e TF_VAR_environment="${CI_ENVIRONMENT_NAME}"
       -e TF_VAR_media_storage
-      -e TF_VAR_project_url="${PROJECT_URL}"
+      -e TF_VAR_project_url="${CI_ENVIRONMENT_URL}"
       -e TF_VAR_sentry_dsn="${SENTRY_DSN}"
       -e TF_VAR_service_container_image
       -e TF_VAR_service_container_port

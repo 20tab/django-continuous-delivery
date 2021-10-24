@@ -57,21 +57,6 @@ variable "project_slug" {
   type        = string
 }
 
-variable "project_url_dev" {
-  description = "The development environment complete url."
-  type        = string
-}
-
-variable "project_url_prod" {
-  description = "The production environment complete url."
-  type        = string
-}
-
-variable "project_url_stage" {
-  description = "The staging environment complete url."
-  type        = string
-}
-
 variable "sentry_dsn" {
   description = "The Sentry project DSN."
   type        = string

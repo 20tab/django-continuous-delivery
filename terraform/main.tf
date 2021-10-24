@@ -2,12 +2,6 @@ locals {
   user_data = jsondecode(data.http.user_info.body)
 
   git_config = "-c user.email=${local.user_data.email} -c user.name=\"${local.user_data.name}\""
-
-  project_urls = {
-    "Development" = var.project_url_dev
-    "Staging"     = var.project_url_stage
-    "Production"  = var.project_url_prod
-  }
 }
 
 terraform {
@@ -167,17 +161,6 @@ resource "gitlab_group_variable" "digitalocean_token" {
 }
 
 /* Project Variables */
-
-resource "gitlab_project_variable" "project_urls" {
-  for_each = local.project_urls
-
-  project           = gitlab_project.main.id
-  key               = "PROJECT_URL"
-  value             = each.value
-  protected         = true
-  masked            = false
-  environment_scope = each.key
-}
 
 resource "gitlab_project_variable" "sentry_dsn" {
   count = var.sentry_dsn == "" ? 0 : 1
