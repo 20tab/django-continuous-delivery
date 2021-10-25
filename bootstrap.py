@@ -166,6 +166,7 @@ def run(
     """Run the bootstrap."""
     deploy_type = (
         deploy_type in DEPLOY_TYPE_CHOICES
+        and deploy_type
         or click.prompt(
             "Deploy type",
             default=DEPLOY_TYPE_DEFAULT,
