@@ -1,6 +1,7 @@
 # pip-compile --output-file test.txt test.in
 -r common.in
 
+black~=21.7b0
 coverage[toml]~=5.5.0
 flake8-bugbear~=21.4.0
 flake8-docstrings~=1.6.0

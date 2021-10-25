@@ -12,9 +12,7 @@ variables:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
   PACT_PROVIDER_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
-  SENTRY_ORG: $SENTRY_ORG
   SENTRY_PROJECT_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
-  SENTRY_URL: $SENTRY_URL
   VERSION_BEFORE_REF: $CI_COMMIT_BEFORE_SHA
   VERSION_REF: $CI_COMMIT_SHA
 
