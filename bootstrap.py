@@ -155,8 +155,8 @@ def run(
     digitalocean_token=None,
     sentry_dsn=None,
     media_storage=None,
-    digitalocean_spaces_access_id=None,
     digitalocean_spaces_bucket_region=None,
+    digitalocean_spaces_access_id=None,
     digitalocean_spaces_secret_key=None,
     use_gitlab=None,
     create_group_variables=None,
@@ -179,6 +179,7 @@ def run(
         )
     media_storage = (
         media_storage in MEDIA_STORAGE_CHOICES
+        and media_storage
         or click.prompt(
             "Media storage",
             default=MEDIA_STORAGE_DEFAULT,
@@ -310,8 +311,8 @@ def run(
     "--media-storage",
     type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
 )
-@click.option("--digitalocean-spaces-access-id")
 @click.option("--digitalocean-spaces-bucket-region")
+@click.option("--digitalocean-spaces-access-id")
 @click.option("--digitalocean-spaces-secret-key")
 @click.option("--use-gitlab/--no-gitlab", is_flag=True, default=None)
 @click.option("--create-group-variables", is_flag=True, default=None)
@@ -331,8 +332,8 @@ def init_command(
     digitalocean_token,
     sentry_dsn,
     media_storage,
-    digitalocean_spaces_access_id,
     digitalocean_spaces_bucket_region,
+    digitalocean_spaces_access_id,
     digitalocean_spaces_secret_key,
     use_gitlab,
     create_group_variables,
@@ -395,8 +396,8 @@ def init_command(
         digitalocean_token,
         sentry_dsn,
         media_storage,
-        digitalocean_spaces_access_id,
         digitalocean_spaces_bucket_region,
+        digitalocean_spaces_access_id,
         digitalocean_spaces_secret_key,
         use_gitlab,
         create_group_variables,
