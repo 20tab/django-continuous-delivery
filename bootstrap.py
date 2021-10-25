@@ -16,7 +16,7 @@ GITLAB_TOKEN_ENV_VAR = "GITLAB_PRIVATE_TOKEN"
 MEDIA_STORAGE_CHOICES = ["local", "s3", "none"]
 MEDIA_STORAGE_DEFAULT = "s3"
 DIGITALOCEAN_SPACES_REGION_DEFAULT = "fra1"
-OUTPUT_BASE_DIR = os.getenv("OUTPUT_BASE_DIR")
+OUTPUT_DIR = os.getenv("OUTPUT_DIR")
 
 
 warning = partial(click.style, fg="yellow")
@@ -144,11 +144,11 @@ def slugify_option(ctx, param, value):
 
 
 @click.command()
-@click.option("--output-dir", default=".", required=OUTPUT_BASE_DIR is None)
+@click.option("--output-dir", default=".", required=OUTPUT_DIR is None)
+@click.option("--project-dirname")
 @click.option("--project-name", prompt=True)
 @click.option("--project-slug", callback=slugify_option)
 @click.option("--service-slug", callback=slugify_option)
-@click.option("--project-dirname")
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")
@@ -168,10 +168,10 @@ def slugify_option(ctx, param, value):
 @click.option("--uid", type=int)
 def run(
     output_dir,
+    project_dirname,
     project_name,
     project_slug,
     service_slug,
-    project_dirname,
     project_url_dev,
     project_url_stage,
     project_url_prod,
@@ -194,10 +194,14 @@ def run(
     service_slug = slugify(
         service_slug or click.prompt("Service slug", default="django"),
     )
+    project_dirname_choices = [
+        slugify(service_slug, separator=""),
+        slugify(project_slug, separator=""),
+    ]
     project_dirname = project_dirname or click.prompt(
         "Project dirname",
-        default=service_slug,
-        type=click.Choice([service_slug, project_slug]),
+        default=project_dirname_choices[0],
+        type=click.Choice(project_dirname_choices),
     )
     project_url_dev = project_url_dev or click.prompt(
         "Development environment complete URL",
@@ -214,7 +218,7 @@ def run(
         default=f"www.{project_slug}.com",
         type=str,
     )
-    output_dir = OUTPUT_BASE_DIR or output_dir
+    output_dir = OUTPUT_DIR or output_dir
     service_dir = (Path(output_dir) / project_dirname).resolve()
     if Path(service_dir).is_dir() and click.confirm(
         warning(

@@ -13,7 +13,7 @@ def main():
     else:
         load_dotenv(find_dotenv())  # does not override already set variables
     os.environ.setdefault(
-        "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.project_dirname }}.settings"
+        "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.django_settings_dirname }}.settings"
     )
     try:
         from configurations.management import execute_from_command_line

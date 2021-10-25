@@ -59,7 +59,7 @@ class ProjectDefault(Configuration):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ]
 
-    ROOT_URLCONF = "{{ cookiecutter.project_dirname }}.urls"
+    ROOT_URLCONF = "{{ cookiecutter.django_settings_dirname }}.urls"
 
     TEMPLATES = [
         {
@@ -77,9 +77,9 @@ class ProjectDefault(Configuration):
         },
     ]
 
-    ASGI_APPLICATION = "{{ cookiecutter.project_dirname }}.asgi.application"
+    ASGI_APPLICATION = "{{ cookiecutter.django_settings_dirname }}.asgi.application"
 
-    WSGI_APPLICATION = "{{ cookiecutter.project_dirname }}.wsgi.application"
+    WSGI_APPLICATION = "{{ cookiecutter.django_settings_dirname }}.wsgi.application"
 
     # Database
     # https://docs.djangoproject.com/en/stable/ref/settings/#databases

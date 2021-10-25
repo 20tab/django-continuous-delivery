@@ -14,7 +14,7 @@ from django.core.asgi import get_asgi_application
 
 os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
 os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.project_dirname }}.settings"
+    "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.django_settings_dirname }}.settings"
 )
 
 configurations.setup()
