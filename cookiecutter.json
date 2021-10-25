@@ -7,7 +7,7 @@
   "project_url_dev": null,
   "project_url_stage": null,
   "project_url_prod": null,
-  "deploy_type": ["k8s", "digitalocean"],
-  "media_storage": ["local", "digitalocean-s3"],
+  "deploy_type": ["k8s-digitalocean", "k8s-other"],
+  "media_storage": ["local", "s3-digitalocean"],
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }
