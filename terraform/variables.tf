@@ -1,38 +1,18 @@
-variable "create_group_variables" {
-  description = "True if Gitlab group variables should be created."
-  type        = bool
-  default     = false
-}
-
-variable "digitalocean_spaces_access_id" {
-  description = "The DigitalOcean Spaces Access Key ID."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "digitalocean_spaces_bucket_region" {
-  description = "The DigitalOcean Spaces bucket region."
-  type        = string
-  default     = "fra1"
-}
-
-variable "digitalocean_spaces_secret_key" {
-  description = "The DigitalOcean Spaces Secret Key."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "digitalocean_token" {
-  description = "The DigitalOcean access token."
-  type        = string
-  sensitive   = true
-}
-
 variable "gitlab_group_slug" {
   description = "The slug of the Gitlab group."
   type        = string
+}
+
+variable "gitlab_project_variables" {
+  description = "A map of Gitlab project variables to create."
+  type        = map(map(any))
+  default     = {}
+}
+
+variable "gitlab_group_variables" {
+  description = "A map of Gitlab group variables to create."
+  type        = map(map(any))
+  default     = {}
 }
 
 variable "gitlab_token" {
@@ -49,13 +29,6 @@ variable "project_name" {
 variable "project_slug" {
   description = "The project slug."
   type        = string
-}
-
-variable "sentry_dsn" {
-  description = "The Sentry project DSN."
-  type        = string
-  default     = ""
-  sensitive   = true
 }
 
 variable "service_dir" {

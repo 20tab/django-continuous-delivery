@@ -218,7 +218,7 @@ can-i-deploy_production:
   services:
     - docker:20-dind
   variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform
+    TF_ROOT: ${CI_PROJECT_DIR}/terraform/digitalocean
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
@@ -232,11 +232,11 @@ can-i-deploy_production:
       -e TF_ROOT
       -e TF_VAR_cache_url="${CACHE_URL}"
       -e TF_VAR_digitalocean_cluster_name="${DIGITALOCEAN_CLUSTER_NAME}"
-      -e TF_VAR_digitalocean_spaces_access_id="${AWS_ACCESS_KEY_ID}"
+      -e TF_VAR_digitalocean_spaces_access_id="${DIGITALOCEAN_SPACES_ACCESS_ID}"
       -e TF_VAR_digitalocean_spaces_bucket_name="${S3_BUCKET_NAME}"
       -e TF_VAR_digitalocean_spaces_bucket_region="${S3_BUCKET_REGION}"
       -e TF_VAR_digitalocean_spaces_file_overwrite
-      -e TF_VAR_digitalocean_spaces_secret_key="${AWS_SECRET_ACCESS_KEY}"
+      -e TF_VAR_digitalocean_spaces_secret_key="${DIGITALOCEAN_SPACES_SECRET_KEY}"
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"
       -e TF_VAR_django_admins="${DJANGO_ADMINS}"
       -e TF_VAR_django_allowed_hosts="${DJANGO_ALLOWED_HOSTS}"
@@ -278,7 +278,6 @@ can-i-deploy_production:
       --entrypoint=""
       bitnami/kubectl:latest /app/scripts/deploy.sh
 {% endif %}
-
 deploy_development:
   extends:
     - .development

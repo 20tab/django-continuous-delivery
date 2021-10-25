@@ -378,7 +378,7 @@ class Remote(ProjectDefault):
         sentry_sdk.init(integrations=[DjangoIntegration()], send_default_pii=True)
 
     # Django Storages
-    # https://django-storages.readthedocs.io/en/stable/{% if cookiecutter.media_storage == "s3" %}  # noqa
+    # https://django-storages.readthedocs.io/en/stable/{% if "s3" in cookiecutter.media_storage %}  # noqa
 
     AWS_LOCATION = values.Value("")
 
