@@ -109,7 +109,7 @@ resource "gitlab_tag_protection" "tags" {
 resource "gitlab_project_badge" "coverage" {
   project   = gitlab_project.main.id
   link_url  = "https://${var.project_slug}.gitlab.io/${var.service_slug}/htmlcov"
-  image_url = "https://gitlab.com/%%{project_path}/badges/%%{default_branch}/pipeline.svg"
+  image_url = "https://gitlab.com/%%{project_path}/badges/%%{default_branch}/coverage.svg"
 }
 
 resource "gitlab_project_badge" "pipeline" {
