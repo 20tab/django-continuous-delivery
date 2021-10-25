@@ -126,8 +126,8 @@ resource "gitlab_group_variable" "vars" {
   group     = data.gitlab_group.group.id
   key       = each.key
   value     = each.value.value
-  protected = each.value.protected
-  masked    = each.value.masked
+  protected = lookup(each.value, "protected", true)
+  masked    = lookup(each.value, "masked", true)
 }
 
 /* Project Variables */
