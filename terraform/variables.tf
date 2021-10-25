@@ -3,14 +3,14 @@ variable "gitlab_group_slug" {
   type        = string
 }
 
-variable "gitlab_project_variables" {
-  description = "A map of Gitlab project variables to create."
+variable "gitlab_group_variables" {
+  description = "A map of Gitlab group variables to create."
   type        = map(map(any))
   default     = {}
 }
 
-variable "gitlab_group_variables" {
-  description = "A map of Gitlab group variables to create."
+variable "gitlab_project_variables" {
+  description = "A map of Gitlab project variables to create."
   type        = map(map(any))
   default     = {}
 }

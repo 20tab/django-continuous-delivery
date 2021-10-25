@@ -340,11 +340,9 @@ def init_command(
     gitlab_group_slug,
 ):
     """Collect options and run the bootstrap."""
+    output_dir = OUTPUT_DIR or output_dir
     project_slug = slugify(
         project_slug or click.prompt("Project slug", default=slugify(project_name)),
-    )
-    service_slug = slugify(
-        service_slug or click.prompt("Service slug", default="django"),
     )
     project_dirname_choices = [
         slugify(service_slug, separator=""),
@@ -355,6 +353,17 @@ def init_command(
         default=project_dirname_choices[0],
         type=click.Choice(project_dirname_choices),
     )
+    service_slug = slugify(
+        service_slug or click.prompt("Service slug", default="django"),
+    )
+    service_dir = (Path(output_dir) / project_dirname).resolve()
+    if Path(service_dir).is_dir() and click.confirm(
+        warning(
+            f'A directory "{service_dir}" already exists and '
+            "must be deleted. Continue?",
+        )
+    ):
+        shutil.rmtree(service_dir)
     project_url_dev = project_url_dev or click.prompt(
         "Development environment complete URL",
         default=f"dev.{project_slug}.com",
@@ -370,15 +379,6 @@ def init_command(
         default=f"www.{project_slug}.com",
         type=str,
     )
-    output_dir = OUTPUT_DIR or output_dir
-    service_dir = (Path(output_dir) / project_dirname).resolve()
-    if Path(service_dir).is_dir() and click.confirm(
-        warning(
-            f'A directory "{service_dir}" already exists and '
-            "must be deleted. Continue?",
-        )
-    ):
-        shutil.rmtree(service_dir)
     run(
         uid,
         output_dir,
