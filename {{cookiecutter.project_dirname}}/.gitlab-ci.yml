@@ -211,7 +211,7 @@ can-i-deploy_production:
     - if: $PACT_ENABLED == "true" && $CI_COMMIT_TAG && $CI_JOB_TRIGGERED != "true"
       allow_failure: false
 
-.deploy:
+{% if cookiecutter.deploy_type == "digitalocean" %}.deploy:
   stage: Deploy
   image:
     name: docker:20
@@ -258,6 +258,7 @@ can-i-deploy_production:
       - ${TF_ROOT}/plan.cache
     reports:
       terraform: ${TF_ROOT}/plan.json
+{% endif %}
 
 deploy_development:
   extends:
