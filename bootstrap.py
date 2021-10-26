@@ -21,9 +21,10 @@ MEDIA_STORAGE_CHOICES = ["local", "s3-digitalocean", "none"]
 MEDIA_STORAGE_DEFAULT = "s3-digitalocean"
 OUTPUT_DIR = os.getenv("OUTPUT_DIR")
 
+error = partial(click.style, fg="red")
 highlight = partial(click.style, fg="cyan")
-warning = partial(click.style, fg="yellow")
 info = partial(click.style, dim=True)
+warning = partial(click.style, fg="yellow")
 
 
 def init_service(
@@ -120,16 +121,43 @@ def init_gitlab(
         "TF_VAR_service_dir": service_dir,
         "TF_VAR_service_slug": service_slug,
     }
-    subprocess.run(
-        ["terraform", "init", "-reconfigure", "-input=false"],
-        cwd="terraform",
+    cwd = Path("terraform")
+    init_process = subprocess.run(
+        ["terraform", "init", "-reconfigure", "-input=false", "-no-color"],
+        capture_output=True,
+        cwd=cwd,
         env=env,
+        text=True,
     )
-    subprocess.run(
-        ["terraform", "apply", "-auto-approve", "-input=false"],
-        cwd="terraform",
-        env=env,
-    )
+    if init_process.returncode == 0:
+        (cwd / ".terraform-init.log").write_text(init_process.stdout)
+        apply_process = subprocess.run(
+            ["terraform", "apply", "-auto-approve", "-input=false", "-no-color"],
+            capture_output=True,
+            cwd=cwd,
+            env=env,
+            text=True,
+        )
+        if apply_process.returncode == 0:
+            (cwd / ".terraform-apply.log").write_text(apply_process.stdout)
+        else:
+            (cwd / ".terraform-apply-errors.log").write_text(apply_process.stderr)
+            click.echo(
+                error(
+                    "Error applying Terraform Gitlab configuration "
+                    "(see terraform/.terraform-apply-errors.log)"
+                )
+            )
+            raise click.Abort()
+    else:
+        (cwd / ".terraform-init-errors.log").write_text(init_process.stderr)
+        click.echo(
+            error(
+                "Error initializing Terraform "
+                "(see terraform/.terraform-init-errors.log)"
+            )
+        )
+        raise click.Abort()
 
 
 def change_output_owner(service_dir, uid):
