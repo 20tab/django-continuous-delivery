@@ -114,6 +114,22 @@ simpletest:  ## Run debugging test
 test:  ## Run test
 	./scripts/test.sh
 
+.PHONY: verifypacts
+verifypacts:  ## Run verify pacts test
+	./scripts/pact_verify.sh -v \
+		--pact-verify-consumer-tag="env:development" \
+		--pact-verify-consumer-tag="env:integration" \
+		--pact-verify-consumer-tag="env:production" \
+		--pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
+
+.PHONY: verifybranchpacts
+verifybranchpacts:  ## Run verify branch pacts test
+	pytest -v --dc=Testing \
+    --pact-verify-consumer=$(PACT_CONSUMER_NAME) \
+    --pact-provider-name=$(PACT_PROVIDER_NAME) \
+	--pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH) \
+	tests/verify_pacts.py
+
 .PHONY: update
 update: pip precommit_update ## Run update
 
