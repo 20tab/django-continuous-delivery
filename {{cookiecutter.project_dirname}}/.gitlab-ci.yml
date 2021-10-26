@@ -209,33 +209,29 @@ can-i-deploy_production:
     - if: $PACT_ENABLED == "true" && $CI_COMMIT_TAG && $CI_JOB_TRIGGERED != "true"
       allow_failure: false
 
-{% if cookiecutter.deploy_type == "k8s-digitalocean" %}.deploy:
+.deploy:
   stage: Deploy
   image:
     name: docker:20
   services:
     - docker:20-dind
   variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform/digitalocean
+    TF_ROOT: ${CI_PROJECT_DIR}/terraform/
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
     - >
       docker run --rm
       -u `id -u`
+      -v ${KUBECONFIG}:${KUBECONFIG}
       -v ${PWD}:${PWD}
       -w ${PWD}
       -e CI_JOB_TOKEN
+      -e KUBE_CONFIG_PATH="${KUBECONFIG}"
       -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}-${ENVIRONMENT_SLUG}
       -e TF_ROOT
       -e TF_VAR_cache_url="${CACHE_URL}"
-      -e TF_VAR_digitalocean_cluster_name="${DIGITALOCEAN_CLUSTER_NAME}"
-      -e TF_VAR_digitalocean_spaces_access_id="${DIGITALOCEAN_SPACES_ACCESS_ID}"
-      -e TF_VAR_digitalocean_spaces_bucket_name="${S3_BUCKET_NAME}"
-      -e TF_VAR_digitalocean_spaces_bucket_region="${S3_BUCKET_REGION}"
-      -e TF_VAR_digitalocean_spaces_file_overwrite
-      -e TF_VAR_digitalocean_spaces_secret_key="${DIGITALOCEAN_SPACES_SECRET_KEY}"
-      -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"
+      -e TF_VAR_database_url="${DATABASE_URL}"
       -e TF_VAR_django_admins="${DJANGO_ADMINS}"
       -e TF_VAR_django_allowed_hosts="${DJANGO_ALLOWED_HOSTS}"
       -e TF_VAR_django_configuration="${CI_ENVIRONMENT_NAME}"
@@ -245,6 +241,11 @@ can-i-deploy_production:
       -e TF_VAR_environment="${CI_ENVIRONMENT_NAME}"
       -e TF_VAR_media_storage
       -e TF_VAR_project_url="${CI_ENVIRONMENT_URL}"
+      -e TF_VAR_s3_bucket_access_id="${S3_BUCKET_ACCESS_ID}"
+      -e TF_VAR_s3_bucket_endpoint_url="${S3_BUCKET_ENDPOINT_URL}"
+      -e TF_VAR_s3_bucket_file_overwrite="${S3_BUCKET_FILE_OVERWRITE}"
+      -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"
+      -e TF_VAR_s3_bucket_secret_key="${S3_BUCKET_SECRET_KEY}"
       -e TF_VAR_sentry_dsn="${SENTRY_DSN}"
       -e TF_VAR_service_container_image
       -e TF_VAR_service_container_port
@@ -256,26 +257,7 @@ can-i-deploy_production:
       - ${TF_ROOT}/plan.cache
     reports:
       terraform: ${TF_ROOT}/plan.json
-{% else %}.deploy:
-  stage: Deploy
-  image:
-    name: docker:20
-  services:
-    - docker:20-dind
-  before_script:
-    - export DEPLOY_VERSION=$VERSION_REF
-  script:
-    - >
-      docker run --rm -v $PWD:/app -v $KUBE_CA_PEM_FILE:$KUBE_CA_PEM_FILE
-      -e KUBECONFIG=/tmp/.kube/config
-      -e DEPLOY_ENVIRONMENT
-      -e DEPLOY_VERSION
-      -e KUBE_CA_PEM_FILE
-      -e KUBE_TOKEN
-      -e KUBE_URL
-      --entrypoint=""
-      bitnami/kubectl:latest /app/scripts/deploy.sh
-{% endif %}
+
 deploy_development:
   extends:
     - .development

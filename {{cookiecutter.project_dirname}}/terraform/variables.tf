@@ -5,52 +5,8 @@ variable "cache_url" {
   sensitive   = true
 }
 
-variable "digitalocean_k8s_cluster_name" {
-  description = "The DigitalOcean cluster name."
-  type        = string
-  default     = ""
-}
-
-variable "digitalocean_database_cluster_name" {
-  description = "The DigitalOcean database cluster name."
-  type        = string
-  default     = ""
-}
-
-variable "digitalocean_spaces_access_id" {
-  description = "The DigitalOcean Spaces Access Key ID."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "digitalocean_spaces_bucket_name" {
-  description = "The DigitalOcean Spaces bucket name."
-  type        = string
-  default     = "{{ cookiecutter.project_slug }}"
-}
-
-variable "digitalocean_spaces_bucket_region" {
-  description = "The DigitalOcean Spaces bucket region."
-  type        = string
-  default     = "fra1"
-}
-
-variable "digitalocean_spaces_file_overwrite" {
-  description = "The DigitalOcean Spaces file overwriting setting."
-  type        = string
-  default     = "False"
-}
-
-variable "digitalocean_spaces_secret_key" {
-  description = "The DigitalOcean Spaces Secret Key."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "digitalocean_token" {
-  description = "The DigitalOcean access token."
+variable "database_url" {
+  description = "The database connection url."
   type        = string
   sensitive   = true
 }
@@ -106,6 +62,38 @@ variable "media_storage" {
 variable "project_url" {
   description = "The project url."
   type        = string
+}
+
+variable "s3_bucket_access_id" {
+  description = "The S3 bucket access key ID."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "s3_bucket_endpoint_url" {
+  description = "The S3 bucket endpoint url."
+  type        = string
+  default     = ""
+}
+
+variable "s3_bucket_file_overwrite" {
+  description = "The S3 bucket file overwriting setting."
+  type        = string
+  default     = "False"
+}
+
+variable "s3_bucket_name" {
+  description = "The S3 bucket name."
+  type        = string
+  default     = ""
+}
+
+variable "s3_bucket_secret_key" {
+  description = "The S3 bucket secret access key."
+  type        = string
+  default     = ""
+  sensitive   = true
 }
 
 variable "sentry_dsn" {

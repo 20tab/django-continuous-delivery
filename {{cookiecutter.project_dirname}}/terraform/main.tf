@@ -11,22 +11,9 @@ locals {
     environment = var.environment
     project     = local.project_name
     terraform   = "true"
-    url         = var.project_url
   }
 
-  digitalocean_k8s_cluster_name      = coalesce(var.digitalocean_k8s_cluster_name, "${local.project_slug}-k8s-cluster")
-  digitalocean_database_cluster_name = coalesce(var.digitalocean_database_cluster_name, "${local.project_slug}-database-cluster")
-
   project_domain = regex("https?://([^/]*)", var.project_url)
-
-  database_host     = data.digitalocean_database_cluster.main.private_host
-  database_name     = "${local.project_slug}-${local.environment_slug}-database"
-  database_password = digitalocean_database_user.main.password
-  database_port     = data.digitalocean_database_cluster.main.port
-  database_url      = "postgres://${local.database_user}:${local.database_password}@${local.database_host}:${local.database_port}/${local.database_name}"
-  database_user     = "${local.project_slug}-${local.environment_slug}-database-user"
-
-  s3_endpoint_url = "https://${var.digitalocean_spaces_bucket_region}.digitaloceanspaces.com"
 }
 
 terraform {
@@ -34,10 +21,6 @@ terraform {
   }
 
   required_providers {
-    digitalocean = {
-      source  = "digitalocean/digitalocean"
-      version = "~> 2.0"
-    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "2.6.0"
@@ -51,45 +34,7 @@ terraform {
 
 /* Providers */
 
-provider "digitalocean" {
-  token = var.digitalocean_token
-}
-
 provider "kubernetes" {
-  host  = data.digitalocean_kubernetes_cluster.main.endpoint
-  token = data.digitalocean_kubernetes_cluster.main.kube_config[0].token
-  cluster_ca_certificate = base64decode(
-    data.digitalocean_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate
-  )
-}
-
-/* Data Sources */
-
-data "digitalocean_kubernetes_cluster" "main" {
-  name = local.digitalocean_k8s_cluster_name
-}
-
-data "digitalocean_spaces_bucket" "media" {
-  count = var.media_storage == "s3" ? 1 : 0
-
-  name   = var.digitalocean_spaces_bucket_name
-  region = var.digitalocean_spaces_bucket_region
-}
-
-data "digitalocean_database_cluster" "main" {
-  name = local.digitalocean_database_cluster_name
-}
-
-/* Database */
-
-resource "digitalocean_database_user" "main" {
-  cluster_id = data.digitalocean_database_cluster.main.id
-  name       = local.database_user
-}
-
-resource "digitalocean_database_db" "main" {
-  cluster_id = data.digitalocean_database_cluster.main.id
-  name       = local.database_name
 }
 
 /* Passwords */
@@ -110,13 +55,13 @@ resource "kubernetes_secret" "env" {
   data = merge(
     {
       CACHE_URL         = coalesce(var.cache_url, "locmem://")
-      DATABASE_URL      = local.database_url
+      DATABASE_URL      = var.database_url
       DJANGO_SECRET_KEY = random_password.django_secret_key.result
       EMAIL_URL         = coalesce(var.email_url, "console://")
     },
     var.media_storage == "s3" ? {
-      AWS_ACCESS_KEY_ID     = var.digitalocean_spaces_access_id
-      AWS_SECRET_ACCESS_KEY = var.digitalocean_spaces_secret_key
+      AWS_ACCESS_KEY_ID     = var.s3_bucket_access_id
+      AWS_SECRET_ACCESS_KEY = var.s3_bucket_secret_key
     } : {},
     var.sentry_dsn != "" ? {
       SENTRY_DSN = var.sentry_dsn
@@ -144,9 +89,9 @@ resource "kubernetes_config_map" "env" {
     },
     var.media_storage == "s3" ? {
       DJANGO_AWS_LOCATION            = local.environment_slug
-      DJANGO_AWS_STORAGE_BUCKET_NAME = var.digitalocean_spaces_bucket_name
-      DJANGO_AWS_S3_ENDPOINT_URL     = local.s3_endpoint_url
-      DJANGO_AWS_S3_FILE_OVERWRITE   = var.digitalocean_spaces_file_overwrite
+      DJANGO_AWS_STORAGE_BUCKET_NAME = var.s3_bucket_name
+      DJANGO_AWS_S3_ENDPOINT_URL     = var.s3_bucket_endpoint_url
+      DJANGO_AWS_S3_FILE_OVERWRITE   = var.s3_bucket_file_overwrite
     } : {}
   )
 }
@@ -191,9 +136,7 @@ resource "kubernetes_deployment" "main" {
             secret_ref {
               name = kubernetes_secret.env.metadata[0].name
             }
-          }
 
-          env_from {
             config_map_ref {
               name = kubernetes_config_map.env.metadata[0].name
             }
