@@ -64,7 +64,7 @@ def create_env_file(service_dir):
     click.echo(info("...generating the .env file"))
     env_path = Path(service_dir) / ".env_template"
     env_text = env_path.read_text().replace("__SECRETKEY__", secrets.token_urlsafe(40))
-    env_path.write_text(env_text)
+    (Path(service_dir) / ".env").write_text(env_text)
 
 
 def format_files(service_dir):
