@@ -384,7 +384,7 @@ class Remote(ProjectDefault):
 
     AWS_S3_ENDPOINT_URL = values.Value()
 
-    AWS_S3_FILE_OVERWRITE = values.BooleanValue()
+    AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
 
     AWS_STORAGE_BUCKET_NAME = values.Value()
 
