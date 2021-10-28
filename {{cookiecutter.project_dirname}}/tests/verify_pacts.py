@@ -56,3 +56,9 @@ class ProviderStatesHandler:
 
 
 handler = ProviderStatesHandler()
+
+
+def test_pacts(live_server, pact_verifier):
+    """Test pacts."""
+    pact_verifier.verify(live_server.url, handler.run)
+    handler.tear_down()
