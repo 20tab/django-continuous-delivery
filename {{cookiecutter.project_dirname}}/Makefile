@@ -2,7 +2,7 @@
 
 .PHONY: behave
 behave:  ## Run behave test
-	./scripts/behave.sh
+	./scripts/behave.sh --reverse
 
 .PHONY: check
 check:  ## Check code formatting and import sorting
@@ -69,15 +69,15 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile -q -U -o requirements/base.txt requirements/base.in
-	python3 -m piptools compile -q -U -o requirements/common.txt requirements/common.in
-	python3 -m piptools compile -q -U -o requirements/local.txt requirements/local.in
-	python3 -m piptools compile -q -U -o - requirements/remote.in | grep '==' > requirements/remote.txt
-	python3 -m piptools compile -q -U -o requirements/test.txt requirements/test.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=21.3.0 pip-tools~=6.4.0 setuptools~=58.2.0 wheel~=0.37.0
+	python3 -m pip install -q -U pip~=21.3.0 pip-tools~=6.4.0 setuptools~=58.3.0 wheel~=0.37.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports

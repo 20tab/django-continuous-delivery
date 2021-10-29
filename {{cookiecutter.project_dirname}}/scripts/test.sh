@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -euo pipefail
 
 ./scripts/check.sh
 ./scripts/coverage.sh $@
