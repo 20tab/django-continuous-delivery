@@ -169,7 +169,6 @@ def run(
     project_slug,
     project_dirname,
     service_slug,
-    service_dir,
     project_url_dev,
     project_url_stage,
     project_url_prod,
@@ -180,6 +179,15 @@ def run(
     gitlab_group_slug=None,
 ):
     """Run the bootstrap."""
+    service_dir = str((Path(output_dir) / project_dirname).resolve())
+    if Path(service_dir).is_dir() and click.confirm(
+        warning(
+            f'A directory "{service_dir}" already exists and '
+            "must be deleted. Continue?",
+        ),
+        abort=True,
+    ):
+        shutil.rmtree(service_dir)
     media_storage = (
         media_storage in MEDIA_STORAGE_CHOICES
         and media_storage
@@ -323,15 +331,6 @@ def init_command(
         default=project_dirname_choices[0],
         type=click.Choice(project_dirname_choices),
     )
-    service_dir = str((Path(output_dir) / project_dirname).resolve())
-    if Path(service_dir).is_dir() and click.confirm(
-        warning(
-            f'A directory "{service_dir}" already exists and '
-            "must be deleted. Continue?",
-        ),
-        abort=True,
-    ):
-        shutil.rmtree(service_dir)
     project_url_dev = validate_or_prompt_url(
         project_url_dev,
         "Development environment complete URL",
@@ -354,7 +353,6 @@ def init_command(
         project_slug,
         project_dirname,
         service_slug,
-        service_dir,
         project_url_dev,
         project_url_stage,
         project_url_prod,

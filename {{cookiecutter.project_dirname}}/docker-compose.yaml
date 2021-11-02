@@ -7,8 +7,8 @@ services:
       args:
         USER: ${USER:-appuser}
       context: .
-      target: ${BACKEND_BUILD_TARGET:-remote}
-    image: ${BACKEND_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}}:${BACKEND_IMAGE_TAG:-latest}
+      target: ${{{ cookiecutter.service_slug.upper() }}_BUILD_TARGET:-remote}
+    image: ${{{ cookiecutter.service_slug.upper() }}_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug.upper() }}}:${{{ cookiecutter.service_slug.upper() }}_IMAGE_TAG:-latest}
     depends_on:
       - postgres
     environment:
@@ -28,7 +28,7 @@ services:
       - EMAIL_URL
       - PYTHONBREAKPOINT
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${{{ cookiecutter.service_slug.upper() }}_PORT:-8000}:8000"
     user: ${USER:-appuser}
 
   postgres:

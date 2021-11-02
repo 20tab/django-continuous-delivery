@@ -42,7 +42,7 @@ COPY --chown=$APPUSER . .
 USER $APPUSER
 CMD python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --clear --noinput && \
-    gunicorn {{ cookiecutter.project_slug }}.asgi:application
+    gunicorn {{ cookiecutter.django_settings_dirname }}.asgi:application
 
 
 FROM base AS local
