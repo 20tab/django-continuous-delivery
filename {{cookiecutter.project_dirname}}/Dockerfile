@@ -49,7 +49,7 @@ RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
     && find ${PACKAGES_PATH}/babel/locale-data/* -not -name en* -not -name it* -not -name root* -delete
 COPY --chown=$APPUSER . .
 ENTRYPOINT ["./scripts/entrypoint.sh"]
-CMD ["python3", "-m", "gunicorn", "jetmarketreloaded.asgi:application"]
+CMD ["python3", "-m", "gunicorn", "{{cookiecutter.project_slug}}.asgi:application"]
 
 
 FROM base AS local
