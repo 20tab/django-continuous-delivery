@@ -44,15 +44,15 @@ test:
   services:
     - docker:20-dind
   variables:
-    {{ cookiecutter.service_slug.upper() }}_CONTAINER_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug.upper() }}_BUILD_TARGET: "test"
-    {{ cookiecutter.service_slug.upper() }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug.upper() }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
+    {{ cookiecutter.service_slug|upper }}_CONTAINER_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}_{{ cookiecutter.service_slug }}"
+    {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
+    {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
+    {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
     COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
   script:
     - docker-compose build
-    - docker-compose run --name ${{{ cookiecutter.service_slug.upper() }}_CONTAINER_NAME} {{ cookiecutter.service_slug }}
-    - docker cp ${{{ cookiecutter.service_slug.upper() }}_CONTAINER_NAME}:/app/htmlcov htmlcov
+    - docker-compose run --name ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME} {{ cookiecutter.service_slug }}
+    - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/htmlcov htmlcov
   after_script:
     - docker-compose down -v
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
@@ -67,9 +67,9 @@ pact-verify-test:
   services:
     - docker:20-dind
   variables:
-    {{ cookiecutter.service_slug.upper() }}_BUILD_TARGET: "test"
-    {{ cookiecutter.service_slug.upper() }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug.upper() }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
+    {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
+    {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
+    {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
     COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
   rules:
     - if: $PACT_ENABLED && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != "master" && $CI_JOB_TRIGGERED != "true"
@@ -94,8 +94,8 @@ pact-verify-webhook:
     - docker:20-dind
   variables:
     COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
-    {{ cookiecutter.service_slug.upper() }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug.upper() }}_BUILD_TARGET: "test"
+    {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
+    {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
   rules:
     - if: $PACT_ENABLED && $CI_JOB_TRIGGERED == "true"
       allow_failure: true
