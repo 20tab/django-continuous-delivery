@@ -66,4 +66,4 @@ repos:
     rev: "1.7.0"
     hooks:
       - id: bandit
-        args: ["--exclude", ".venv,tests", "--skip", "B108"]
+        args: ["--exclude", ".venv,tests"]
