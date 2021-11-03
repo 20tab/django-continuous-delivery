@@ -8,7 +8,7 @@ services:
         USER: ${USER:-appuser}
       context: .
       target: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_BUILD_TARGET:-remote}
-    image: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug|upper }}}:${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_TAG:-latest}
+    image: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}}:${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_TAG:-latest}
     depends_on:
       - postgres
     environment:
