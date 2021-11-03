@@ -16,7 +16,7 @@ services:
       - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}}
       - DJANGO_ADMINS
       - DJANGO_ALLOWED_HOSTS
-      - DJANGO_CONFIGURATION
+      - DJANGO_CONFIGURATION=${DJANGO_CONFIGURATION:-Remote}
       - DJANGO_DEBUG
       - DJANGO_DEFAULT_FROM_EMAIL
       - DJANGO_SECRET_KEY
