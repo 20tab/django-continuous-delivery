@@ -9,7 +9,7 @@ locals {
   service_labels = {
     component   = local.service_slug
     environment = var.environment
-    project     = local.project_name
+    project     = local.project_slug
     terraform   = "true"
   }
 
@@ -133,12 +133,14 @@ resource "kubernetes_deployment" "main" {
           }
 
           env_from {
-            secret_ref {
-              name = kubernetes_secret.env.metadata[0].name
-            }
-
             config_map_ref {
               name = kubernetes_config_map.env.metadata[0].name
+            }
+          }
+
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.env.metadata[0].name
             }
           }
         }
