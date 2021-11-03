@@ -13,7 +13,7 @@ locals {
     terraform   = "true"
   }
 
-  project_domain = regex("https?://([^/]*)", var.project_url)
+  project_host = regex("https?://([^/]*)", var.project_url)
 }
 
 terraform {
@@ -80,11 +80,11 @@ resource "kubernetes_config_map" "env" {
   data = merge(
     {
       DJANGO_ADMINS                = coalesce(var.django_admins, "admin,admin@${local.project_slug}.com")
-      DJANGO_ALLOWED_HOSTS         = coalesce(var.django_allowed_hosts, "127.0.0.1,localhost,${local.project_domain}")
+      DJANGO_ALLOWED_HOSTS         = coalesce(var.django_allowed_hosts, "127.0.0.1,localhost,${local.project_host},${local.service_slug}")
       DJANGO_CONFIGURATION         = coalesce(var.django_configuration, "Production")
       DJANGO_DEFAULT_FROM_EMAIL    = coalesce(var.django_default_from_email, "info@${local.project_slug}.com")
       DJANGO_SERVER_EMAIL          = coalesce(var.django_server_email, "no-reply@${local.project_slug}.com")
-      DJANGO_SESSION_COOKIE_DOMAIN = local.project_domain
+      DJANGO_SESSION_COOKIE_DOMAIN = local.project_host
       WEB_CONCURRENCY              = "1"
     },
     var.media_storage == "s3" ? {

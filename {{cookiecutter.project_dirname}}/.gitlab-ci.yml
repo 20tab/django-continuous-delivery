@@ -216,7 +216,7 @@ can-i-deploy_production:
   services:
     - docker:20-dind
   variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform/
+    TF_ROOT: ${CI_PROJECT_DIR}/terraform
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
