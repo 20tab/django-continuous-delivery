@@ -72,7 +72,7 @@ pip: pip_update  ## Compile requirements
 	python3 -m piptools compile -q -U -o requirements/base.txt requirements/base.in
 	python3 -m piptools compile -q -U -o requirements/common.txt requirements/common.in
 	python3 -m piptools compile -q -U -o requirements/local.txt requirements/local.in
-	python3 -m piptools compile -q -U -o - requirements/remote.in | grep '==' > requirements/remote.txt
+	python3 -m piptools compile -q -U -o requirements/remote.txt requirements/remote.in
 	python3 -m piptools compile -q -U -o requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
