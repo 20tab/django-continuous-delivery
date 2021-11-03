@@ -1,6 +1,13 @@
 [tool.black]
 target-version = ["py39"]
 
+[tool.coverage.html]
+title = "{{cookiecutter.project_name}} - Coverage"
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
 [tool.coverage.run]
 branch = true
 concurrency = ["multiprocessing"]
@@ -17,20 +24,20 @@ source = ["."]
 
 [tool.isort]
 atomic = true
-profile = "black"
 combine_as_imports = true
 default_section = "THIRDPARTY"
 known_first_party = [
     "{{cookiecutter.project_slug}}",
 ]
 known_third_party = "django"
+profile = "black"
 skip = [
     ".vscode-server",
 ]
 
 [tool.mypy]
-python_version = "3.9"
 ignore_missing_imports = true
+python_version = "3.9"
 
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
