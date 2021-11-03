@@ -97,7 +97,7 @@ pact-verify-webhook:
     {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
     {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
   rules:
-    - if: $PACT_ENABLED && $CI_JOB_TRIGGERED == "true"
+    - if: $PACT_ENABLED == "true" && $CI_JOB_TRIGGERED == "true"
       allow_failure: true
   script:
     - docker-compose build
