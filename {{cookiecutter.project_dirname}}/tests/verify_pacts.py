@@ -20,8 +20,8 @@ class ProviderStatesHandler:
             """Register and return the function."""
             try:
                 pattern = re.compile(state_matcher, re.IGNORECASE)
-            except re.error:
-                raise ValueError(f"Invalid pattern provided: {state_matcher}.")
+            except re.error as e:
+                raise ValueError(f"Invalid pattern provided: {state_matcher}.") from e
             self.handlers.append((pattern, function))
             return function
 
