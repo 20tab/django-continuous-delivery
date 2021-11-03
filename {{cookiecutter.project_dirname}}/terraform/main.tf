@@ -13,7 +13,7 @@ locals {
     terraform   = "true"
   }
 
-  project_host = regex("https?://([^/]*)", var.project_url)
+  project_host = regexall("https?://([^/]+)", var.project_url)[0][0]
 }
 
 terraform {
