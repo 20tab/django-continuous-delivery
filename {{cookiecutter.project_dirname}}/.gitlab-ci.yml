@@ -72,7 +72,7 @@ pact-verify-test:
     {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
     COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
   rules:
-    - if: $PACT_ENABLED && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != "master" && $CI_JOB_TRIGGERED != "true"
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != "master" && $CI_JOB_TRIGGERED != "true"
       allow_failure: true
   before_script:
     - if [ "$CI_COMMIT_BRANCH" ]; then PACT_CONSUMER_TAG="branch:$CI_COMMIT_BRANCH"; else PACT_CONSUMER_TAG="tag:$CI_COMMIT_TAG"; fi
