@@ -388,7 +388,17 @@ class Remote(ProjectDefault):
 
     AWS_STORAGE_BUCKET_NAME = values.Value()
 
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% else %}
+
+    # AWS_LOCATION = values.Value("")
+
+    # AWS_S3_ENDPOINT_URL = values.Value()
+
+    # AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
+
+    # AWS_STORAGE_BUCKET_NAME = values.Value()
+
+    # DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"{% endif %}
 
 
 class Development(Remote):
