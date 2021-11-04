@@ -11,6 +11,7 @@ stages:
 variables:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
+  PACT_BROKER_URL: "${PACT_BROKER_AUTH_URL}"
   PACT_PROVIDER_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
   SENTRY_PROJECT_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
   VERSION_BEFORE_REF: $CI_COMMIT_BEFORE_SHA
@@ -72,7 +73,7 @@ pact-verify-test:
     {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
     COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
   rules:
-    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != "master" && $CI_JOB_TRIGGERED != "true"
+    - if: $PACT_ENABLED == "true" && $CI_JOB_TRIGGERED != "true"
       allow_failure: true
   before_script:
     - if [ "$CI_COMMIT_BRANCH" ]; then PACT_CONSUMER_TAG="branch:$CI_COMMIT_BRANCH"; else PACT_CONSUMER_TAG="tag:$CI_COMMIT_TAG"; fi
@@ -310,6 +311,38 @@ create-version-tag_development:
       --version $VERSION_REF
       --tag "env:development"
       --tag "branch:develop"
+
+create-version-tag_staging:
+  extends: .create-version-tag
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_BRANCH == "master" && $CI_JOB_TRIGGERED != "true"
+  script:
+    - >
+      docker run --rm
+      -e PACT_BROKER_BASE_URL
+      -e PACT_BROKER_PASSWORD
+      -e PACT_BROKER_USERNAME
+      pactfoundation/pact-cli:latest-node14 pact-broker create-version-tag
+      --pacticipant $PACT_PROVIDER_NAME
+      --version $VERSION_REF
+      --tag "env:staging"
+      --tag "branch:master"
+
+create-version-tag_production:
+  extends: .create-version-tag
+  rules:
+    - if: $PACT_ENABLED == "true" && $CI_COMMIT_TAG && $CI_JOB_TRIGGERED != "true"
+  script:
+    - >
+      docker run --rm
+      -e PACT_BROKER_BASE_URL
+      -e PACT_BROKER_PASSWORD
+      -e PACT_BROKER_USERNAME
+      pactfoundation/pact-cli:latest-node14 pact-broker create-version-tag
+      --pacticipant $PACT_PROVIDER_NAME
+      --version $VERSION_REF
+      --tag "env:production"
+      --tag "tag:$CI_COMMIT_TAG"
 
 .sentry_deploy_success:
   stage: Sentry
