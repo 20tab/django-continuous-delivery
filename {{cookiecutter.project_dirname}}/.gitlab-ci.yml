@@ -23,7 +23,7 @@ sentry_release:
   services:
     - docker:20-dind
   rules:
-    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "develop"
+    - if: $SENTRY_DSN && $CI_COMMIT_BRANCH == "develop" && $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_TAG
   script:
     - RELEASE_START=$(date +%s)
     - >
