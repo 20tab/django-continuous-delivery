@@ -21,7 +21,7 @@ profile = "black"
 combine_as_imports = true
 default_section = "THIRDPARTY"
 known_first_party = [
-    "{{ cookiecutter.project_slug }}",
+    "{{ cookiecutter.django_settings_dirname }}",
 ]
 known_third_party = "django"
 skip = [
@@ -34,4 +34,4 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
-DJANGO_SETTINGS_MODULE = "{{ cookiecutter.project_slug }}.settings"
+DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"

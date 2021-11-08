@@ -44,8 +44,8 @@ To get the existing project, change directory, clone the project repository and 
 
 ```shell
 $ cd ~/projects/
-$ git clone GIT_REPOSITORY_URL {{ cookiecutter.project_slug }}
-$ cd {{ cookiecutter.project_slug }}
+$ git clone GIT_REPOSITORY_URL {{ cookiecutter.project_dirname }}
+$ cd {{ cookiecutter.project_dirname }}
 ```
 
 **NOTE** : Make sure you switch to the correct branch (e.g. `git checkout develop`)

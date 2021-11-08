@@ -320,12 +320,10 @@ def init_command(
         project_slug or click.prompt("Project slug", default=slugify(project_name)),
     )
     service_slug = slugify(
-        service_slug or click.prompt("Service slug", default="django"),
+        service_slug or click.prompt("Service slug", default="backend"),
+        separator="",
     )
-    project_dirname_choices = [
-        slugify(service_slug, separator=""),
-        slugify(project_slug, separator=""),
-    ]
+    project_dirname_choices = [service_slug, slugify(project_slug, separator="")]
     project_dirname = project_dirname or click.prompt(
         "Project dirname",
         default=project_dirname_choices[0],
