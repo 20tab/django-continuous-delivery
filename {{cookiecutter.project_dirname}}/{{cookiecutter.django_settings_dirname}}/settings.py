@@ -182,6 +182,11 @@ class ProjectDefault(Configuration):
 
     SESSION_COOKIE_DOMAIN = values.Value()
 
+    # Secure Proxy SSL Header
+    # https://docs.djangoproject.com/en/stable/ref/settings/#secure-proxy-ssl-header
+
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 class Local(ProjectDefault):
     """The local settings."""
@@ -191,11 +196,6 @@ class Local(ProjectDefault):
     INSTALLED_APPS = ProjectDefault.INSTALLED_APPS.copy()
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
-
-    # Secure Proxy SSL Header
-    # https://docs.djangoproject.com/en/stable/ref/settings/#secure-proxy-ssl-header
-
-    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
     # Django Debug Toolbar
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
