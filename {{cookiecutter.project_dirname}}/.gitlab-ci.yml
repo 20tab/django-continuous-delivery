@@ -23,8 +23,8 @@ sentry_release:
   services:
     - docker:20-dind
   rules:
-    - &skip-trigger-rule
-      if: $CI_PIPELINE_SOURCE == "trigger"
+    - &pipeline-push-rule
+      if: $CI_PIPELINE_SOURCE != "push"
       when: never
     - if: $SENTRY_DSN && ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_TAG)
   script:
@@ -49,7 +49,7 @@ test:
     - docker:20-dind
   needs: []
   rules:
-    - if: $CI_PIPELINE_SOURCE != "trigger"
+    - if: $CI_PIPELINE_SOURCE == "push"
   variables:
     {{ cookiecutter.service_slug|upper }}_CONTAINER_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}_{{ cookiecutter.service_slug }}"
     {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
@@ -80,7 +80,7 @@ pact-verify-test:
     {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "$CI_JOB_NAME-$CI_JOB_ID"
     COMPOSE_PROJECT_NAME: "$CI_PROJECT_PATH_SLUG-$CI_JOB_NAME-$CI_JOB_ID"
   rules:
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - if: $PACT_ENABLED == "true"
       allow_failure: true
   before_script:
@@ -98,7 +98,7 @@ pact-verify-test:
 
 pact-verify-webhook:
   stage: Pact-verify
-  image: docker:20
+  image: docker/compose:debian-1.29.2
   services:
     - docker:20-dind
   variables:
@@ -123,7 +123,7 @@ pages:
   image: busybox
   needs: ["test"]
   rules:
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - mkdir public
@@ -134,7 +134,7 @@ pages:
 
 .development:
   rules: &development-rules
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - &development-rule
       if: $CI_COMMIT_BRANCH == "develop"
       variables:
@@ -145,7 +145,7 @@ pages:
 
 .staging:
   rules: &staging-rules
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - &staging-rule
       if: $CI_COMMIT_BRANCH == "master"
       variables:
@@ -156,7 +156,7 @@ pages:
 
 .production:
   rules: &production-rules
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - &production-rule
       if: $CI_COMMIT_TAG
       variables:
@@ -328,6 +328,7 @@ rollback_development:
     - .rollback
   needs: ["deploy_development"]
   rules:
+    - <<: *pipeline-push-rule
     - <<: *development-rule
       when: manual
       allow_failure: true
@@ -338,6 +339,7 @@ rollback_staging:
     - .rollback
   needs: ["deploy_staging"]
   rules:
+    - <<: *pipeline-push-rule
     - <<: *staging-rule
       when: manual
       allow_failure: true
@@ -348,6 +350,7 @@ rollback_production:
     - .rollback
   needs: ["deploy_production"]
   rules:
+    - <<: *pipeline-push-rule
     - <<: *production-rule
       when: manual
       allow_failure: true
@@ -432,7 +435,7 @@ sentry_success_development:
     - &sentry-rule
       if: $SENTRY_DSN == null
       when: never
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - <<: *development-rule
       when: on_success
 
@@ -441,7 +444,7 @@ sentry_success_staging:
   needs: ["deploy_staging"]
   rules:
     - <<: *sentry-rule
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - <<: *staging-rule
       when: on_success
 
@@ -450,7 +453,7 @@ sentry_success_production:
   needs: ["deploy_production"]
   rules:
     - <<: *sentry-rule
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - <<: *production-rule
       when: on_success
 
@@ -472,7 +475,7 @@ sentry_failure_development:
   extends: .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - <<: *development-rule
       when: on_failure
 
@@ -480,7 +483,7 @@ sentry_failure_staging:
   extends: .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - <<: *staging-rule
       when: on_failure
 
@@ -488,6 +491,6 @@ sentry_failure_production:
   extends: .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
-    - <<: *skip-trigger-rule
+    - <<: *pipeline-push-rule
     - <<: *production-rule
       when: on_failure
