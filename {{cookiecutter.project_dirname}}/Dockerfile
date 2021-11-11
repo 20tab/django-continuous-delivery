@@ -36,6 +36,7 @@ CMD ./scripts/test.sh --reverse
 
 FROM base AS remote
 
+ENV DJANGO_CONFIGURATION=Remote
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --no-cache-dir -r requirements/remote.txt
 COPY --chown=$APPUSER . .
@@ -47,6 +48,7 @@ CMD python3 manage.py migrate --noinput && \
 
 FROM base AS local
 
+ENV DJANGO_CONFIGURATION=Local
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gettext \
         git \

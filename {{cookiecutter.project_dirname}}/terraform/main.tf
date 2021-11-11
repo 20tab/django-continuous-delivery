@@ -14,6 +14,13 @@ locals {
   }
 
   project_host = regexall("https?://([^/]+)", var.project_url)[0][0]
+
+  django_allowed_hosts = join(
+    setunion(
+      split(",", coalesce(var.django_allowed_hosts, "127.0.0.1,localhost")),
+      [local.project_host, local.service_slug]
+    )
+  )
 }
 
 terraform {
@@ -52,21 +59,19 @@ resource "kubernetes_secret" "env" {
     namespace = local.namespace
   }
 
-  data = merge(
+  data = { for k, v in merge(
     {
-      CACHE_URL         = coalesce(var.cache_url, "locmem://")
+      CACHE_URL         = var.cache_url
       DATABASE_URL      = var.database_url
       DJANGO_SECRET_KEY = random_password.django_secret_key.result
-      EMAIL_URL         = coalesce(var.email_url, "console://")
+      EMAIL_URL         = var.email_url
+      SENTRY_DSN        = var.sentry_dsn
     },
     var.media_storage == "s3" ? {
       AWS_ACCESS_KEY_ID     = var.s3_bucket_access_id
       AWS_SECRET_ACCESS_KEY = var.s3_bucket_secret_key
-    } : {},
-    var.sentry_dsn != "" ? {
-      SENTRY_DSN = var.sentry_dsn
-    } : {},
-  )
+    } : {}
+  ) : k => v if v != "" }
 }
 
 /* Config Map */
@@ -77,15 +82,15 @@ resource "kubernetes_config_map" "env" {
     namespace = local.namespace
   }
 
-  data = merge(
+  data = { for k, v in merge(
     {
-      DJANGO_ADMINS                = coalesce(var.django_admins, "admin,admin@${local.project_slug}.com")
-      DJANGO_ALLOWED_HOSTS         = coalesce(var.django_allowed_hosts, "127.0.0.1,localhost,${local.project_host},${local.service_slug}")
-      DJANGO_CONFIGURATION         = coalesce(var.django_configuration, "Production")
-      DJANGO_DEFAULT_FROM_EMAIL    = coalesce(var.django_default_from_email, "info@${local.project_slug}.com")
-      DJANGO_SERVER_EMAIL          = coalesce(var.django_server_email, "no-reply@${local.project_slug}.com")
+      DJANGO_ADMINS                = var.django_admins
+      DJANGO_ALLOWED_HOSTS         = local.django_allowed_hosts
+      DJANGO_CONFIGURATION         = var.django_configuration
+      DJANGO_DEFAULT_FROM_EMAIL    = var.django_default_from_email
+      DJANGO_SERVER_EMAIL          = var.django_server_email
       DJANGO_SESSION_COOKIE_DOMAIN = local.project_host
-      WEB_CONCURRENCY              = "1"
+      WEB_CONCURRENCY              = var.web_concurrency
     },
     var.media_storage == "s3" ? {
       DJANGO_AWS_LOCATION            = local.environment_slug
@@ -93,7 +98,7 @@ resource "kubernetes_config_map" "env" {
       DJANGO_AWS_S3_ENDPOINT_URL     = var.s3_bucket_endpoint_url
       DJANGO_AWS_S3_FILE_OVERWRITE   = var.s3_bucket_file_overwrite
     } : {}
-  )
+  ) : k => v if v != "" }
 }
 
 /* Deployment */

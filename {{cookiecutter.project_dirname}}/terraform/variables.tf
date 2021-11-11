@@ -26,7 +26,7 @@ variable "django_allowed_hosts" {
 variable "django_configuration" {
   type        = string
   description = "The value of the DJANGO_CONFIGURATION environment variable."
-  default     = ""
+  default     = "Remote"
 }
 
 variable "django_default_from_email" {
@@ -118,4 +118,10 @@ variable "service_replicas" {
   description = "The desired numbers of replicas to deploy."
   type        = number
   default     = 1
+}
+
+variable "web_concurrency" {
+  description = "The desired number of gunicorn workers."
+  type        = string
+  default     = ""
 }

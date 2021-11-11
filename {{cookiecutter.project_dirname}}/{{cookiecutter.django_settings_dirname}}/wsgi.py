@@ -12,7 +12,7 @@ import os
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.django_settings_dirname }}.settings"
 )
-os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
+os.environ.setdefault("DJANGO_CONFIGURATION", "Remote")
 
 from configurations.wsgi import get_wsgi_application  # noqa isort:skip
 

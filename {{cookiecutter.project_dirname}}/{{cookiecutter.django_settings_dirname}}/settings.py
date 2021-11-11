@@ -399,15 +399,3 @@ class Remote(ProjectDefault):
     # AWS_STORAGE_BUCKET_NAME = values.Value()
 
     # DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"{% endif %}
-
-
-class Development(Remote):
-    """The development settings."""
-
-
-class Staging(Remote):
-    """The staging settings."""
-
-
-class Production(Remote):
-    """The production settings."""
