@@ -77,8 +77,6 @@ class ProjectDefault(Configuration):
         },
     ]
 
-    ASGI_APPLICATION = "{{cookiecutter.project_slug}}.asgi.application"
-
     WSGI_APPLICATION = "{{cookiecutter.project_slug}}.wsgi.application"
 
     # Database

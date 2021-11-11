@@ -16,7 +16,7 @@ bind = "0.0.0.0:8000"
 # Worker Processes
 # https://docs.gunicorn.org/en/stable/settings.html#worker-processes
 
-worker_class = "uvicorn.workers.UvicornWorker"
+worker_class = "{{cookiecutter.project_slug}}.workers.UvicornDjangoWorker"
 
 # Temporary Directory
 # https://docs.gunicorn.org/en/stable/settings.html#worker-tmp-dir
