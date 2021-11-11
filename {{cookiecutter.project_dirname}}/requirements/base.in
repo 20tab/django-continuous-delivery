@@ -1,4 +1,4 @@
 # pip-compile --output-file base.txt base.in
-django-configurations[cache,database,email]~=2.2.0
+django-configurations[cache,database,email]~=2.3.0
 django~=3.2.0
 psycopg2~=2.9.0
