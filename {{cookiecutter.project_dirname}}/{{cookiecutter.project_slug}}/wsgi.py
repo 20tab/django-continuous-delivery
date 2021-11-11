@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/stable/howto/deployment/wsgi/
 
 import os
 
+os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "{{cookiecutter.project_slug}}.settings"
 )
-os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
 
 from configurations.wsgi import get_wsgi_application  # noqa isort:skip
 
