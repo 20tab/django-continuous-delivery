@@ -77,8 +77,6 @@ class ProjectDefault(Configuration):
         },
     ]
 
-    ASGI_APPLICATION = "{{ cookiecutter.django_settings_dirname }}.asgi.application"
-
     WSGI_APPLICATION = "{{ cookiecutter.django_settings_dirname }}.wsgi.application"
 
     # Database
