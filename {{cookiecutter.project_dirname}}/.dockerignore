@@ -5,11 +5,13 @@
 *.svg
 *.txt
 .*
+data
 docker-compose*
 Dockerfile*
 htmlcov
 k8s
 Makefile
 media
+media_test
 requirements/*.in
 static

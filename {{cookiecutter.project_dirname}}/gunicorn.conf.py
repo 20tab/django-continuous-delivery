@@ -16,4 +16,9 @@ bind = "0.0.0.0:8000"
 # Worker Processes
 # https://docs.gunicorn.org/en/stable/settings.html#worker-processes
 
-worker_class = "{{cookiecutter.django_settings_dirname}}.workers.UvicornDjangoWorker"
+worker_class = "{{cookiecutter.project_slug}}.workers.UvicornDjangoWorker"
+
+# Temporary Directory
+# https://docs.gunicorn.org/en/stable/settings.html#worker-tmp-dir
+
+worker_tmp_dir = "/dev/shm"  # nosec

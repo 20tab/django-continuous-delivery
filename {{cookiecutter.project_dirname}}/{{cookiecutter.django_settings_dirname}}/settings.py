@@ -77,7 +77,7 @@ class ProjectDefault(Configuration):
         },
     ]
 
-    WSGI_APPLICATION = "{{ cookiecutter.django_settings_dirname }}.wsgi.application"
+    WSGI_APPLICATION = "{{cookiecutter.project_slug}}.wsgi.application"
 
     # Database
     # https://docs.djangoproject.com/en/stable/ref/settings/#databases
@@ -310,6 +310,13 @@ class Testing(ProjectDefault):
     # Uncomment when using media
 
     # MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"{% endif %}
+
+    # unittest-xml-reporting (aka xmlrunner)
+    # https://github.com/xmlrunner/unittest-xml-reporting#django-support
+
+    TEST_OUTPUT_FILE_NAME = "report.xml"
+
+    TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 
 
 class Remote(ProjectDefault):

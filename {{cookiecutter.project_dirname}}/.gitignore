@@ -177,6 +177,7 @@ media/
 /data/
 /manage_local.py
 /media_test
+report.xml
 
 # END local
 
