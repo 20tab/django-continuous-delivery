@@ -1,4 +1,4 @@
-"""Define tests to verify pacts."""
+"""Define pacts provider state handler."""
 
 import re
 
@@ -47,18 +47,14 @@ class ProviderStatesHandler:
             self.context["traveller"].stop()
         except KeyError:
             pass
+        for patcher in self.context["patchers"].values():
+            patcher.stop()
 
     def run(self, name, **params):
         """Set up the given provider state."""
-        self.context = {**params}
+        self.context = {**params, "patchers": {}}
         for handler_name in name.split("/"):
             self.handle(handler_name.strip(), self.context)
 
 
 handler = ProviderStatesHandler()
-
-
-def test_pacts(live_server, pact_verifier):
-    """Test pacts."""
-    pact_verifier.verify(live_server.url, handler.run)
-    handler.tear_down()

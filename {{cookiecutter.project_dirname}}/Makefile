@@ -128,7 +128,7 @@ verifybranchpacts:  ## Run verify branch pacts test
     --pact-verify-consumer=$(PACT_CONSUMER_NAME) \
     --pact-provider-name=$(PACT_PROVIDER_NAME) \
 	--pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH) \
-	tests/verify_pacts.py
+	pacts/verify_pacts.py
 
 .PHONY: update
 update: pip precommit_update ## Run update
