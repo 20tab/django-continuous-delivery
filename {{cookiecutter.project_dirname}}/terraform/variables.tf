@@ -110,8 +110,8 @@ variable "service_container_image" {
 
 variable "service_container_port" {
   description = "The service container port."
-  type        = number
-  default     = 8000
+  type        = string
+  default     = ""
 }
 
 variable "service_replicas" {

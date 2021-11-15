@@ -87,7 +87,7 @@ migrations: ## Django makemigrations
 .PHONY: openapi
 openapi:  ## Django generate openapi file
 	./scripts/apidoc.sh
-	python3 -m webbrowser localhost:8000
+	python3 -m webbrowser localhost:{{ cookiecutter.internal_service_port }}
 	python3 -m http.server --directory .apidoc/
 
 .PHONY: outdated
