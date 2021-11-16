@@ -26,9 +26,10 @@ services:
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_USERNAME
       - EMAIL_URL
+      - INTERNAL_SERVICE_PORT
       - PYTHONBREAKPOINT
     ports:
-      - "${{ "{" }}{{ cookiecutter.service_slug|upper }}_PORT:-8000}:8000"
+      - "${{ '{' }}{{ cookiecutter.service_slug|upper }}_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}:${INTERNAL_SERVICE_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}"
     user: ${USER:-appuser}
 
   postgres:

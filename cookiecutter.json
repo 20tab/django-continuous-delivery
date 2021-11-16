@@ -4,6 +4,7 @@
   "service_slug": "{{ cookiecutter.project_slug }}",
   "project_dirname": ["{{ cookiecutter.service_slug }}", "{{ cookiecutter.project_slug }}"],
   "django_settings_dirname": "{{ cookiecutter.project_slug | slugify(separator='') }}",
+  "internal_service_port": "8000",
   "project_url_dev": null,
   "project_url_stage": null,
   "project_url_prod": null,

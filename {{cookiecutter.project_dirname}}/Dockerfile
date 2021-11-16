@@ -36,7 +36,7 @@ CMD ./scripts/test.sh --reverse
 
 FROM base AS remote
 
-ENV DJANGO_CONFIGURATION=Remote
+ENV DJANGO_CONFIGURATION=Remote INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --no-cache-dir -r requirements/remote.txt
 COPY --chown=$APPUSER . .
@@ -48,7 +48,7 @@ CMD python3 manage.py migrate --noinput && \
 
 FROM base AS local
 
-ENV DJANGO_CONFIGURATION=Local
+ENV DJANGO_CONFIGURATION=Local INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gettext \
         git \
@@ -62,4 +62,4 @@ COPY --chown=$APPUSER . .
 USER $APPUSER
 CMD python3 manage.py migrate --noinput && \
     python3 manage.py collectstatic --clear --noinput && \
-    python3 manage.py runserver 0.0.0.0:8000
+    python3 manage.py runserver 0.0.0.0:${INTERNAL_SERVICE_PORT}

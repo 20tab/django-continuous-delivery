@@ -21,6 +21,8 @@ locals {
       [local.project_host, local.service_slug]
     )
   )
+
+  service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
 }
 
 terraform {
@@ -90,6 +92,7 @@ resource "kubernetes_config_map" "env" {
       DJANGO_DEFAULT_FROM_EMAIL    = var.django_default_from_email
       DJANGO_SERVER_EMAIL          = var.django_server_email
       DJANGO_SESSION_COOKIE_DOMAIN = local.project_host
+      INTERNAL_SERVICE_PORT        = local.service_container_port
       WEB_CONCURRENCY              = var.web_concurrency
     },
     var.media_storage == "s3" ? {
@@ -134,7 +137,7 @@ resource "kubernetes_deployment" "main" {
           name  = local.service_slug
 
           port {
-            container_port = var.service_container_port
+            container_port = local.service_container_port
           }
 
           env_from {
@@ -170,8 +173,8 @@ resource "kubernetes_service" "cluster_ip" {
     }
 
     port {
-      port        = var.service_container_port
-      target_port = var.service_container_port
+      port        = local.service_container_port
+      target_port = local.service_container_port
     }
 
   }
