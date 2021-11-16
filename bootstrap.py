@@ -287,7 +287,7 @@ def run(
         )
         gitlab_project_variables = {}
         sentry_dsn and gitlab_project_variables.update(
-            SENTRY_DSN='{value = "%s"}' % sentry_dsn
+            SENTRY_DSN='{value = "%s", masked = true}' % sentry_dsn
         )
         init_gitlab(
             gitlab_group_slug,
