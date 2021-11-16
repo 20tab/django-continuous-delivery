@@ -7,6 +7,7 @@ import shutil
 import subprocess
 from functools import partial
 from pathlib import Path
+from time import time
 
 import click
 import validators
@@ -101,59 +102,95 @@ def init_gitlab(
     project_slug,
     service_slug,
     service_dir,
-    gitlab_project_variables=None,
-    gitlab_group_variables=None,
+    gitlab_project_variables,
+    gitlab_group_variables,
+    terraform_dir,
+    logs_dir,
 ):
     """Initialize the Gitlab repository and associated resources."""
     click.echo(info("...creating the Gitlab repository and associated resources"))
-    gitlab_project_variables = gitlab_project_variables or {}
-    gitlab_group_variables = gitlab_group_variables or {}
-    env = {
-        "TF_VAR_gitlab_group_variables": "{%s}"
+    terraform_dir = Path(terraform_dir) / service_slug
+    os.makedirs(terraform_dir)
+    env = dict(
+        TF_DATA_DIR=(Path(terraform_dir) / "data").resolve(),
+        TF_LOG="INFO",
+        TF_VAR_gitlab_group_variables="{%s}"
         % ", ".join(f"{k} = {v}" for k, v in gitlab_group_variables.items()),
-        "TF_VAR_gitlab_group_slug": gitlab_group_slug,
-        "TF_VAR_gitlab_token": gitlab_private_token,
-        "TF_VAR_project_name": project_name,
-        "TF_VAR_project_slug": project_slug,
-        "TF_VAR_gitlab_project_variables": "{%s}"
+        TF_VAR_gitlab_group_slug=gitlab_group_slug,
+        TF_VAR_gitlab_token=gitlab_private_token,
+        TF_VAR_project_name=project_name,
+        TF_VAR_project_slug=project_slug,
+        TF_VAR_gitlab_project_variables="{%s}"
         % ", ".join(f"{k} = {v}" for k, v in gitlab_project_variables.items()),
-        "TF_VAR_service_dir": service_dir,
-        "TF_VAR_service_slug": service_slug,
-    }
+        TF_VAR_service_dir=service_dir,
+        TF_VAR_service_slug=service_slug,
+    )
+    state_path = Path(terraform_dir) / "state.tfstate"
     cwd = Path("terraform")
+    logs_dir = Path(logs_dir) / service_slug / "terraform"
+    os.makedirs(logs_dir)
+    init_log_path = logs_dir / "init.log"
+    init_output_path = logs_dir / "init-output.log"
     init_process = subprocess.run(
-        ["terraform", "init", "-reconfigure", "-input=false", "-no-color"],
+        [
+            "terraform",
+            "init",
+            "-backend-config",
+            f"path={state_path.resolve()}",
+            "-input=false",
+            "-no-color",
+        ],
         capture_output=True,
         cwd=cwd,
-        env=env,
+        env=dict(**env, TF_LOG_PATH=init_log_path.resolve()),
         text=True,
     )
+    init_output_path.write_text(init_process.stdout)
     if init_process.returncode == 0:
-        (cwd / ".terraform-init.log").write_text(init_process.stdout)
+        apply_log_path = logs_dir / "apply.log"
+        apply_output_path = logs_dir / "apply-output.log"
         apply_process = subprocess.run(
             ["terraform", "apply", "-auto-approve", "-input=false", "-no-color"],
             capture_output=True,
             cwd=cwd,
-            env=env,
+            env=dict(**env, TF_LOG_PATH=apply_log_path.resolve()),
             text=True,
         )
-        if apply_process.returncode == 0:
-            (cwd / ".terraform-apply.log").write_text(apply_process.stdout)
-        else:
-            (cwd / ".terraform-apply-errors.log").write_text(apply_process.stderr)
+        if apply_process.returncode != 0:
             click.echo(
                 error(
                     "Error applying Terraform Gitlab configuration "
-                    "(see terraform/.terraform-apply-errors.log)"
+                    f"(check {apply_output_path} and {apply_log_path})"
+                )
+            )
+            destroy_log_path = logs_dir / "destroy.log"
+            destroy_output_path = logs_dir / "destroy.log"
+            destroy_process = subprocess.run(
+                [
+                    "terraform",
+                    "destroy",
+                    "-auto-approve",
+                    "-input=false",
+                    "-no-color",
+                ],
+                capture_output=True,
+                cwd=cwd,
+                env=dict(**env, TF_LOG_PATH=destroy_log_path.resolve()),
+                text=True,
+            )
+            destroy_output_path.write_text(destroy_process.stdout)
+            destroy_process.returncode != 0 and click.echo(
+                error(
+                    "Error performing Terraform destroy "
+                    f"(check {destroy_output_path} and {destroy_log_path})"
                 )
             )
             raise click.Abort()
     else:
-        (cwd / ".terraform-init-errors.log").write_text(init_process.stderr)
         click.echo(
             error(
-                "Error initializing Terraform "
-                "(see terraform/.terraform-init-errors.log)"
+                "Error performing Terraform init "
+                f"(check {init_output_path} and {init_log_path})"
             )
         )
         raise click.Abort()
@@ -180,6 +217,8 @@ def run(
     use_gitlab=None,
     gitlab_private_token=None,
     gitlab_group_slug=None,
+    terraform_dir=None,
+    logs_dir=None,
 ):
     """Run the bootstrap."""
     service_dir = str((Path(output_dir) / project_dirname).resolve())
@@ -200,6 +239,9 @@ def run(
             type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
         )
     ).lower()
+    run_id = f"{time():.0f}"
+    terraform_dir = terraform_dir or Path(f".terraform/{run_id}").resolve()
+    logs_dir = logs_dir or Path(f".logs/{run_id}").resolve()
     click.echo(highlight(f"Initializing the {service_slug} service:"))
     init_service(
         output_dir,
@@ -225,6 +267,7 @@ def run(
         else click.confirm(warning("Do you want to configure Gitlab?"), default=True)
     )
     if use_gitlab:
+        gitlab_group_variables = {}
         if not gitlab_group_slug:
             gitlab_group_slug = click.prompt("Gitlab group slug", default=project_slug)
             click.confirm(
@@ -254,6 +297,9 @@ def run(
             service_slug,
             service_dir,
             gitlab_project_variables,
+            gitlab_group_variables,
+            terraform_dir,
+            logs_dir,
         )
 
 
@@ -303,6 +349,8 @@ def validate_or_prompt_password(value, message, default=None, required=False):
 @click.option("--use-gitlab/--no-gitlab", is_flag=True, default=None)
 @click.option("--gitlab-private-token", envvar=GITLAB_TOKEN_ENV_VAR)
 @click.option("--gitlab-group-slug")
+@click.option("--terraform-dir")
+@click.option("--logs-dir")
 def init_command(
     uid,
     output_dir,
@@ -319,6 +367,8 @@ def init_command(
     use_gitlab,
     gitlab_private_token,
     gitlab_group_slug,
+    terraform_dir,
+    logs_dir,
 ):
     """Collect options and run the bootstrap."""
     output_dir = OUTPUT_DIR or output_dir
@@ -366,6 +416,8 @@ def init_command(
         use_gitlab,
         gitlab_private_token,
         gitlab_group_slug,
+        terraform_dir,
+        logs_dir,
     )
 
 
