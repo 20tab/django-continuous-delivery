@@ -7,8 +7,8 @@ WORKDIR $WORKDIR
 RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
 ENV PATH="/home/${APPUSER}/.local/bin:${PATH}"
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.9/site-packages
 RUN apt-get update \
-    && apt-get upgrade -y --no-install-recommends \
     && apt-get install -y --no-install-recommends \
         libpq5 \
     && rm -rf /var/lib/apt/lists/*
@@ -18,15 +18,16 @@ RUN apt-get update \
         gcc \
         libc6-dev \
         libpq-dev \
-    && su $APPUSER -c "python3 -m pip install --user --upgrade pip~=21.3.0" \
     && su $APPUSER -c "python3 -m pip install --user --no-cache-dir -r requirements/base.txt" \
+    && find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true \
     && apt-get purge -y --auto-remove \
         gcc \
         libc6-dev \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY --chown=$APPUSER ./requirements/common.txt requirements/common.txt
-RUN su $APPUSER -c "python3 -m pip install --user --no-cache-dir -r requirements/common.txt"
+RUN su $APPUSER -c "python3 -m pip install --user --no-cache-dir -r requirements/common.txt" \
+    && find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true
 
 
 FROM base AS test
@@ -45,8 +46,7 @@ USER $APPUSER
 ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.9/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
-    && find ${PACKAGES_PATH}/botocore/data/* -not -name s3 -delete || true\
-    && find ${PACKAGES_PATH}/babel/locale-data/* -not -name en* -not -name it* -not -name root* -delete || true
+    && find ${PACKAGES_PATH}/boto*/data/* -not -name s3 -delete || true
 COPY --chown=$APPUSER . .
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["python3", "-m", "gunicorn", "{{cookiecutter.project_slug}}.asgi"]
