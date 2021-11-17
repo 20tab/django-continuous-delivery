@@ -143,7 +143,7 @@ def init_gitlab(
         ],
         capture_output=True,
         cwd=cwd,
-        env=dict(**env, TF_LOG_PATH=init_log_path.resolve()),
+        env=dict(**env, TF_LOG_PATH=str(init_log_path.resolve())),
         text=True,
     )
     init_stdout_path.write_text(init_process.stdout)
@@ -155,7 +155,7 @@ def init_gitlab(
             ["terraform", "apply", "-auto-approve", "-input=false", "-no-color"],
             capture_output=True,
             cwd=cwd,
-            env=dict(**env, TF_LOG_PATH=apply_log_path.resolve()),
+            env=dict(**env, TF_LOG_PATH=str(apply_log_path.resolve())),
             text=True,
         )
         apply_stdout_path.write_text(apply_process.stdout)
@@ -180,7 +180,7 @@ def init_gitlab(
                 ],
                 capture_output=True,
                 cwd=cwd,
-                env=dict(**env, TF_LOG_PATH=destroy_log_path.resolve()),
+                env=dict(**env, TF_LOG_PATH=str(destroy_log_path.resolve())),
                 text=True,
             )
             destroy_stdout_path.write_text(destroy_process.stdout)
