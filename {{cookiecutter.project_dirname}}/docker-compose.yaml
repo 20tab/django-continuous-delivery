@@ -28,6 +28,7 @@ services:
       - EMAIL_URL
       - INTERNAL_SERVICE_PORT
       - PYTHONBREAKPOINT
+      - SERVICE_PORT
     ports:
       - "${{ '{' }}{{ cookiecutter.service_slug|upper }}_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}:${INTERNAL_SERVICE_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}"
     user: ${USER:-appuser}
