@@ -323,6 +323,8 @@ class Remote(ProjectDefault):
 
     DEBUG = False
 
+    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
+
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/
 
@@ -360,11 +362,13 @@ class Remote(ProjectDefault):
     # WhiteNoise
     # http://whitenoise.evans.io/en/stable/django.html
 
-    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
-
-    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    try:
+        import whitenoise  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:  # pragma: no cover
+        MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+        STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
     # Sentry
     # https://sentry.io/for/django/
