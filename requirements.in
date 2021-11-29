@@ -1,6 +1,6 @@
 # pip-compile --output-file requirements.txt requirements.in
-black~=21.10b0
-flake8-bugbear~=21.9.0
+black~=21.11b1
+flake8-bugbear~=21.11.0
 flake8-docstrings~=1.6.0
 flake8-isort~=4.1.0
 flake8~=4.0.0

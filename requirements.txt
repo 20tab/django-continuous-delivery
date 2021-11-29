@@ -1,8 +1,8 @@
 attrs==21.2.0
     # via flake8-bugbear
-backports.entry-points-selectable==1.1.0
+backports.entry-points-selectable==1.1.1
     # via virtualenv
-black==21.10b0
+black==21.11b1
     # via -r requirements.in
 cfgv==3.3.1
     # via pre-commit
@@ -12,7 +12,7 @@ click==8.0.3
     #   pip-tools
 distlib==0.3.3
     # via virtualenv
-filelock==3.3.2
+filelock==3.4.0
     # via virtualenv
 flake8==4.0.1
     # via
@@ -20,15 +20,15 @@ flake8==4.0.1
     #   flake8-bugbear
     #   flake8-docstrings
     #   flake8-isort
-flake8-bugbear==21.9.2
+flake8-bugbear==21.11.28
     # via -r requirements.in
 flake8-docstrings==1.6.0
     # via -r requirements.in
 flake8-isort==4.1.1
     # via -r requirements.in
-identify==2.3.3
+identify==2.4.0
     # via pre-commit
-isort==5.10.0
+isort==5.10.1
     # via
     #   -r requirements.in
     #   flake8-isort
@@ -60,15 +60,15 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
-pyupgrade==2.29.0
+pyupgrade==2.29.1
     # via -r requirements.in
 pyyaml==6.0
     # via pre-commit
-regex==2021.11.2
+regex==2021.11.10
     # via black
 six==1.16.0
     # via virtualenv
-snowballstemmer==2.1.0
+snowballstemmer==2.2.0
     # via pydocstyle
 testfixtures==6.18.3
     # via flake8-isort
@@ -84,7 +84,7 @@ tomli==1.2.2
     #   pep517
 types-python-slugify==5.0.2
     # via -r requirements.in
-typing-extensions==3.10.0.2
+typing-extensions==4.0.0
     # via
     #   black
     #   mypy
