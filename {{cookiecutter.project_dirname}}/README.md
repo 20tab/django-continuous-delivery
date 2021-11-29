@@ -6,26 +6,26 @@ A [Django](https://docs.djangoproject.com) project using [uvicorn](https://www.u
 
 ## Index
 
-- [Conventions](#conventions)
-- [Initialization](#initialization)
-  - [Virtual environment](#virtual-environment)
-  - [Requirements](#requirements)
-- [Git](#git)
-  - [Git clone](#git-clone)
-  - [Git hooks](#git-hooks)
-- [Libraries](#libraries)
-  - [List outdated libraries](#list-outdated-libraries)
-  - [Update libraries](#update-libraries)
-  - [Install libraries](#install-libraries)
-- [Testing](#testing)
-- [Static files](#static-files)
-- [Continuous Integration](#continuous-integration)
-  - [Gitlab CI](#gitlab-ci)
+-   [Conventions](#conventions)
+-   [Initialization](#initialization)
+    -   [Virtual environment](#virtual-environment)
+    -   [Requirements](#requirements)
+-   [Git](#git)
+    -   [Git clone](#git-clone)
+    -   [Git hooks](#git-hooks)
+-   [Libraries](#libraries)
+    -   [List outdated libraries](#list-outdated-libraries)
+    -   [Update libraries](#update-libraries)
+    -   [Install libraries](#install-libraries)
+-   [Testing](#testing)
+-   [Static files](#static-files)
+-   [Continuous Integration](#continuous-integration)
+    -   [Gitlab CI](#gitlab-ci)
 
 ## Conventions
 
-- replace `projects` with your actual projects directory
-- replace `git_repository_url` with your actual git repository url
+-   replace `projects` with your actual projects directory
+-   replace `git_repository_url` with your actual git repository url
 
 ## Initialization
 

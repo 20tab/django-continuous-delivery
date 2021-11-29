@@ -8,8 +8,8 @@
 
 In the following instructions:
 
-- replace `projects` with your actual projects directory
-- replace `My project name` with your chosen project name
+-   replace `projects` with your actual projects directory
+-   replace `My project name` with your chosen project name
 
 ## 🧩 Requirements
 
