@@ -46,7 +46,7 @@ USER $APPUSER
 ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.9/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
-    && find ${PACKAGES_PATH}/boto*/data/* -not -name s3 -delete || true
+    && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
 COPY --chown=$APPUSER . .
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["python3", "-m", "gunicorn", "{{cookiecutter.project_slug}}.asgi"]
