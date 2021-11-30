@@ -427,10 +427,12 @@ create-version-tag_production:
       -e SENTRY_DSN
       -e SENTRY_ORG
       -e SENTRY_URL
-      getsentry/sentry-cli:latest sentry-cli releases deploys $VERSION_REF new -e SENTRY_ENV=$CI_ENVIRONMENT_NAME -t $((RELEASE_END-RELEASE_START))
+      getsentry/sentry-cli:latest sentry-cli releases deploys $VERSION_REF new -e $CI_ENVIRONMENT_NAME -t $((RELEASE_END-RELEASE_START))
 
 sentry_success_development:
-  extends: .sentry_deploy_success
+  extends:
+    - .development
+    - .sentry_deploy_success
   needs: ["deploy_development"]
   rules:
     - &sentry-rule
@@ -441,7 +443,9 @@ sentry_success_development:
       when: on_success
 
 sentry_success_staging:
-  extends: .sentry_deploy_success
+  extends:
+    - .staging
+    - .sentry_deploy_success
   needs: ["deploy_staging"]
   rules:
     - <<: *sentry-rule
@@ -450,7 +454,9 @@ sentry_success_staging:
       when: on_success
 
 sentry_success_production:
-  extends: .sentry_deploy_success
+  extends:
+    - .production
+    - .sentry_deploy_success
   needs: ["deploy_production"]
   rules:
     - <<: *sentry-rule
@@ -473,7 +479,9 @@ sentry_success_production:
       getsentry/sentry-cli:latest sentry-cli send-event -m "Deploy to $CI_ENVIRONMENT_NAME failed."
 
 sentry_failure_development:
-  extends: .sentry_deploy_failure
+  extends:
+    - .development
+    - .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
     - <<: *pipeline-push-rule
@@ -481,7 +489,9 @@ sentry_failure_development:
       when: on_failure
 
 sentry_failure_staging:
-  extends: .sentry_deploy_failure
+  extends:
+    - .staging
+    - .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
     - <<: *pipeline-push-rule
@@ -489,7 +499,9 @@ sentry_failure_staging:
       when: on_failure
 
 sentry_failure_production:
-  extends: .sentry_deploy_failure
+  extends:
+    - .production
+    - .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
     - <<: *pipeline-push-rule
