@@ -42,12 +42,14 @@ CMD ./scripts/test.sh --reverse
 
 FROM base AS remote
 
+ENV DJANGO_CONFIGURATION=Remote
 USER $APPUSER
 ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.9/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
     && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
 COPY --chown=$APPUSER . .
+RUN DJANGO_SECRET_KEY=build python3 manage.py collectstatic --clear --link --noinput
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["python3", "-m", "gunicorn", "{{cookiecutter.project_slug}}.asgi"]
 
@@ -67,5 +69,6 @@ USER $APPUSER
 COPY --chown=$APPUSER ./requirements/local.txt requirements/local.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/local.txt
 COPY --chown=$APPUSER . .
+RUN DJANGO_SECRET_KEY=build python3 manage.py collectstatic --clear --link --noinput
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]

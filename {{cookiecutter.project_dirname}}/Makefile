@@ -10,7 +10,7 @@ check:  ## Check code formatting and import sorting
 
 .PHONY: collectstatic
 collectstatic:  ## Django collectstatic
-	python3 manage.py collectstatic --clear --noinput
+	python3 manage.py collectstatic --clear --link --noinput
 
 .PHONY: compilemessages
 compilemessages:  ## Django compilemessages
