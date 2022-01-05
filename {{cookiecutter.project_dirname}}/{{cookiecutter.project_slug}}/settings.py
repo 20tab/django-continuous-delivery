@@ -343,7 +343,9 @@ class Remote(ProjectDefault):
 
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
-    SECURE_SSL_REDIRECT = False
+    SECURE_SSL_REDIRECT = True
+
+    SECURE_REDIRECT_EXEMPT = (".*",)
 
     SECURE_HSTS_PRELOAD = True
 
