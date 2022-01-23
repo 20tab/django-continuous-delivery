@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bullseye AS base
+FROM python:3.10-slim-bullseye AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser
@@ -7,7 +7,7 @@ WORKDIR $WORKDIR
 RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
 ENV PATH="/home/${APPUSER}/.local/bin:${PATH}"
-ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.9/site-packages
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.10/site-packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libpq5 \
@@ -43,7 +43,7 @@ CMD ./scripts/test.sh --reverse
 FROM base AS remote
 
 USER $APPUSER
-ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.9/site-packages
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.10/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
     && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true

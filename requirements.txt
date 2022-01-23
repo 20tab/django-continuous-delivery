@@ -1,8 +1,6 @@
-attrs==21.2.0
+attrs==21.4.0
     # via flake8-bugbear
-backports.entry-points-selectable==1.1.1
-    # via virtualenv
-black==21.11b1
+black==22.1.0
     # via -r requirements.in
 cfgv==3.3.1
     # via pre-commit
@@ -10,9 +8,9 @@ click==8.0.3
     # via
     #   black
     #   pip-tools
-distlib==0.3.3
+distlib==0.3.4
     # via virtualenv
-filelock==3.4.0
+filelock==3.4.2
     # via virtualenv
 flake8==4.0.1
     # via
@@ -20,13 +18,13 @@ flake8==4.0.1
     #   flake8-bugbear
     #   flake8-docstrings
     #   flake8-isort
-flake8-bugbear==21.11.28
+flake8-bugbear==22.1.11
     # via -r requirements.in
 flake8-docstrings==1.6.0
     # via -r requirements.in
 flake8-isort==4.1.1
     # via -r requirements.in
-identify==2.4.0
+identify==2.4.9
     # via pre-commit
 isort==5.10.1
     # via
@@ -34,7 +32,7 @@ isort==5.10.1
     #   flake8-isort
 mccabe==0.6.1
     # via flake8
-mypy==0.910
+mypy==0.931
     # via -r requirements.in
 mypy-extensions==0.4.3
     # via
@@ -46,13 +44,13 @@ pathspec==0.9.0
     # via black
 pep517==0.12.0
     # via pip-tools
-pip-tools==6.4.0
+pip-tools==6.5.1
     # via -r requirements.in
-platformdirs==2.4.0
+platformdirs==2.5.0
     # via
     #   black
     #   virtualenv
-pre-commit==2.15.0
+pre-commit==2.17.0
     # via -r requirements.in
 pycodestyle==2.8.0
     # via flake8
@@ -60,12 +58,10 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
-pyupgrade==2.29.1
+pyupgrade==2.31.0
     # via -r requirements.in
 pyyaml==6.0
     # via pre-commit
-regex==2021.11.10
-    # via black
 six==1.16.0
     # via virtualenv
 snowballstemmer==2.2.0
@@ -75,22 +71,21 @@ testfixtures==6.18.3
 tokenize-rt==4.2.1
     # via pyupgrade
 toml==0.10.2
-    # via
-    #   mypy
-    #   pre-commit
-tomli==1.2.2
-    # via
-    #   black
-    #   pep517
-types-python-slugify==5.0.2
-    # via -r requirements.in
-typing-extensions==4.0.0
-    # via
-    #   black
-    #   mypy
-virtualenv==20.10.0
     # via pre-commit
-wheel==0.37.0
+tomli==2.0.1
+    # via
+    #   black
+    #   mypy
+    #   pep517
+types-python-slugify==5.0.3
+    # via -r requirements.in
+typing-extensions==4.0.1
+    # via
+    #   black
+    #   mypy
+virtualenv==20.13.1
+    # via pre-commit
+wheel==0.37.1
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
