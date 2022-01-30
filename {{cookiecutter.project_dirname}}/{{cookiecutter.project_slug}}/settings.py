@@ -310,9 +310,13 @@ class Testing(ProjectDefault):
     # unittest-xml-reporting (aka xmlrunner)
     # https://github.com/xmlrunner/unittest-xml-reporting#django-support
 
-    TEST_OUTPUT_FILE_NAME = "report.xml"
+    PYTHONBREAKPOINT = values.Value(environ_name="PYTHONBREAKPOINT", environ_prefix="")
 
-    TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+    if PYTHONBREAKPOINT is None:  # pragma: no cover
+
+        TEST_OUTPUT_FILE_NAME = "report.xml"
+
+        TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
 
 
 class Remote(ProjectDefault):
