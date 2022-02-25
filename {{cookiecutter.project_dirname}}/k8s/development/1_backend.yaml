@@ -71,6 +71,11 @@ spec:
                 secretKeyRef:
                   name: secrets
                   key: AWS_STORAGE_BUCKET_NAME{% endif %}
+            - name: DJANGO_CSRF_TRUSTED_ORIGINS
+               valueFrom:
+                 secretKeyRef:
+                   name: secrets
+                   key: DJANGO_CSRF_TRUSTED_ORIGINS
             - name: DJANGO_DEBUG
               valueFrom:
                 secretKeyRef:
