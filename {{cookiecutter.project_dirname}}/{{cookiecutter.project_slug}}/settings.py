@@ -331,6 +331,8 @@ class Remote(ProjectDefault):
 
     CSRF_COOKIE_SECURE = True
 
+    CSRF_TRUSTED_ORIGINS = values.ListValue([])
+
     SECURE_BROWSER_XSS_FILTER = True
 
     SECURE_CONTENT_TYPE_NOSNIFF = True
