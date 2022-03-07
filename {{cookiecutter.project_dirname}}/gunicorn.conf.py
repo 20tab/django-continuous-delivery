@@ -21,3 +21,8 @@ bind = "0.0.0.0:" + os.getenv(
 # https://docs.gunicorn.org/en/stable/settings.html#worker-processes
 
 worker_class = "{{ cookiecutter.django_settings_dirname }}.workers.UvicornDjangoWorker"
+
+# Temporary Directory
+# https://docs.gunicorn.org/en/stable/settings.html#worker-tmp-dir
+
+worker_tmp_dir = "/dev/shm"  # nosec
