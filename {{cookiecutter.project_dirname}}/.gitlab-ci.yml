@@ -60,13 +60,17 @@ test:
     - docker-compose build
     - docker-compose run --name ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME} {{ cookiecutter.service_slug }}
     - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/htmlcov htmlcov
+    - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/report.xml report.xml
   after_script:
     - docker-compose down -v
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
+    expire_in: 1 day
     paths:
       - htmlcov
-    expire_in: 1 day
+    reports:
+      junit: report.xml
+    when: always
 
 pact-verify-test:
   stage: Pact-verify
@@ -279,6 +283,7 @@ build_production:
       -e TF_VAR_django_server_email="${DJANGO_SERVER_EMAIL}"
       -e TF_VAR_email_url="${EMAIL_URL}"
       -e TF_VAR_environment="${CI_ENVIRONMENT_NAME}"
+      -e TF_VAR_internal_service_port="${BACKEND_SERVICE_PORT}"
       -e TF_VAR_media_storage
       -e TF_VAR_project_url="${CI_ENVIRONMENT_URL}"
       -e TF_VAR_s3_bucket_access_id="${S3_BUCKET_ACCESS_ID}"
@@ -426,10 +431,12 @@ create-version-tag_production:
       -e SENTRY_DSN
       -e SENTRY_ORG
       -e SENTRY_URL
-      getsentry/sentry-cli:latest sentry-cli releases deploys $VERSION_REF new -e SENTRY_ENV=$CI_ENVIRONMENT_NAME -t $((RELEASE_END-RELEASE_START))
+      getsentry/sentry-cli:latest sentry-cli releases deploys $VERSION_REF new -e $CI_ENVIRONMENT_NAME -t $((RELEASE_END-RELEASE_START))
 
 sentry_success_development:
-  extends: .sentry_deploy_success
+  extends:
+    - .development
+    - .sentry_deploy_success
   needs: ["deploy_development"]
   rules:
     - &sentry-rule
@@ -440,7 +447,9 @@ sentry_success_development:
       when: on_success
 
 sentry_success_staging:
-  extends: .sentry_deploy_success
+  extends:
+    - .staging
+    - .sentry_deploy_success
   needs: ["deploy_staging"]
   rules:
     - <<: *sentry-rule
@@ -449,7 +458,9 @@ sentry_success_staging:
       when: on_success
 
 sentry_success_production:
-  extends: .sentry_deploy_success
+  extends:
+    - .production
+    - .sentry_deploy_success
   needs: ["deploy_production"]
   rules:
     - <<: *sentry-rule
@@ -472,7 +483,9 @@ sentry_success_production:
       getsentry/sentry-cli:latest sentry-cli send-event -m "Deploy to $CI_ENVIRONMENT_NAME failed."
 
 sentry_failure_development:
-  extends: .sentry_deploy_failure
+  extends:
+    - .development
+    - .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
     - <<: *pipeline-push-rule
@@ -480,7 +493,9 @@ sentry_failure_development:
       when: on_failure
 
 sentry_failure_staging:
-  extends: .sentry_deploy_failure
+  extends:
+    - .staging
+    - .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
     - <<: *pipeline-push-rule
@@ -488,7 +503,9 @@ sentry_failure_staging:
       when: on_failure
 
 sentry_failure_production:
-  extends: .sentry_deploy_failure
+  extends:
+    - .production
+    - .sentry_deploy_failure
   rules:
     - <<: *sentry-rule
     - <<: *pipeline-push-rule

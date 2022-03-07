@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -euo pipefail
 
-wait-for-it --quiet --service postgres:5432 -- \
-  python3 manage.py behave --configuration=Testing --simple
+python3 -m wait_for_it --service "${DATABASE_URL:-"postgres:5432"}"
+python3 manage.py behave --configuration=Testing --noinput --simple $@

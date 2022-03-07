@@ -16,7 +16,7 @@ services:
       - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{ cookiecutter.project_slug }}}
       - DJANGO_ADMINS
       - DJANGO_ALLOWED_HOSTS
-      - DJANGO_CONFIGURATION
+      - DJANGO_CONFIGURATION=${DJANGO_CONFIGURATION:-Remote}
       - DJANGO_DEBUG
       - DJANGO_DEFAULT_FROM_EMAIL
       - DJANGO_SECRET_KEY
@@ -26,9 +26,11 @@ services:
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_USERNAME
       - EMAIL_URL
+      - INTERNAL_SERVICE_PORT
       - PYTHONBREAKPOINT
+      - SERVICE_PORT
     ports:
-      - "${{ "{" }}{{ cookiecutter.service_slug|upper }}_PORT:-8000}:8000"
+      - "${{ '{' }}{{ cookiecutter.service_slug|upper }}_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}:${INTERNAL_SERVICE_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}"
     user: ${USER:-appuser}
 
   postgres:

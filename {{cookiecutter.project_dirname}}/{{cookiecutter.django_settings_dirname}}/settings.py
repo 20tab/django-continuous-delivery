@@ -109,10 +109,6 @@ class ProjectDefault(Configuration):
 
     TIME_ZONE = "UTC"
 
-    USE_I18N = True
-
-    USE_L10N = True
-
     USE_TZ = True
 
     # Static files (CSS, JavaScript, Images)
@@ -311,6 +307,13 @@ class Testing(ProjectDefault):
 
     # MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"{% endif %}
 
+    # unittest-xml-reporting (aka xmlrunner)
+    # https://github.com/xmlrunner/unittest-xml-reporting#django-support
+
+    TEST_OUTPUT_FILE_NAME = "report.xml"
+
+    TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+
 
 class Remote(ProjectDefault):
     """The remote settings."""
@@ -319,6 +322,8 @@ class Remote(ProjectDefault):
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
 
     DEBUG = False
+
+    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
 
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/
@@ -357,11 +362,13 @@ class Remote(ProjectDefault):
     # WhiteNoise
     # http://whitenoise.evans.io/en/stable/django.html
 
-    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
-
-    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    try:
+        import whitenoise  # noqa
+    except ModuleNotFoundError:  # pragma: no cover
+        pass
+    else:  # pragma: no cover
+        MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+        STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
     # Sentry
     # https://sentry.io/for/django/
