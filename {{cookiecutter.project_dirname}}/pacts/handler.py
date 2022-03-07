@@ -1,7 +1,10 @@
 """Define pacts provider state handler."""
 
 import re
+from datetime import datetime
+from unittest.mock import patch
 
+from freezegun import freeze_time
 from pactman.verifier.verify import ProviderStateMissing
 
 
@@ -12,6 +15,7 @@ class ProviderStatesHandler:
         """Initialize the instance."""
         self.handlers = []
         self.context = {}
+        self.patchers = []
 
     def register(self, state_matcher):
         """Register the given function as a handler."""
@@ -27,6 +31,21 @@ class ProviderStatesHandler:
 
         return outer_wrapper
 
+    def add_patch(self, *args, **kwargs):
+        """Create a patcher."""
+        self.patchers.append(patch(*args, **kwargs))
+
+    def init_patchers(self):
+        """Initialize the patchers."""
+        [i.start() for i in self.patchers]
+
+    def set_default_freezer(self):
+        """Set the default freezer."""
+        frozen_datetime = datetime(2021, 5, 17, 8, 30, 00)
+        freezer = freeze_time(frozen_datetime, tz_offset=0)
+        freezer.start()
+        self.context["freezer"] = freezer
+
     def handle(self, state, context):
         """Handle the given provider state."""
         handlers = iter(self.handlers)
@@ -36,23 +55,23 @@ class ProviderStatesHandler:
             except StopIteration:
                 break
             else:
-                result = pattern.match(state)
-                if result:
+                if result := pattern.match(state):
                     return function(context=context, **result.groupdict())
         raise ProviderStateMissing(state)
 
     def tear_down(self):
         """Clean up after handling states."""
         try:
-            self.context["traveller"].stop()
+            self.context["freezer"].stop()
         except KeyError:
             pass
-        for patcher in self.context["patchers"].values():
-            patcher.stop()
+        [i.stop() for i in self.patchers]
 
     def run(self, name, **params):
         """Set up the given provider state."""
         self.context = {**params, "patchers": {}}
+        self.set_default_freezer()
+        self.init_patchers()
         for handler_name in name.split("/"):
             self.handle(handler_name.strip(), self.context)
 
