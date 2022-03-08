@@ -267,7 +267,7 @@ def run(
     format_files(service_dir)
     compile_requirements(service_dir)
     create_static_directory(service_dir)
-    media_storage == "local" and create_media_directory()
+    media_storage == "local" and create_media_directory(service_dir)
     change_output_owner(service_dir, uid)
     use_gitlab = (
         use_gitlab
