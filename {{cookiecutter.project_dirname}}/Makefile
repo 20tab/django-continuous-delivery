@@ -114,21 +114,18 @@ simpletest:  ## Run debugging test
 test:  ## Run test
 	./scripts/test.sh
 
+CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+
 .PHONY: verifypacts
-verifypacts:  ## Run verify pacts test
-	./scripts/pact_verify.sh -v \
-		--pact-verify-consumer-tag="env:development" \
-		--pact-verify-consumer-tag="env:integration" \
-		--pact-verify-consumer-tag="env:production" \
-		--pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
+verifypacts:  ## Verify pact for all environments consumer tags
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:development"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:staging"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:production"
 
 .PHONY: verifybranchpacts
-verifybranchpacts:  ## Run verify branch pacts test
-	pytest -v --dc=Testing \
-    --pact-verify-consumer=$(PACT_CONSUMER_NAME) \
-    --pact-provider-name=$(PACT_PROVIDER_NAME) \
-	--pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH) \
-	tests/verify_pacts.py
+verifybranchpacts:  ## Verify pact for the current branch consumer tag
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
 
 .PHONY: update
 update: pip precommit_update ## Run update
