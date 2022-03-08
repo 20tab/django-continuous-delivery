@@ -96,6 +96,8 @@ pact-verify-test:
       --pact-provider-version=$VERSION_REF
       --pact-verify-consumer-tag=$PACT_CONSUMER_TAG
       --pact-verify-consumer-tag="env:development"
+      --pact-verify-consumer-tag="env:staging"
+      --pact-verify-consumer-tag="env:production"
       --pact-publish-results
   after_script:
     - docker-compose down -v
