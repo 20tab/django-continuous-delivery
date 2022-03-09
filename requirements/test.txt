@@ -5,9 +5,7 @@ attrs==21.4.0
 binaryornot==0.4.4
     # via cookiecutter
 black==22.1.0
-    # via
-    #   -r requirements/common.in
-    #   -r requirements/test.in
+    # via -r requirements/common.in
 certifi==2021.10.8
     # via requests
 chardet==4.0.0
@@ -102,9 +100,7 @@ tomli==2.0.1
 types-python-slugify==5.0.3
     # via -r requirements/common.in
 typing-extensions==4.1.1
-    # via
-    #   black
-    #   mypy
+    # via mypy
 urllib3==1.26.8
     # via requests
 validators==0.18.2

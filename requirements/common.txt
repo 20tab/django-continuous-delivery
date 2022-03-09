@@ -61,8 +61,6 @@ tomli==2.0.1
     #   pep517
 types-python-slugify==5.0.3
     # via -r requirements/common.in
-typing-extensions==4.1.1
-    # via black
 urllib3==1.26.8
     # via requests
 validators==0.18.2
