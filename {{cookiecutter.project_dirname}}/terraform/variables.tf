@@ -132,7 +132,7 @@ variable "web_concurrency" {
   default     = ""
 }
 
-variable "stacks" {
-  description = "The stacks and environments structure as a json string."
+variable "stack_slug" {
+  description = "The slug of the stack where the service is deployed."
   type        = string
 }

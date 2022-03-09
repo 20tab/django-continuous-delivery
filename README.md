@@ -33,7 +33,7 @@ $ python3 -m pip install -r django-continuous-delivery/requirements/common.txt
 Change directory and create a new project as in this example:
 
 ```console
-$ python3 django-continuous-delivery/bootstrap.py
+$ python3 django-continuous-delivery/setup.py
 Project name: My project name
 Project slug [my-project-name]:
 Service slug [backend]:
