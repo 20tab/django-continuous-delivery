@@ -1,9 +1,5 @@
 .DEFAULT_GOAL := help
 
-.PHONY: behave
-behave:  ## Run behave test
-	./scripts/behave.sh
-
 .PHONY: check
 check:  ## Check code formatting and import sorting
 	python3 -m black --check .
@@ -24,16 +20,10 @@ local: pip_update  ## Install local requirements and dependencies
 outdated:  ## Check outdated requirements and dependencies
 	python3 -m pip list --outdated
 
-.PHONY: permissions
-permissions:  ## Generate permissions csv file
-	python3 manage.py permissions --path artifacts/permissions.csv
-
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
 	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
 	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
 	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update

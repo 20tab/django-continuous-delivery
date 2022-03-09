@@ -1,4 +1,4 @@
-"""Define gunicorn supported workers."""
+"""Custom uvicorn supported worker."""
 
 from uvicorn.workers import UvicornWorker
 

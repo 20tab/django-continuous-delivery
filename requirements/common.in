@@ -1,6 +1,3 @@
-# pip-compile --output-file common.txt common.in
--r base.in
-
 black~=22.1.0
 click~=8.0.0
 cookiecutter~=1.7.0

@@ -146,8 +146,8 @@ pages:
       variables:
         ENVIRONMENT_SLUG: dev
   environment:
-    name: Development
-    url: {{ cookiecutter.project_url_dev }}
+    name: Development{% if cookiecutter.project_url_dev %}
+    url: {{ cookiecutter.project_url_dev }}{% endif %}
 
 .staging:
   rules: &staging-rules
@@ -157,8 +157,8 @@ pages:
       variables:
         ENVIRONMENT_SLUG: stage
   environment:
-    name: Staging
-    url: {{ cookiecutter.project_url_stage }}
+    name: Staging{% if cookiecutter.project_url_stage %}
+    url: {{ cookiecutter.project_url_stage }}{% endif %}
 
 .production:
   rules: &production-rules
@@ -168,8 +168,8 @@ pages:
       variables:
         ENVIRONMENT_SLUG: prod
   environment:
-    name: Production
-    url: {{ cookiecutter.project_url_prod }}
+    name: Production{% if cookiecutter.project_url_prod %}
+    url: {{ cookiecutter.project_url_prod }}{% endif %}
 
 .can-i-deploy:
   stage: Pact-check
