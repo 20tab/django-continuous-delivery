@@ -11,12 +11,21 @@ In the following instructions:
 -   replace `projects` with your actual projects directory
 -   replace `My project name` with your chosen project name
 
+## Git
+
+To get the existing project, change directory and clone the project repository.
+
+```console
+$ cd ~/projects/
+$ git clone https://github.com/20tab/django-continuous-delivery.git
+```
+
 ## 🧩 Requirements
 
 A set of requirements must be installed before initializing the project.
 
 ```console
-$ python3 -m pip install -r requirements/common.txt
+$ python3 -m pip install -r django-continuous-delivery/requirements/common.txt
 ```
 
 ## 🚀️ Quickstart
@@ -24,9 +33,7 @@ $ python3 -m pip install -r requirements/common.txt
 Change directory and create a new project as in this example:
 
 ```console
-$ cd ~/projects/
-$ git clone https://github.com/20tab/django-continuous-delivery.git myprojectname
-$ python3 myprojectname/bootstrap.py
+$ python3 django-continuous-delivery/bootstrap.py
 Project name: My project name
 Project slug [my-project-name]:
 Service slug [backend]:
