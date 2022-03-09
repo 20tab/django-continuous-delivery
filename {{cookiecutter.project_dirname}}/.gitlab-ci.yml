@@ -270,14 +270,13 @@ build_production:
     - >
       docker run --rm
       -u `id -u`
-      -v ${KUBECONFIG}:${KUBECONFIG}
       -v ${PWD}:${PWD}
       -w ${PWD}
       -e CI_JOB_TOKEN
-      -e KUBE_CONFIG_PATH="${KUBECONFIG}"
-      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}-${ENVIRONMENT_SLUG}
+      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}_${ENVIRONMENT_SLUG}
       -e TF_ROOT
       -e TF_VAR_cache_url="${CACHE_URL}"
+      -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"
       -e TF_VAR_database_url="${DATABASE_URL}"
       -e TF_VAR_django_admins="${DJANGO_ADMINS}"
       -e TF_VAR_django_allowed_hosts="${DJANGO_ALLOWED_HOSTS}"
@@ -298,6 +297,7 @@ build_production:
       -e TF_VAR_service_container_port
       -e TF_VAR_service_replicas
       -e TF_VAR_web_concurrency="${WEB_CONCURRENCY}"
+      -e TF_VAR_stacks="${STACKS}"
       registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
   artifacts:
     name: plan

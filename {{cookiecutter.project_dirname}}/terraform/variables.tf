@@ -11,6 +11,12 @@ variable "database_url" {
   sensitive   = true
 }
 
+variable "digitalocean_token" {
+  description = "The Digital Ocean access token."
+  type        = string
+  sensitive   = true
+}
+
 variable "django_admins" {
   type        = string
   description = "The value of the DJANGO_ADMINS environment variable."
@@ -124,4 +130,9 @@ variable "web_concurrency" {
   description = "The desired number of gunicorn workers."
   type        = string
   default     = ""
+}
+
+variable "stacks" {
+  description = "The stacks and environments structure as a json string."
+  type        = string
 }

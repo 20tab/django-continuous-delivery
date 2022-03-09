@@ -6,6 +6,10 @@ locals {
 
   namespace = "${local.project_slug}-${local.environment_slug}"
 
+  stacks        = jsondecode(var.stacks)
+  stack_slug    = compact([for k, v in local.stacks : lookup(v, local.environment_slug, "") != "" ? k : ""])[0]
+  resource_name = local.stack_slug == "main" ? local.project_slug : "${local.project_slug}-${local.stack_slug}"
+
   service_labels = {
     component   = local.service_slug
     environment = var.environment
@@ -16,6 +20,7 @@ locals {
   project_host = regexall("https?://([^/]+)", var.project_url)[0][0]
 
   django_allowed_hosts = join(
+    ",",
     setunion(
       split(",", coalesce(var.django_allowed_hosts, "127.0.0.1,localhost")),
       [local.project_host, local.service_slug]
@@ -30,9 +35,13 @@ terraform {
   }
 
   required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.6.0"
+      version = "2.8.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -43,7 +52,22 @@ terraform {
 
 /* Providers */
 
+provider "digitalocean" {
+  token = var.digitalocean_token
+}
+
 provider "kubernetes" {
+  host  = data.digitalocean_kubernetes_cluster.main.endpoint
+  token = data.digitalocean_kubernetes_cluster.main.kube_config[0].token
+  cluster_ca_certificate = base64decode(
+    data.digitalocean_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate
+  )
+}
+
+/* Data Sources */
+
+data "digitalocean_kubernetes_cluster" "main" {
+  name = "${local.resource_name}-k8s-cluster"
 }
 
 /* Passwords */
@@ -54,7 +78,7 @@ resource "random_password" "django_secret_key" {
 
 /* Secrets */
 
-resource "kubernetes_secret" "env" {
+resource "kubernetes_secret_v1" "env" {
 
   metadata {
     name      = "${local.service_slug}-env"
@@ -78,7 +102,7 @@ resource "kubernetes_secret" "env" {
 
 /* Config Map */
 
-resource "kubernetes_config_map" "env" {
+resource "kubernetes_config_map_v1" "env" {
   metadata {
     name      = "${local.service_slug}-env"
     namespace = local.namespace
@@ -106,7 +130,7 @@ resource "kubernetes_config_map" "env" {
 
 /* Deployment */
 
-resource "kubernetes_deployment" "main" {
+resource "kubernetes_deployment_v1" "main" {
 
   metadata {
     name      = local.service_slug
@@ -142,13 +166,13 @@ resource "kubernetes_deployment" "main" {
 
           env_from {
             config_map_ref {
-              name = kubernetes_config_map.env.metadata[0].name
+              name = kubernetes_config_map_v1.env.metadata[0].name
             }
           }
 
           env_from {
             secret_ref {
-              name = kubernetes_secret.env.metadata[0].name
+              name = kubernetes_secret_v1.env.metadata[0].name
             }
           }
         }
@@ -159,7 +183,7 @@ resource "kubernetes_deployment" "main" {
 
 /* Cluster IP Service */
 
-resource "kubernetes_service" "cluster_ip" {
+resource "kubernetes_service_v1" "cluster_ip" {
 
   metadata {
     name      = local.service_slug
