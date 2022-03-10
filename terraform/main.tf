@@ -65,8 +65,8 @@ resource "null_resource" "init_repo" {
           "git add .",
           "git ${local.git_config} commit -m 'Initial commit'",
           "git push -u origin develop -o ci.skip",
-          "git checkout -b master",
-          "git push -u origin master -o ci.skip",
+          "git checkout -b main",
+          "git push -u origin main -o ci.skip",
           "git remote set-url origin %s",
         ]),
         replace(
@@ -90,11 +90,11 @@ resource "gitlab_branch_protection" "develop" {
   merge_access_level = "developer"
 }
 
-resource "gitlab_branch_protection" "master" {
+resource "gitlab_branch_protection" "main" {
   depends_on = [null_resource.init_repo]
 
   project            = gitlab_project.main.id
-  branch             = "master"
+  branch             = "main"
   push_access_level  = "no one"
   merge_access_level = "maintainer"
 }

@@ -26,7 +26,7 @@ sentry_release:
     - &pipeline-push-rule
       if: $CI_PIPELINE_SOURCE != "push"
       when: never
-    - if: $SENTRY_DSN && ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_TAG)
+    - if: $SENTRY_DSN && ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG)
   script:
     - RELEASE_START=$(date +%s)
     - >
@@ -154,7 +154,7 @@ pages:
   rules: &staging-rules
     - <<: *pipeline-push-rule
     - &staging-rule
-      if: $CI_COMMIT_BRANCH == "master"
+      if: $CI_COMMIT_BRANCH == "main"
       variables:
         ENVIRONMENT_SLUG: stage
         STACK_SLUG: "${STACK_SLUG_STAGE}"
