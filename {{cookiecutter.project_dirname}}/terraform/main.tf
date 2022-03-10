@@ -81,7 +81,7 @@ resource "random_password" "django_secret_key" {
 resource "kubernetes_secret_v1" "env" {
 
   metadata {
-    name      = "${local.service_slug}-config-env-vars"
+    name      = "${local.service_slug}-env-vars"
     namespace = local.instance_slug
   }
 
@@ -102,7 +102,7 @@ resource "kubernetes_secret_v1" "env" {
 
 resource "kubernetes_config_map_v1" "env" {
   metadata {
-    name      = "${local.service_slug}-secret-env-vars"
+    name      = "${local.service_slug}-env-vars"
     namespace = local.instance_slug
   }
 
@@ -178,7 +178,7 @@ resource "kubernetes_deployment_v1" "main" {
             for_each = toset(local.dynamic_secret_envs)
             content {
               secret_ref {
-                name = "${local.instance_slug}-secret-${env_from.key}"
+                name = "${local.instance_slug}-${env_from.key}"
               }
             }
           }
