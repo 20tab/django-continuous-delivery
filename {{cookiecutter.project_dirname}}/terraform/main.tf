@@ -27,7 +27,7 @@ locals {
 
   service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
 
-  dynamic_config_maps = concat(["database-url"], var.use_redis == "true" ? ["cache-url"] : [])
+  dynamic_secret_envs = concat(["database-url"], var.use_redis == "true" ? ["cache-url"] : [])
 }
 
 terraform {
@@ -175,10 +175,10 @@ resource "kubernetes_deployment_v1" "main" {
           }
 
           dynamic "env_from" {
-            for_each = toset(local.dynamic_config_maps)
+            for_each = toset(local.dynamic_secret_envs)
             content {
-              config_map_ref {
-                name = "${local.instance_slug}-config-${env_from.key}"
+              secret_ref {
+                name = "${local.instance_slug}-secret-${env_from.key}"
               }
             }
           }
