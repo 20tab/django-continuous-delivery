@@ -4,7 +4,7 @@ locals {
   service_slug     = "{{ cookiecutter.service_slug }}"
   environment_slug = { development = "dev", staging = "stage", production = "prod" }[lower(var.environment)]
 
-  namespace = "${local.project_slug}-${local.environment_slug}"
+  instance_slug = "${local.project_slug}-${local.environment_slug}"
 
   cluster_prefix = var.stack_slug == "main" ? local.project_slug : "${local.project_slug}-${var.stack_slug}"
 
@@ -26,6 +26,8 @@ locals {
   )
 
   service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
+
+  dynamic_config_maps = concat(["database-url"], var.use_redis == "true" ? ["cache-url"] : [])
 }
 
 terraform {
@@ -79,14 +81,12 @@ resource "random_password" "django_secret_key" {
 resource "kubernetes_secret_v1" "env" {
 
   metadata {
-    name      = "${local.service_slug}-env"
-    namespace = local.namespace
+    name      = "${local.service_slug}-config-env-vars"
+    namespace = local.instance_slug
   }
 
   data = { for k, v in merge(
     {
-      CACHE_URL         = var.cache_url
-      DATABASE_URL      = var.database_url
       DJANGO_SECRET_KEY = random_password.django_secret_key.result
       EMAIL_URL         = var.email_url
       SENTRY_DSN        = var.sentry_dsn
@@ -102,8 +102,8 @@ resource "kubernetes_secret_v1" "env" {
 
 resource "kubernetes_config_map_v1" "env" {
   metadata {
-    name      = "${local.service_slug}-env"
-    namespace = local.namespace
+    name      = "${local.service_slug}-secret-env-vars"
+    namespace = local.instance_slug
   }
 
   data = { for k, v in merge(
@@ -132,7 +132,7 @@ resource "kubernetes_deployment_v1" "main" {
 
   metadata {
     name      = local.service_slug
-    namespace = local.namespace
+    namespace = local.instance_slug
   }
 
   spec {
@@ -173,6 +173,16 @@ resource "kubernetes_deployment_v1" "main" {
               name = kubernetes_secret_v1.env.metadata[0].name
             }
           }
+
+          dynamic "env_from" {
+            for_each = toset(local.dynamic_config_maps)
+            content {
+              config_map_ref {
+                name = "${local.instance_slug}-config-${env_from.key}"
+              }
+            }
+          }
+
         }
       }
     }
@@ -185,7 +195,7 @@ resource "kubernetes_service_v1" "cluster_ip" {
 
   metadata {
     name      = local.service_slug
-    namespace = local.namespace
+    namespace = local.instance_slug
   }
 
   spec {

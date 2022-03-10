@@ -301,6 +301,7 @@ build_production:
       -e TF_VAR_service_replicas
       -e TF_VAR_web_concurrency="${WEB_CONCURRENCY}"
       -e TF_VAR_stack_slug="${STACK_SLUG}"
+      -e TF_VAR_use_redis="${USE_REDIS}"
       registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
   artifacts:
     name: plan

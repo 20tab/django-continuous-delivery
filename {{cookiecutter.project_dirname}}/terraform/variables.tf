@@ -136,3 +136,9 @@ variable "stack_slug" {
   description = "The slug of the stack where the service is deployed."
   type        = string
 }
+
+variable "use_redis" {
+  type        = string
+  description = "If 'true', consider the Redis cache enabled."
+  default     = "false"
+}
