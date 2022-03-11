@@ -147,12 +147,12 @@ class ProjectDefault(Configuration):
     SERVER_EMAIL = values.EmailValue("server@{{ cookiecutter.project_slug }}.com")
 
     # Email URL
-    # https://django-configurations.readthedocs.io/en/stable/values/
+    # https://django-configurations.readthedocs.io/en/stable/values.html
 
     EMAIL = values.EmailURLValue("console://")
 
     # Cache URL
-    # https://django-configurations.readthedocs.io/en/stable/values/
+    # https://django-configurations.readthedocs.io/en/stable/values.html
 
     CACHES = values.CacheURLValue("locmem://")
 
