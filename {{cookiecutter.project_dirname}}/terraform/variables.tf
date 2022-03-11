@@ -137,8 +137,3 @@ variable "stack_slug" {
   type        = string
 }
 
-variable "use_redis" {
-  type        = string
-  description = "If 'true', consider the Redis cache enabled."
-  default     = "false"
-}

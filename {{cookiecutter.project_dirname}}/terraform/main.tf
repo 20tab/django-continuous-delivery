@@ -27,7 +27,7 @@ locals {
 
   service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
 
-  dynamic_secret_envs = concat(["database-url"], var.use_redis == "true" ? ["cache-url"] : [])
+  dynamic_secret_envs = {% if cookiecutter.use_redis %}["database-url", "cache-url"]{% else %}["database-url"]{% endif %}
 }
 
 terraform {
