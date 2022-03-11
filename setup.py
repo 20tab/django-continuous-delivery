@@ -31,6 +31,7 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
     "--media-storage",
     type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
 )
+@click.option("--use-redis/--no-redis", is_flag=True, default=None)
 @click.option("--use-gitlab/--no-gitlab", is_flag=True, default=None)
 @click.option("--gitlab-private-token", envvar=GITLAB_TOKEN_ENV_VAR)
 @click.option("--gitlab-group-slug")
