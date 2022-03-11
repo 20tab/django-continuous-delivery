@@ -26,7 +26,7 @@ services:
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_USERNAME
       - EMAIL_URL
-      - INTERNAL_SERVICE_PORT
+      - INTERNAL_SERVICE_PORT=${INTERNAL_SERVICE_PORT:-8000}
       - PYTHONBREAKPOINT
       - SERVICE_PORT
     ports:
@@ -38,7 +38,7 @@ services:
       - POSTGRES_DB={{ cookiecutter.project_slug }}
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
-    image: postgres:13-bullseye
+    image: postgres:14-bullseye
     volumes:
       - pg_data:/var/lib/postgresql/data
 
