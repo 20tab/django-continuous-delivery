@@ -103,7 +103,7 @@ def init_service(
     """Initialize the service."""
     click.echo(info(info("...cookiecutting the service")))
     cookiecutter(
-        ".",
+        os.path.dirname(os.path.dirname(__file__)),
         extra_context={
             "internal_service_port": internal_service_port,
             "media_storage": media_storage,
