@@ -1,4 +1,4 @@
-# {{cookiecutter.project_name}}
+# {{ cookiecutter.project_name }}
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
@@ -40,12 +40,12 @@ To install and use virtualenv, please, visit the official [Python tutorial](http
 
 ### Git clone
 
-To get the existing project, change directory, clone the project repository and enter the newly created **{{cookiecutter.project_slug}}** directory:
+To get the existing project, change directory, clone the project repository and enter the newly created **{{ cookiecutter.project_slug }}** directory:
 
 ```shell
 $ cd ~/projects/
-$ git clone GIT_REPOSITORY_URL {{cookiecutter.project_slug}}
-$ cd {{cookiecutter.project_slug}}
+$ git clone GIT_REPOSITORY_URL {{ cookiecutter.project_dirname }}
+$ cd {{ cookiecutter.project_dirname }}
 ```
 
 **NOTE** : Make sure you switch to the correct branch (e.g. `git checkout develop`)

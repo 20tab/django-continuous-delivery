@@ -1,4 +1,4 @@
-"""{{cookiecutter.project_name}} URL Configuration.
+"""{{ cookiecutter.project_name }} URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/stable/topics/http/urls/
@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.static import serve
 
-admin.site.site_header = admin.site.site_title = "{{cookiecutter.project_name}}"
+admin.site.site_header = admin.site.site_title = "{{ cookiecutter.project_name }}"
 
 urlpatterns = [
     path("admin/", admin.site.urls),

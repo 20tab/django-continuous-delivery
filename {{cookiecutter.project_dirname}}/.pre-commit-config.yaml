@@ -49,10 +49,6 @@ repos:
     hooks:
       - id: prettier
         exclude_types: [html]
-  - repo: https://github.com/ducminh-phan/reformat-gherkin
-    rev: v2.2.0
-    hooks:
-      - id: reformat-gherkin
   - repo: https://github.com/pycqa/flake8
     rev: "4.0.1"
     hooks:

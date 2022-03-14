@@ -1,18 +1,19 @@
 version: "3.4"
 
 services:
-  backend:
+
+  {{ cookiecutter.service_slug }}:
     build:
       args:
         USER: ${USER:-appuser}
       context: .
-      target: ${BACKEND_BUILD_TARGET:-remote}
-    image: ${BACKEND_IMAGE_NAME:-{{cookiecutter.project_slug}}_backend}:${BACKEND_IMAGE_TAG:-latest}
+      target: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_BUILD_TARGET:-remote}
+    image: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}}:${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_TAG:-latest}
     depends_on:
       - postgres
     environment:
       - CACHE_URL
-      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{cookiecutter.project_slug}}}
+      - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{ cookiecutter.project_slug }}}
       - DJANGO_ADMINS
       - DJANGO_ALLOWED_HOSTS
       - DJANGO_CONFIGURATION=${DJANGO_CONFIGURATION:-Remote}
@@ -26,16 +27,17 @@ services:
       - DJANGO_SUPERUSER_USERNAME
       - EMAIL_URL
       - PYTHONBREAKPOINT
+      - SERVICE_PORT
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${{ '{' }}{{ cookiecutter.service_slug|upper }}_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}:${INTERNAL_SERVICE_PORT:-{{ cookiecutter.internal_service_port }}{{ '}' }}"
     user: ${USER:-appuser}
 
   postgres:
     environment:
-      - POSTGRES_DB={{cookiecutter.project_slug}}
+      - POSTGRES_DB={{ cookiecutter.project_slug }}
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
-    image: postgres:13-bullseye
+    image: postgres:14-bullseye
     volumes:
       - pg_data:/var/lib/postgresql/data
 
