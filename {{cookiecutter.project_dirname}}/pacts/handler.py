@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from unittest.mock import patch
 
-from freezegun import freeze_time
+import time_machine
 from pactman.verifier.verify import ProviderStateMissing
 
 
@@ -42,7 +42,7 @@ class ProviderStatesHandler:
     def set_default_freezer(self):
         """Set the default freezer."""
         frozen_datetime = datetime(2021, 5, 17, 8, 30, 00)
-        freezer = freeze_time(frozen_datetime, tz_offset=0)
+        freezer = time_machine.travel(frozen_datetime, tick=False)
         freezer.start()
         self.context["freezer"] = freezer
 
