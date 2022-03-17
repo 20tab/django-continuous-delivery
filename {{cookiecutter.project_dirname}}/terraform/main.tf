@@ -28,6 +28,8 @@ locals {
   service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
 
   dynamic_secret_envs = {% if cookiecutter.use_redis %}["database-url", "cache-url"]{% else %}["database-url"]{% endif %}
+
+  aws_location = "${local.environment_slug}/media"
 }
 
 terraform {
@@ -118,7 +120,7 @@ resource "kubernetes_config_map_v1" "env" {
       WEB_CONCURRENCY              = var.web_concurrency
     },
     var.media_storage == "s3" ? {
-      DJANGO_AWS_LOCATION            = local.environment_slug
+      DJANGO_AWS_LOCATION            = local.aws_location
       DJANGO_AWS_STORAGE_BUCKET_NAME = var.s3_bucket_name
       DJANGO_AWS_S3_ENDPOINT_URL     = var.s3_bucket_endpoint_url
       DJANGO_AWS_S3_FILE_OVERWRITE   = var.s3_bucket_file_overwrite
