@@ -29,7 +29,7 @@ locals {
 
   dynamic_secret_envs = {% if cookiecutter.use_redis %}["database-url", "cache-url"]{% else %}["database-url"]{% endif %}
 
-  aws_location = "${local.environment_slug}/media"
+  use_s3 = length(regexall("s3", var.media_storage)) > 0
 }
 
 terraform {
@@ -93,7 +93,7 @@ resource "kubernetes_secret_v1" "env" {
       EMAIL_URL         = var.email_url
       SENTRY_DSN        = var.sentry_dsn
     },
-    var.media_storage == "s3" ? {
+    local.use_s3 ? {
       AWS_ACCESS_KEY_ID     = var.s3_bucket_access_id
       AWS_SECRET_ACCESS_KEY = var.s3_bucket_secret_key
     } : {}
@@ -119,8 +119,8 @@ resource "kubernetes_config_map_v1" "env" {
       INTERNAL_SERVICE_PORT        = local.service_container_port
       WEB_CONCURRENCY              = var.web_concurrency
     },
-    var.media_storage == "s3" ? {
-      DJANGO_AWS_LOCATION            = local.aws_location
+    local.use_s3 ? {
+      DJANGO_AWS_LOCATION            = "${local.environment_slug}/media"
       DJANGO_AWS_STORAGE_BUCKET_NAME = var.s3_bucket_name
       DJANGO_AWS_S3_ENDPOINT_URL     = var.s3_bucket_endpoint_url
       DJANGO_AWS_S3_FILE_OVERWRITE   = var.s3_bucket_file_overwrite
