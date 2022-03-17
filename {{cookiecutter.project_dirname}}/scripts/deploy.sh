@@ -3,8 +3,8 @@
 set -euo pipefail
 
 cd ${TF_ROOT}
-gitlab-terraform init
-gitlab-terraform validate
-gitlab-terraform plan
-gitlab-terraform plan-json
-gitlab-terraform apply
+${TERRAFORM_CMD} init
+${TERRAFORM_CMD} validate
+${TERRAFORM_CMD} plan
+${TERRAFORM_CMD} plan-json
+${TERRAFORM_CMD} apply -auto-approve

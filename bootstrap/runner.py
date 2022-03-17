@@ -33,6 +33,7 @@ def run(
     project_url_dev,
     project_url_stage,
     project_url_prod,
+    terraform_backend,
     sentry_dsn,
     media_storage,
     use_redis,
@@ -57,6 +58,7 @@ def run(
         project_url_dev,
         project_url_stage,
         project_url_prod,
+        terraform_backend,
         media_storage,
         use_redis,
     )
@@ -97,6 +99,7 @@ def init_service(
     project_url_dev,
     project_url_stage,
     project_url_prod,
+    terraform_backend,
     media_storage,
     use_redis,
 ):
@@ -114,6 +117,7 @@ def init_service(
             "project_url_prod": project_url_prod,
             "project_url_stage": project_url_stage,
             "service_slug": service_slug,
+            "terraform_backend": terraform_backend,
             "use_redis": use_redis,
         },
         output_dir=output_dir,
