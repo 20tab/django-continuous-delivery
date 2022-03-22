@@ -271,7 +271,7 @@ build_production:
     TERRAFORM_IMAGE: {{ {"terraform-cloud": "hashicorp/terraform"}.get(cookiecutter.terraform_backend, "registry.gitlab.com/gitlab-org/terraform-images/stable") }}:latest
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}{% if cookiecutter.terraform_backend == "terraform-cloud" %}
-    - export TF_WORKSPACE=vection-frames-${ENVIRONMENT_SLUG}
+    - export TF_WORKSPACE={{ cookiecutter.project_slug }}-${ENVIRONMENT_SLUG}
     - |
       cat > ${TF_CLI_CONFIG_FILE} <<EOF
       {
