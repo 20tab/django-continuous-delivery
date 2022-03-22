@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
+import os
 import string
 from pathlib import Path
 
@@ -310,13 +311,19 @@ class Testing(ProjectDefault):
     # unittest-xml-reporting (aka xmlrunner)
     # https://github.com/xmlrunner/unittest-xml-reporting#django-support
 
-    PYTHONBREAKPOINT = values.Value(environ_name="PYTHONBREAKPOINT", environ_prefix="")
+    @property
+    def TEST_OUTPUT_FILE_NAME(self):
+        """Return the test output file name."""
+        return "report.xml" if not os.getenv("PYTHONBREAKPOINT") else ""
 
-    if PYTHONBREAKPOINT is None:  # pragma: no cover
-
-        TEST_OUTPUT_FILE_NAME = "report.xml"
-
-        TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+    @property
+    def TEST_RUNNER(self):
+        """Return the test runner."""
+        return (
+            "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+            if not os.getenv("PYTHONBREAKPOINT")
+            else "django.test.runner.DiscoverRunner"
+        )
 
 
 class Remote(ProjectDefault):
