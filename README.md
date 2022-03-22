@@ -48,12 +48,12 @@ Initializing the backend service:
 ...formatting the cookiecut python code
 ...compiling the requirements files
 ...creating the '/static' directory
-Do you want to configure Gitlab? [Y/n]: Y
-Gitlab group slug [my-project-name]:
-Make sure the Gitlab "my-project-name" group exists before proceeding. Continue? [y/N]: y
-Gitlab private token (with API scope enabled):
+Do you want to configure GitLab? [Y/n]: Y
+GitLab group slug [my-project-name]:
+Make sure the GitLab "my-project-name" group exists before proceeding. Continue? [y/N]: y
+GitLab private token (with API scope enabled):
 Sentry DSN (leave blank if unused) []: https://sentry.io/mydsn
-...creating the Gitlab repository and associated resources
+...creating the GitLab repository and associated resources
 Project successfully initialized.
 $ cd myprojectname
 ```

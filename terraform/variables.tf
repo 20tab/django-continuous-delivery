@@ -1,22 +1,22 @@
 variable "gitlab_group_slug" {
-  description = "The slug of the Gitlab group."
+  description = "The slug of the GitLab group."
   type        = string
 }
 
 variable "gitlab_group_variables" {
-  description = "A map of Gitlab group variables to create."
+  description = "A map of GitLab group variables to create."
   type        = map(map(any))
   default     = {}
 }
 
 variable "gitlab_project_variables" {
-  description = "A map of Gitlab project variables to create."
+  description = "A map of GitLab project variables to create."
   type        = map(map(any))
   default     = {}
 }
 
 variable "gitlab_token" {
-  description = "The Gitlab token."
+  description = "The GitLab token."
   type        = string
   sensitive   = true
 }
