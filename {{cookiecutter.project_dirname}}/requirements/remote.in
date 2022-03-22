@@ -3,7 +3,7 @@
 {% if "s3" in cookiecutter.media_storage %}django-storages[boto3]~=1.12.0
 {% endif %}gunicorn~=20.1.0
 gunicorn~=20.1.0
-{% if cookiecutter.use_redis %}redis~=4.1.0
+{% if cookiecutter.use_redis == "True" %}redis~=4.1.0
 {% endif %}sentry-sdk~=1.5.0
 uvicorn[standard]~=0.17.0
 wait-for-it~=2.2.0

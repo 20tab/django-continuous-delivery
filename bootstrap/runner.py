@@ -118,7 +118,7 @@ def init_service(
             "project_url_stage": project_url_stage,
             "service_slug": service_slug,
             "terraform_backend": terraform_backend,
-            "use_redis": use_redis,
+            "use_redis": f"{use_redis}",
         },
         output_dir=output_dir,
         no_input=True,

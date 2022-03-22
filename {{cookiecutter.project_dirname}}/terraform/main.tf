@@ -27,7 +27,7 @@ locals {
 
   service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
 
-  dynamic_secret_envs = {% if cookiecutter.use_redis %}["database-url", "cache-url"]{% else %}["database-url"]{% endif %}
+  dynamic_secret_envs = {% if cookiecutter.use_redis "True" %}["database-url", "cache-url"]{% else %}["database-url"]{% endif %}
 
   use_s3 = length(regexall("s3", var.media_storage)) > 0
 }

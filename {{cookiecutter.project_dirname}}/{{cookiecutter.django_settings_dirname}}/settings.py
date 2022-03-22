@@ -378,19 +378,18 @@ class Remote(ProjectDefault):
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
-        from sentry_sdk.integrations.django import DjangoIntegration  # noqa{% if cookiecutter.use_redis %}
+        from sentry_sdk.integrations.django import DjangoIntegration  # noqa{% if cookiecutter.use_redis == "True" %}
         from sentry_sdk.integrations.redis import RedisIntegration  # noqa{% endif %}
 
         sentry_sdk.init(
             integrations=[
-                DjangoIntegration(),{% if cookiecutter.use_redis %}
+                DjangoIntegration(),{% if cookiecutter.use_redis == "True" %}
                 RedisIntegration(),{% endif %}
             ],
             send_default_pii=True,
-        )
-
+        ){% if "s3" in cookiecutter.media_storage %}
     # Django Storages
-    # https://django-storages.readthedocs.io/en/stable/{% if "s3" in cookiecutter.media_storage %}  # noqa
+    # https://django-storages.readthedocs.io/en/stable/
 
     AWS_LOCATION = values.Value("")
 
@@ -400,4 +399,4 @@ class Remote(ProjectDefault):
 
     AWS_STORAGE_BUCKET_NAME = values.Value()
 
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa {% endif %}
