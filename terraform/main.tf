@@ -113,12 +113,6 @@ resource "gitlab_project_badge" "coverage" {
   image_url = "https://gitlab.com/%%{project_path}/badges/%%{default_branch}/coverage.svg"
 }
 
-resource "gitlab_project_badge" "pipeline" {
-  project   = gitlab_project.main.id
-  link_url  = "https://gitlab.com/%%{project_path}/pipelines"
-  image_url = "https://gitlab.com/%%{project_path}/badges/%%{default_branch}/pipeline.svg"
-}
-
 /* Group Variables */
 
 resource "gitlab_group_variable" "vars" {
