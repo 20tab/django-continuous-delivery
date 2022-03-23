@@ -38,6 +38,10 @@ precommit:  ## Fix code formatting, linting and sorting imports
 precommit_update:  ## Update pre_commit
 	python3 -m pre_commit autoupdate
 
+.PHONY: shellplus
+shellplus:  ## Launch shell_plus
+	python3 -m manage shell_plus
+
 .PHONY: update
 update: pip precommit_update ## Run update
 
