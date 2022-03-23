@@ -117,6 +117,7 @@ resource "kubernetes_config_map_v1" "env" {
       DJANGO_SERVER_EMAIL          = var.django_server_email
       DJANGO_SESSION_COOKIE_DOMAIN = local.project_host
       INTERNAL_SERVICE_PORT        = local.service_container_port
+      SENTRY_ENVIRONMENT           = var.environment
       WEB_CONCURRENCY              = var.web_concurrency
     },
     local.use_s3 ? {
