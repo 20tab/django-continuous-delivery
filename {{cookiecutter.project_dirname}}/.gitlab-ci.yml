@@ -267,10 +267,20 @@ build_production:
     - docker:20-dind
   variables:
     TF_ROOT: ${CI_PROJECT_DIR}/terraform
-    TERRAFORM_CMD: "gitlab-terraform"
-    TERRAFORM_IMAGE: "registry.gitlab.com/gitlab-org/terraform-images/stable:latest"
+    TERRAFORM_CMD: {{ {"terraform-cloud": "terraform"}.get(cookiecutter.terraform_backend, "gitlab-terraform") }}
+    TERRAFORM_IMAGE: {{ {"terraform-cloud": "hashicorp/terraform"}.get(cookiecutter.terraform_backend, "registry.gitlab.com/gitlab-org/terraform-images/stable") }}:latest
   before_script:
-    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
+    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}{% if cookiecutter.terraform_backend == "terraform-cloud" %}
+    - export TF_WORKSPACE={{ cookiecutter.project_slug }}-${ENVIRONMENT_SLUG}
+    - |
+      cat > ${TF_CLI_CONFIG_FILE} <<EOF
+      {
+        "credentials": {"app.terraform.io": {
+            "token": "${TFC_TOKEN}"
+          }
+        }
+      }
+      EOF{% endif %}
   script:
     - >
       docker run --rm
@@ -278,8 +288,9 @@ build_production:
       -v ${PWD}:${PWD}
       -w ${PWD}
       -e CI_JOB_TOKEN
-      -e TERRAFORM_CMD
-      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}_${ENVIRONMENT_SLUG}
+      -e TERRAFORM_CMD{% if cookiecutter.terraform_backend == "gitlab" %}
+      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}_${ENVIRONMENT_SLUG}{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" %}
+      -e TF_CLI_CONFIG_FILE{% endif %}
       -e TF_IN_AUTOMATION=1
       -e TF_ROOT
       -e TF_VAR_cache_url="${CACHE_URL}"
@@ -304,7 +315,8 @@ build_production:
       -e TF_VAR_service_container_port
       -e TF_VAR_service_replicas
       -e TF_VAR_web_concurrency="${WEB_CONCURRENCY}"
-      -e TF_VAR_stack_slug="${STACK_SLUG}"
+      -e TF_VAR_stack_slug="${STACK_SLUG}"{% if cookiecutter.terraform_backend == "terraform-cloud" %}
+      -e TF_WORKSPACE{% endif %}
       ${TERRAFORM_IMAGE}:latest ./scripts/deploy.sh
   artifacts:
     name: plan
