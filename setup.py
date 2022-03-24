@@ -26,7 +26,6 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")
-@click.option("--terraform-backend")
 @click.option("--sentry-dsn")
 @click.option(
     "--media-storage",

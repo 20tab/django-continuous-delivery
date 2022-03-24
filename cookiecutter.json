@@ -8,7 +8,6 @@
   "project_url_dev": null,
   "project_url_stage": null,
   "project_url_prod": null,
-  "terraform_backend": "gitlab",
   "media_storage": ["local", "s3-digitalocean", "none"],
   "use_redis": "False",
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]

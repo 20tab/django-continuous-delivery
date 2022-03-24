@@ -9,13 +9,7 @@ import click
 import validators
 from slugify import slugify
 
-from bootstrap.constants import (
-    MEDIA_STORAGE_CHOICES,
-    MEDIA_STORAGE_DEFAULT,
-    TERRAFORM_BACKEND_CHOICES,
-    TERRAFORM_BACKEND_DEFAULT,
-    TERRAFORM_BACKEND_TFC,
-)
+from bootstrap.constants import MEDIA_STORAGE_CHOICES, MEDIA_STORAGE_DEFAULT
 
 error = partial(click.style, fg="red")
 
@@ -35,7 +29,6 @@ def collect(
     project_url_stage,
     project_url_prod,
     sentry_dsn,
-    terraform_backend,
     media_storage,
     use_redis,
     use_gitlab,
@@ -64,7 +57,6 @@ def collect(
         default=f"https://www.{project_slug}.com/",
     )
     service_dir = clean_service_dir(output_dir, project_dirname)
-    terraform_backend = clean_terraform_backend(terraform_backend)
     media_storage = clean_media_storage(media_storage)
     use_redis = clean_use_redis(use_redis)
     if use_gitlab := clean_use_gitlab(use_gitlab):
@@ -87,7 +79,6 @@ def collect(
         "project_url_dev": project_url_dev,
         "project_url_stage": project_url_stage,
         "project_url_prod": project_url_prod,
-        "terraform_backend": terraform_backend,
         "sentry_dsn": sentry_dsn,
         "media_storage": media_storage,
         "use_redis": use_redis,
@@ -158,19 +149,6 @@ def clean_service_dir(output_dir, project_dirname):
     ):
         shutil.rmtree(service_dir)
     return service_dir
-
-
-def clean_terraform_backend(terraform_backend):
-    """Return the terraform backend."""
-    return (
-        terraform_backend
-        if terraform_backend in TERRAFORM_BACKEND_CHOICES
-        else click.prompt(
-            "Terraform backend",
-            default=TERRAFORM_BACKEND_DEFAULT,
-            type=click.Choice(TERRAFORM_BACKEND_CHOICES, case_sensitive=False),
-        )
-    ).lower()
 
 
 def clean_media_storage(media_storage):
