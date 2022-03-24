@@ -60,14 +60,15 @@ resource "null_resource" "init_repo" {
       "cd ${var.service_dir}",
       format(
         join(" && ", [
-          "git init --initial-branch=main",
+          "git init --initial-branch=develop",
           "git remote add origin %s",
           "git add .",
           "git ${local.git_config} commit -m 'Initial commit'",
-          "git push -u origin main -o ci.skip",
-          "git checkout -b develop",
           "git push -u origin develop -o ci.skip",
+          "git checkout -b main",
+          "git push -u origin main -o ci.skip",
           "git remote set-url origin %s",
+          "git checkout develop",
         ]),
         replace(
           gitlab_project.main.http_url_to_repo,
