@@ -60,13 +60,13 @@ resource "null_resource" "init_repo" {
       "cd ${var.service_dir}",
       format(
         join(" && ", [
-          "git init --initial-branch=develop",
+          "git init --initial-branch=main",
           "git remote add origin %s",
           "git add .",
           "git ${local.git_config} commit -m 'Initial commit'",
-          "git push -u origin develop -o ci.skip",
-          "git checkout -b main",
           "git push -u origin main -o ci.skip",
+          "git checkout -b develop",
+          "git push -u origin develop -o ci.skip",
           "git remote set-url origin %s",
         ]),
         replace(
