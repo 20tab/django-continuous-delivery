@@ -1,16 +1,3 @@
-variable "cache_url" {
-  description = "The cache connection url."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "database_url" {
-  description = "The database connection url."
-  type        = string
-  sensitive   = true
-}
-
 variable "digitalocean_token" {
   description = "The Digital Ocean access token."
   type        = string
@@ -136,4 +123,3 @@ variable "stack_slug" {
   description = "The slug of the stack where the service is deployed."
   type        = string
 }
-

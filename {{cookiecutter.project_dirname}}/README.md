@@ -20,7 +20,7 @@ A [Django](https://docs.djangoproject.com) project using [uvicorn](https://www.u
 -   [Testing](#testing)
 -   [Static files](#static-files)
 -   [Continuous Integration](#continuous-integration)
-    -   [Gitlab CI](#gitlab-ci)
+    -   [GitLab CI](#gitlab-ci)
 
 ## Conventions
 
@@ -132,6 +132,6 @@ $ make collectstatic
 
 Depending on the CI tool, you might need to configure Django environment variables.
 
-### Gitlab CI
+### GitLab CI
 
 The configuration file `.gitlab-ci.yml` should work as is, needing no further customization.

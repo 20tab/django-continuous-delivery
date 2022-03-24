@@ -11,7 +11,7 @@ terraform {
   required_providers {
     gitlab = {
       source  = "gitlabhq/gitlab"
-      version = "3.7.0"
+      version = "3.12.0"
     }
   }
 }
@@ -68,6 +68,7 @@ resource "null_resource" "init_repo" {
           "git checkout -b main",
           "git push -u origin main -o ci.skip",
           "git remote set-url origin %s",
+          "git checkout develop",
         ]),
         replace(
           gitlab_project.main.http_url_to_repo,
@@ -111,12 +112,6 @@ resource "gitlab_project_badge" "coverage" {
   project   = gitlab_project.main.id
   link_url  = "https://${var.project_slug}.gitlab.io/${var.service_slug}/htmlcov"
   image_url = "https://gitlab.com/%%{project_path}/badges/%%{default_branch}/coverage.svg"
-}
-
-resource "gitlab_project_badge" "pipeline" {
-  project   = gitlab_project.main.id
-  link_url  = "https://gitlab.com/%%{project_path}/pipelines"
-  image_url = "https://gitlab.com/%%{project_path}/badges/%%{default_branch}/pipeline.svg"
 }
 
 /* Group Variables */

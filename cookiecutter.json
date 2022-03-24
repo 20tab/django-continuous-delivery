@@ -9,6 +9,6 @@
   "project_url_stage": null,
   "project_url_prod": null,
   "media_storage": ["local", "s3-digitalocean", "none"],
-  "use_redis": false,
+  "use_redis": "False",
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }
