@@ -10,11 +10,11 @@ check:  ## Check code formatting and import sorting
 
 .PHONY: collectstatic
 collectstatic:  ## Django collectstatic
-	python3 manage.py collectstatic --clear --link --noinput
+	python3 -m manage collectstatic --clear --link --noinput
 
 .PHONY: compilemessages
 compilemessages:  ## Django compilemessages
-	python3 manage.py compilemessages
+	python3 -m manage compilemessages
 
 .PHONY: coverage
 coverage:  ## Run coverage
@@ -22,11 +22,11 @@ coverage:  ## Run coverage
 
 .PHONY: createsuperuser
 createsuperuser:  ## Django createsuperuser
-	python3 manage.py createsuperuser --noinput
+	python3 -m manage createsuperuser --noinput
 
 .PHONY: dumpgroups
 dumpgroups:  ## Django dump auth.Group data
-	python3 manage.py dumpdata auth.Group --natural-foreign --natural-primary -o fixtures/auth_groups.json
+	python3 -m manage dumpdata auth.Group --natural-foreign --natural-primary -o fixtures/auth_groups.json
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
@@ -37,15 +37,15 @@ fix:  ## Fix code formatting, linting and sorting imports
 
 .PHONY: flush
 flush:  ## Django flush
-	python3 manage.py flush --noinput
+	python3 -m manage flush --noinput
 
 .PHONY: graph_models
 graph_models:  ## Django generate graph models
-	python3 manage.py graph_models -o models.svg
+	python3 -m manage graph_models -o models.svg
 
 .PHONY: loadgroups
 loadgroups:  ## Django load auth.Group data
-	python3 manage.py loaddata fixtures/auth_groups.json
+	python3 -m manage loaddata fixtures/auth_groups.json
 
 .PHONY: local
 local: pip_update  ## Install local requirements and dependencies
@@ -53,15 +53,15 @@ local: pip_update  ## Install local requirements and dependencies
 
 .PHONY: messages
 messages:  ## Django makemessages
-	python3 manage.py makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --ignore gunicorn.conf.py -l it
+	python3 -m manage makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --ignore gunicorn.conf.py -l it
 
 .PHONY: migrate
 migrate:  ## Django migrate
-	python3 manage.py migrate --noinput
+	python3 -m manage migrate --noinput
 
 .PHONY: migrations
 migrations: ## Django makemigrations
-	python3 manage.py makemigrations --no-header
+	python3 -m manage makemigrations --no-header
 
 .PHONY: outdated
 outdated:  ## Check outdated requirements and dependencies
@@ -108,7 +108,7 @@ endif
 simpletest:  ## Run debugging test
 	# You can pass more arguments as follows:
 	# make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
-	python3 manage.py test --configuration=Testing --timing $(simpletestargs)
+	python3 -m manage test --configuration=Testing --timing $(simpletestargs)
 
 .PHONY: test
 test:  ## Run test
