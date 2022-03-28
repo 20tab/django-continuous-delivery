@@ -38,6 +38,15 @@ precommit:  ## Fix code formatting, linting and sorting imports
 precommit_update:  ## Update pre_commit
 	python3 -m pre_commit autoupdate
 
+ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
+  simpletestargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(simpletestargs):;@true)
+endif
+
+.PHONY: simpletest # Run debug tests
+simpletest:
+	python3 -m unittest $(simpletestargs)
+
 .PHONY: update
 update: pip precommit_update ## Run update
 

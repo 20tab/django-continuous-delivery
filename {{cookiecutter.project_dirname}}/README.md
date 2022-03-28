@@ -52,7 +52,7 @@ $ cd {{ cookiecutter.project_dirname }}
 
 ### Git hooks
 
-To install pre-commit into your git hooks run the below command. pre-commit will now run on every commit. Every time you clone a project using pre-commit running pre-commit install should always be the first thing you do.
+To install pre-commit into your git hooks run the below command. Pre-commit will now run on every commit. Every time you clone a project using pre-commit, running pre-commit install should always be the first thing you do.
 
 ```shell
 $ pre-commit install
@@ -134,4 +134,4 @@ Depending on the CI tool, you might need to configure Django environment variabl
 
 ### GitLab CI
 
-The configuration file `.gitlab-ci.yml` should work as is, needing no further customization.
+The configuration file `.gitlab-ci.yml` should work as it is, needing no further customization.
