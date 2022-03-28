@@ -141,12 +141,8 @@ Disabled args
 
 For enabling gitlab integration the following arguments are needed:
 
-`--use-gitlab`<br/>
 `--gitlab-private-token={{gitlab-private-token}}`<br/>
 `--gitlab-group-slug={{gitlab-group-slug}}`
-
-Disabled args
-`--no-gitlab`
 
 Add user to repository using comma separeted arguments
 
