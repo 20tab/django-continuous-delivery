@@ -42,9 +42,9 @@ To install and use virtualenv, please, visit the official [Python tutorial](http
 
 To get the existing project, change directory, clone the project repository and enter the newly created **{{ cookiecutter.project_slug }}** directory:
 
-```shell
-$ cd ~/projects/
-$ git clone GIT_REPOSITORY_URL {{ cookiecutter.project_dirname }}
+```bash
+cd ~/projects/
+git clone git@gitlab.com:{{ cookiecutter.project_slug }}/{{ cookiecutter.service_slug }}.git {{ cookiecutter.project_dirname }} &&
 $ cd {{ cookiecutter.project_dirname }}
 ```
 
