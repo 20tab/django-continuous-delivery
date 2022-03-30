@@ -1,3 +1,9 @@
+variable "digitalocean_token" {
+  description = "The Digital Ocean access token."
+  type        = string
+  sensitive   = true
+}
+
 variable "django_admins" {
   type        = string
   description = "The value of the DJANGO_ADMINS environment variable."
@@ -8,6 +14,12 @@ variable "django_allowed_hosts" {
   type        = string
   description = "The value of the DJANGO_ALLOWED_HOSTS environment variable."
   default     = ""
+}
+
+variable "django_configuration" {
+  type        = string
+  description = "The value of the DJANGO_CONFIGURATION environment variable."
+  default     = "Remote"
 }
 
 variable "django_default_from_email" {
@@ -31,27 +43,7 @@ variable "email_url" {
 
 variable "environment" {
   type        = string
-  description = "The deploy environment name, e.g. \"Production\"."
-}
-
-variable "environment_slug" {
-  type        = string
-  description = "The deploy environment slug, e.g. \"stage\"."
-}
-
-variable "media_storage" {
-  description = "The media storage solution."
-  type        = string
-}
-
-variable "namespace" {
-  description = "The Kubernetes namespace."
-  type        = string
-}
-
-variable "project_slug" {
-  description = "The project slug."
-  type        = string
+  description = "The name of the deploy environment, e.g. \"Production\"."
 }
 
 variable "project_url" {
@@ -125,4 +117,9 @@ variable "web_concurrency" {
   description = "The desired number of gunicorn workers."
   type        = string
   default     = ""
+}
+
+variable "stack_slug" {
+  description = "The slug of the stack where the service is deployed."
+  type        = string
 }
