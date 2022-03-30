@@ -23,6 +23,10 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option("--project-dirname")
 @click.option("--service-slug", callback=slugify_option)
 @click.option("--internal-service-port", default=8000, type=int)
+@click.option(
+    "--deployment-type",
+    type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
+)
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")

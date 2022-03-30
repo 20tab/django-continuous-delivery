@@ -8,7 +8,8 @@
   "project_url_dev": null,
   "project_url_stage": null,
   "project_url_prod": null,
-  "media_storage": ["local", "s3-digitalocean", "none"],
+  "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
+  "deployment_type": ["digitalocean-k8s", "other-k8s"],
   "use_redis": "False",
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }
