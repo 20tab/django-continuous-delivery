@@ -6,7 +6,11 @@ import os
 import click
 
 from bootstrap.collector import collect
-from bootstrap.constants import GITLAB_TOKEN_ENV_VAR, MEDIA_STORAGE_CHOICES
+from bootstrap.constants import (
+    DEPLOYMENT_TYPE_CHOICES,
+    GITLAB_TOKEN_ENV_VAR,
+    MEDIA_STORAGE_CHOICES,
+)
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import slugify_option
 from bootstrap.runner import run

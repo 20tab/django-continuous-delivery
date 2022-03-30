@@ -39,6 +39,19 @@ variable "environment_slug" {
   description = "The deploy environment slug, e.g. \"stage\"."
 }
 
+variable "extra_config_values" {
+  type        = map(string)
+  description = "Additional config map environment variables."
+  default     = {}
+}
+
+variable "extra_secret_values" {
+  type        = map(string)
+  description = "Additional secret environment variables."
+  default     = {}
+  sensitive   = true
+}
+
 variable "media_storage" {
   description = "The media storage solution."
   type        = string

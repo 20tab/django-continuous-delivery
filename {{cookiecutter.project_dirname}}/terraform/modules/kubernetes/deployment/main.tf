@@ -54,6 +54,7 @@ resource "kubernetes_secret_v1" "main" {
   }
 
   data = { for k, v in merge(
+    var.extra_secret_values,
     {
       DJANGO_SECRET_KEY = random_password.django_secret_key.result
       EMAIL_URL         = var.email_url
@@ -75,6 +76,7 @@ resource "kubernetes_config_map_v1" "main" {
   }
 
   data = { for k, v in merge(
+    var.extra_config_values,
     {
       DJANGO_ADMINS                = var.django_admins
       DJANGO_ALLOWED_HOSTS         = local.django_allowed_hosts

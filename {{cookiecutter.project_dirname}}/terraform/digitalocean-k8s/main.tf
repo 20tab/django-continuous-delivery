@@ -8,6 +8,9 @@ locals {
   cluster_prefix = var.stack_slug == "main" ? local.project_slug : "${local.project_slug}-${var.stack_slug}"
 
   media_storage = "{{ cookiecutter.media_storage }}"
+
+  extra_config_values = {}
+  extra_secret_values = {}
 }
 
 terraform {
@@ -82,4 +85,7 @@ module "deployment" {
   s3_secret_key             = var.s3_secret_key
   sentry_dsn                = var.sentry_dsn
   web_concurrency           = var.web_concurrency
+
+  extra_config_values = local.extra_config_values
+  extra_secret_values = local.extra_secret_values
 }
