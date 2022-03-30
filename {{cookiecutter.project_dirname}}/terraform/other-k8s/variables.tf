@@ -1,9 +1,3 @@
-variable "digitalocean_token" {
-  description = "The Digital Ocean access token."
-  type        = string
-  sensitive   = true
-}
-
 variable "django_admins" {
   type        = string
   description = "The value of the DJANGO_ADMINS environment variable."
