@@ -14,7 +14,7 @@ fix:  ## Fix code formatting, linting and sorting imports
 
 .PHONY: local
 local: pip_update  ## Install local requirements and dependencies
-	python3 -m piptools sync requirements.txt
+	python3 -m piptools sync requirements/local.txt
 
 .PHONY: outdated
 outdated:  ## Check outdated requirements and dependencies
@@ -22,11 +22,13 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements.txt requirements.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=21.3.0 pip-tools~=6.4.0 setuptools~=59.4.0 wheel~=0.37.0
+	python3 -m pip install -q -U pip~=22.0.0 pip-tools~=6.5.0 setuptools~=60.9.0 wheel~=0.37.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports
@@ -35,6 +37,10 @@ precommit:  ## Fix code formatting, linting and sorting imports
 .PHONY: precommit_update
 precommit_update:  ## Update pre_commit
 	python3 -m pre_commit autoupdate
+
+.PHONY: shellplus
+shellplus:  ## Launch shell_plus
+	python3 -m manage shell_plus
 
 .PHONY: update
 update: pip precommit_update ## Run update

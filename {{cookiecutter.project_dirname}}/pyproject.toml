@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.coverage.html]
 title = "{{cookiecutter.project_name}} - Coverage"
@@ -15,9 +15,9 @@ data_file = ".coverages/.coverage"
 disable_warnings = ["no-data-collected"]
 omit = [
     ".venv/*",
-    "{{cookiecutter.project_slug}}/asgi.py",
-    "{{cookiecutter.project_slug}}/workers.py",
-    "{{cookiecutter.project_slug}}/wsgi.py",
+    "{{cookiecutter.django_settings_dirname}}/asgi.py",
+    "{{cookiecutter.django_settings_dirname}}/workers.py",
+    "{{cookiecutter.django_settings_dirname}}/wsgi.py",
     "manage*.py",
     "venv/*",
 ]
@@ -28,7 +28,7 @@ atomic = true
 combine_as_imports = true
 default_section = "THIRDPARTY"
 known_first_party = [
-    "{{cookiecutter.project_slug}}",
+    "{{ cookiecutter.django_settings_dirname }}",
 ]
 known_third_party = "django"
 profile = "black"
@@ -38,8 +38,8 @@ skip = [
 
 [tool.mypy]
 ignore_missing_imports = true
-python_version = "3.9"
+python_version = "3.10"
 
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
-DJANGO_SETTINGS_MODULE = "{{cookiecutter.project_slug}}.settings"
+DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"

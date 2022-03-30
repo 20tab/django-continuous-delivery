@@ -1,5 +1,7 @@
 """Gunicorn configuration file."""
 
+import os
+
 # Logging
 # https://docs.gunicorn.org/en/stable/settings.html#logging
 
@@ -11,12 +13,14 @@ loglevel = "info"
 # Server Socket
 # https://docs.gunicorn.org/en/stable/settings.html#server-socket
 
-bind = "0.0.0.0:8000"
+bind = "0.0.0.0:" + os.getenv(
+    "INTERNAL_SERVICE_PORT", "{{ cookiecutter.internal_service_port }}"
+)
 
 # Worker Processes
 # https://docs.gunicorn.org/en/stable/settings.html#worker-processes
 
-worker_class = "{{cookiecutter.project_slug}}.workers.UvicornDjangoWorker"
+worker_class = "{{ cookiecutter.django_settings_dirname }}.workers.UvicornDjangoWorker"
 
 # Temporary Directory
 # https://docs.gunicorn.org/en/stable/settings.html#worker-tmp-dir

@@ -8,3 +8,4 @@ python3 -m flake8
 python3 -m mypy .
 python3 -m bandit --quiet --recursive --exclude tests .
 python3 -m safety check --file requirements/remote.txt
+python3 -m manage check --deploy --configuration=Remote

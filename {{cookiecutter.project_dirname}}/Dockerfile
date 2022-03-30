@@ -43,19 +43,20 @@ CMD ./scripts/test.sh --reverse
 
 FROM base AS remote
 
+ENV DJANGO_CONFIGURATION=Remote INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 USER $APPUSER
 ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python${PYTHON_VERSION}/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
     && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
 COPY --chown=$APPUSER . .
+RUN DJANGO_SECRET_KEY=build python3 -m manage collectstatic --clear --link --noinput
 ENTRYPOINT ["./scripts/entrypoint.sh"]
-CMD ["python3", "-m", "gunicorn", "{{cookiecutter.project_slug}}.asgi"]
-
+CMD ["python3", "-m", "gunicorn", "{{ cookiecutter.django_settings_dirname }}.asgi"]
 
 FROM base AS local
 
-ENV DJANGO_CONFIGURATION=Local PYTHONFAULTHANDLER=1
+ENV DJANGO_CONFIGURATION=Local INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         gettext \
@@ -68,5 +69,6 @@ USER $APPUSER
 COPY --chown=$APPUSER ./requirements/local.txt requirements/local.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/local.txt
 COPY --chown=$APPUSER . .
+RUN DJANGO_SECRET_KEY=build python3 -m manage collectstatic --clear --link --noinput
 ENTRYPOINT ["./scripts/entrypoint.sh"]
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD python3 -m manage runserver 0.0.0.0:${INTERNAL_SERVICE_PORT}
