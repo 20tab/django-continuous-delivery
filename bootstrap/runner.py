@@ -36,7 +36,6 @@ def run(
     sentry_dsn,
     media_storage,
     use_redis,
-    use_gitlab,
     gitlab_private_token,
     gitlab_group_slug,
     terraform_dir,
@@ -66,7 +65,7 @@ def run(
     create_static_directory(service_dir)
     if media_storage == "local":
         create_media_directory(service_dir)
-    if use_gitlab:
+    if gitlab_group_slug:
         gitlab_project_variables = {}
         if sentry_dsn:
             gitlab_project_variables.update(
