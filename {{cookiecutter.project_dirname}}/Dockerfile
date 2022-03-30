@@ -1,4 +1,5 @@
-FROM python:3.10-slim-bullseye AS base
+ARG PYTHON_VERSION=3.10
+FROM python:${PYTHON_VERSION}-slim-bullseye AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser
@@ -7,7 +8,7 @@ WORKDIR $WORKDIR
 RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
 ENV PATH="/home/${APPUSER}/.local/bin:${PATH}"
-ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.10/site-packages
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python${PYTHON_VERSION}/site-packages
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libpq5 \
@@ -44,7 +45,7 @@ FROM base AS remote
 
 ENV DJANGO_CONFIGURATION=Remote INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 USER $APPUSER
-ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.10/site-packages
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python${PYTHON_VERSION}/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
     && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
