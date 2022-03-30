@@ -47,6 +47,10 @@ endif
 simpletest:
 	python3 -m unittest $(simpletestargs)
 
+.PHONY: shellplus
+shellplus:  ## Launch shell_plus
+	python3 -m manage shell_plus
+
 .PHONY: update
 update: pip precommit_update ## Run update
 
