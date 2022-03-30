@@ -5,6 +5,7 @@ from io import StringIO
 from unittest import TestCase, mock
 
 from bootstrap.collector import (
+    clean_deployment_type,
     clean_gitlab_group_data,
     clean_media_storage,
     clean_project_dirname,
@@ -30,6 +31,13 @@ class TestBootstrapCollector(TestCase):
     """Test the bootstrap collector."""
 
     maxDiff = None
+
+    def test_clean_deployment_type(self):
+        """Test cleaning the deployment type."""
+        with input(""):
+            self.assertEqual(clean_deployment_type(None), "digitalocean-k8s")
+        with input("non-existing", ""):
+            self.assertEqual(clean_deployment_type(None), "digitalocean-k8s")
 
     def test_clean_gitlab_group_data(self):
         """Test cleaning the GitLab group data."""
