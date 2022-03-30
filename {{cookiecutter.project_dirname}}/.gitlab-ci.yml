@@ -264,8 +264,8 @@ build_production:
     - docker:20-dind
   variables:
     TF_ROOT: ${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
-    TERRAFORM_CMD: "gitlab-terraform"
-    TERRAFORM_IMAGE: "registry.gitlab.com/gitlab-org/terraform-images/stable:latest"
+    TERRAFORM_CMD: gitlab-terraform
+    TERRAFORM_IMAGE: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
@@ -305,7 +305,7 @@ build_production:
       -e TF_VAR_service_replicas
       -e TF_VAR_web_concurrency="${WEB_CONCURRENCY}"
       -e TF_VAR_stack_slug="${STACK_SLUG}"
-      ${TERRAFORM_IMAGE}:latest ./scripts/deploy.sh
+      ${TERRAFORM_IMAGE} ./scripts/deploy.sh
   artifacts:
     name: plan
     paths:
