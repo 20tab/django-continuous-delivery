@@ -307,13 +307,6 @@ class Testing(ProjectDefault):
 
     # MEDIA_ROOT = ProjectDefault.BASE_DIR / "media_test"{% endif %}
 
-    # unittest-xml-reporting (aka xmlrunner)
-    # https://github.com/xmlrunner/unittest-xml-reporting#django-support
-
-    TEST_OUTPUT_FILE_NAME = "report.xml"
-
-    TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
-
 
 class Remote(ProjectDefault):
     """The remote settings."""

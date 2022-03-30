@@ -60,7 +60,6 @@ test:
     - docker-compose build
     - docker-compose run --name ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME} {{ cookiecutter.service_slug }}
     - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/htmlcov htmlcov
-    - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/report.xml report.xml
   after_script:
     - docker-compose down -v
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
@@ -68,8 +67,6 @@ test:
     expire_in: 1 day
     paths:
       - htmlcov
-    reports:
-      junit: report.xml
     when: always
 
 pact-verify-test:
