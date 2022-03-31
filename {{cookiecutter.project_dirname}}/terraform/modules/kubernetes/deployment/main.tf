@@ -138,7 +138,7 @@ resource "kubernetes_deployment_v1" "main" {
             for_each = toset(local.dynamic_secret_envs)
             content {
               secret_ref {
-                name = "${var.namespace}-${env_from.key}"
+                name = env_from.key
               }
             }
           }
