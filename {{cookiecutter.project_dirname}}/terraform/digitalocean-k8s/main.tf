@@ -5,8 +5,6 @@ locals {
 
   namespace = "${local.project_slug}-${local.environment_slug}"
 
-  cluster_prefix = var.stack_slug == "main" ? local.project_slug : "${local.project_slug}-${var.stack_slug}"
-
   media_storage = "{{ cookiecutter.media_storage }}"
 
   extra_config_values = {}
@@ -50,7 +48,7 @@ provider "kubernetes" {
 /* Data Sources */
 
 data "digitalocean_kubernetes_cluster" "main" {
-  name = "${local.cluster_prefix}-k8s-cluster"
+  name = var.stack_slug == "main" ? "${local.project_slug}-k8s-cluster" : "${local.project_slug}-${var.stack_slug}-k8s-cluster"
 }
 
 /* Deployment */
