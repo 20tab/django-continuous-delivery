@@ -5,10 +5,11 @@
   "project_dirname": "backend",
   "django_settings_dirname": "{{ cookiecutter.project_slug | slugify(separator='') }}",
   "internal_service_port": "8000",
+  "deployment_type": ["digitalocean-k8s", "other-k8s"],
   "project_url_dev": null,
   "project_url_stage": null,
   "project_url_prod": null,
-  "media_storage": ["local", "s3-digitalocean", "none"],
+  "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "False",
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }

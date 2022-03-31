@@ -46,34 +46,16 @@ variable "environment" {
   description = "The name of the deploy environment, e.g. \"Production\"."
 }
 
-variable "media_storage" {
-  description = "The media storage solution."
-  type        = string
-  default     = "{{ cookiecutter.media_storage }}"
-}
-
 variable "project_url" {
   description = "The project url."
   type        = string
 }
 
-variable "s3_bucket_access_id" {
+variable "s3_access_id" {
   description = "The S3 bucket access key ID."
   type        = string
   default     = ""
   sensitive   = true
-}
-
-variable "s3_bucket_endpoint_url" {
-  description = "The S3 bucket endpoint url."
-  type        = string
-  default     = ""
-}
-
-variable "s3_bucket_file_overwrite" {
-  description = "The S3 bucket file overwriting setting."
-  type        = string
-  default     = "False"
 }
 
 variable "s3_bucket_name" {
@@ -82,7 +64,25 @@ variable "s3_bucket_name" {
   default     = ""
 }
 
-variable "s3_bucket_secret_key" {
+variable "s3_file_overwrite" {
+  description = "The S3 bucket file overwriting setting."
+  type        = string
+  default     = "False"
+}
+
+variable "s3_host" {
+  description = "The S3 bucket host."
+  type        = string
+  default     = ""
+}
+
+variable "s3_region" {
+  description = "The S3 bucket region."
+  type        = string
+  default     = ""
+}
+
+variable "s3_secret_key" {
   description = "The S3 bucket secret access key."
   type        = string
   default     = ""
