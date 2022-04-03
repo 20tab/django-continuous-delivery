@@ -89,9 +89,10 @@ resource "kubernetes_secret_v1" "env" {
 
   data = { for k, v in merge(
     {
-      DJANGO_SECRET_KEY = random_password.django_secret_key.result
-      EMAIL_URL         = var.email_url
-      SENTRY_DSN        = var.sentry_dsn
+      DJANGO_SECRET_KEY        = random_password.django_secret_key.result
+      DJANGO_ENABLE_API_DOC    = var.environment_slug == "prod" ? "False" : "True"
+      EMAIL_URL                = var.email_url
+      SENTRY_DSN               = var.sentry_dsn
     },
     local.use_s3 ? {
       AWS_ACCESS_KEY_ID     = var.s3_bucket_access_id

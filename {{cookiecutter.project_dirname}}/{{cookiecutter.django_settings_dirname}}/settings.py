@@ -47,9 +47,13 @@ class ProjectDefault(Configuration):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+        "rest_framework",
+        "cors_headers",
+        "drf_spectacular",
     ]
 
     MIDDLEWARE = [
+        "corsheaders.middleware.CorsMiddleware",
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -181,6 +185,56 @@ class ProjectDefault(Configuration):
 
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+    # Django REST Framework
+    # https://www.django-rest-framework.org/api-guide/settings/
+
+    REST_FRAMEWORK: dict = {
+        "DEFAULT_AUTHENTICATION_CLASSES": [
+            "rest_framework.authentication.SessionAuthentication",
+        ],
+        "DEFAULT_FILTER_BACKENDS": [
+            "django_filters.rest_framework.DjangoFilterBackend"
+        ],
+        "DEFAULT_PARSER_CLASSES": [
+            "djangorestframework_camel_case.parser.CamelCaseMultiPartParser",
+            "djangorestframework_camel_case.parser.CamelCaseJSONParser",
+        ],
+        "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+        "DEFAULT_RENDERER_CLASSES": [
+            "djangorestframework_camel_case.render.CamelCaseJSONRenderer",
+        ],
+        "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    }
+
+    # Django CORS Headers
+    # https://github.com/adamchainz/django-cors-headers
+
+    CORS_ALLOW_ALL_ORIGINS = True
+
+    # API Documentation
+
+    ENABLE_API_DOC = values.BooleanValue(False)
+
+    # drf-spectacular
+    # https://drf-spectacular.readthedocs.io/en/latest/
+
+    SPECTACULAR_SETTINGS = {
+        "TITLE": "{{ cookiecutter.project_name }}",
+        "DESCRIPTION": "API Documentation",
+        "VERSION": "1.0.0",
+        "CAMELIZE_NAMES": True,
+        "SWAGGER_UI_SETTINGS": {
+            "deepLinking": True,
+            "displayRequestDuration": True,
+            "persistAuthorization": True,
+            "syntaxHighlight.activate": True,
+        },
+        "POSTPROCESSING_HOOKS": [
+            "drf_spectacular.hooks.postprocess_schema_enums",
+            "drf_spectacular.contrib.djangorestframework_camel_case.camelize_serializer_fields",  # noqa
+        ],
+    }
+
 
 class Local(ProjectDefault):
     """The local settings."""
@@ -251,6 +305,18 @@ class Local(ProjectDefault):
             "verbose_names": True,
         }
 
+    # Django REST Framework
+    # https://www.django-rest-framework.org/api-guide/settings/
+
+    REST_FRAMEWORK = {
+        **ProjectDefault.REST_FRAMEWORK,
+        "DEFAULT_RENDERER_CLASSES": [
+            *ProjectDefault.REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"],
+            "djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer",
+        ],
+    }
+
+
 
 class Testing(ProjectDefault):
     """The testing settings."""
@@ -318,12 +384,14 @@ class Testing(ProjectDefault):
 class Remote(ProjectDefault):
     """The remote settings."""
 
+    # Application definition
+
+    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
+
     # Debug
     # https://docs.djangoproject.com/en/stable/ref/settings/#debug
 
     DEBUG = False
-
-    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
 
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/

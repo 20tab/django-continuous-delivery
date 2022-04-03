@@ -23,6 +23,21 @@ admin.site.site_header = admin.site.site_title = "{{ cookiecutter.project_name }
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path(
+        "api/",
+        include(
+            (
+                [
+                    *(
+                        [path("", include("{{ cookiecutter.project_slug }}.urls_apibrowser"))]
+                        if settings.ENABLE_API_DOC
+                        else []
+                    ),
+                ],
+                "api",
+            )
+        ),
+    ),
 ]
 
 if settings.DEBUG:  # pragma: no cover
