@@ -104,6 +104,9 @@ resource "kubernetes_deployment_v1" "main" {
   metadata {
     name      = local.service_slug
     namespace = var.namespace
+    annotations = {
+      "reloader.stakater.com/auto" = "true"
+    }
   }
   spec {
     replicas = var.service_replicas
