@@ -10,6 +10,8 @@ import validators
 from slugify import slugify
 
 from bootstrap.constants import (
+    DEPLOYMENT_TYPE_CHOICES,
+    DEPLOYMENT_TYPE_DIGITALOCEAN,
     MEDIA_STORAGE_CHOICES,
     MEDIA_STORAGE_DEFAULT,
     TERRAFORM_BACKEND_CHOICES,
@@ -31,6 +33,7 @@ def collect(
     project_dirname,
     service_slug,
     internal_service_port,
+    deployment_type,
     project_url_dev,
     project_url_stage,
     project_url_prod,
@@ -38,16 +41,17 @@ def collect(
     terraform_backend,
     media_storage,
     use_redis,
-    use_gitlab,
     gitlab_private_token,
     gitlab_group_slug,
     terraform_dir,
     logs_dir,
+    quiet,
 ):
     """Collect options and run the setup."""
     project_slug = clean_project_slug(project_name, project_slug)
     service_slug = clean_service_slug(service_slug)
     project_dirname = clean_project_dirname(project_dirname, project_slug, service_slug)
+    deployment_type = clean_deployment_type(deployment_type)
     project_url_dev = validate_or_prompt_url(
         project_url_dev,
         "Development environment complete URL",
@@ -67,10 +71,13 @@ def collect(
     terraform_backend = clean_terraform_backend(terraform_backend)
     media_storage = clean_media_storage(media_storage)
     use_redis = clean_use_redis(use_redis)
-    if use_gitlab := clean_use_gitlab(use_gitlab):
-        gitlab_group_slug, gitlab_private_token = clean_gitlab_group_data(
-            project_slug, gitlab_group_slug, gitlab_private_token
-        )
+    gitlab_group_slug, gitlab_private_token = clean_gitlab_group_data(
+        project_slug,
+        gitlab_group_slug,
+        gitlab_private_token,
+        quiet,
+    )
+    if gitlab_group_slug:
         sentry_dsn = validate_or_prompt_url(
             sentry_dsn, "Sentry DSN (leave blank if unused)", default=""
         )
@@ -84,6 +91,7 @@ def collect(
         "service_dir": service_dir,
         "service_slug": service_slug,
         "internal_service_port": internal_service_port,
+        "deployment_type": deployment_type,
         "project_url_dev": project_url_dev,
         "project_url_stage": project_url_stage,
         "project_url_prod": project_url_prod,
@@ -91,7 +99,6 @@ def collect(
         "sentry_dsn": sentry_dsn,
         "media_storage": media_storage,
         "use_redis": use_redis,
-        "use_gitlab": use_gitlab,
         "gitlab_private_token": gitlab_private_token,
         "gitlab_group_slug": gitlab_group_slug,
         "terraform_dir": terraform_dir,
@@ -173,6 +180,19 @@ def clean_terraform_backend(terraform_backend):
     ).lower()
 
 
+def clean_deployment_type(deployment_type):
+    """Return the deployment type."""
+    return (
+        deployment_type
+        if deployment_type in DEPLOYMENT_TYPE_CHOICES
+        else click.prompt(
+            "Deploy type",
+            default=DEPLOYMENT_TYPE_DIGITALOCEAN,
+            type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
+        )
+    ).lower()
+
+
 def clean_media_storage(media_storage):
     """Return the media storage."""
     return (
@@ -192,26 +212,31 @@ def clean_use_redis(use_redis):
     return use_redis
 
 
-def clean_use_gitlab(use_gitlab):
-    """Tell whether GitLab should be used."""
-    if use_gitlab is None:
-        return click.confirm(warning("Do you want to configure GitLab?"), default=True)
-    return use_gitlab
-
-
-def clean_gitlab_group_data(project_slug, gitlab_group_slug, gitlab_private_token):
+def clean_gitlab_group_data(
+    project_slug,
+    gitlab_group_slug,
+    gitlab_private_token,
+    quiet=False,
+):
     """Return GitLab group data."""
-    gitlab_group_slug = slugify(
-        gitlab_group_slug or click.prompt("GitLab group slug", default=project_slug)
-    )
-    click.confirm(
-        warning(
-            f'Make sure the GitLab "{gitlab_group_slug}" group exists '
-            "before proceeding. Continue?"
-        ),
-        abort=True,
-    )
-    gitlab_private_token = gitlab_private_token or click.prompt(
-        "GitLab private token (with API scope enabled)", hide_input=True
-    )
-    return gitlab_group_slug, gitlab_private_token
+    if gitlab_group_slug or (
+        gitlab_group_slug is None
+        and click.confirm(warning("Do you want to use GitLab?"), default=True)
+    ):
+        gitlab_group_slug = slugify(
+            gitlab_group_slug or click.prompt("GitLab group slug", default=project_slug)
+        )
+        quiet or click.confirm(
+            warning(
+                f'Make sure the GitLab "{gitlab_group_slug}" group exists '
+                "before proceeding. Continue?"
+            ),
+            abort=True,
+        )
+        gitlab_private_token = gitlab_private_token or click.prompt(
+            "GitLab private token (with API scope enabled)", hide_input=True
+        )
+    else:
+        gitlab_group_slug = ""
+        gitlab_private_token = ""
+    return (gitlab_group_slug, gitlab_private_token)

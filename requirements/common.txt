@@ -2,7 +2,7 @@ arrow==1.2.2
     # via jinja2-time
 binaryornot==0.4.4
     # via cookiecutter
-black==22.1.0
+black==22.3.0
     # via -r requirements/common.in
 certifi==2021.10.8
     # via requests
@@ -10,7 +10,7 @@ chardet==4.0.0
     # via binaryornot
 charset-normalizer==2.0.12
     # via requests
-click==8.0.4
+click==8.1.0
     # via
     #   -r requirements/common.in
     #   black
@@ -22,13 +22,13 @@ decorator==5.1.1
     # via validators
 idna==3.3
     # via requests
-jinja2==3.0.3
+jinja2==3.1.1
     # via
     #   cookiecutter
     #   jinja2-time
 jinja2-time==0.2.0
     # via cookiecutter
-markupsafe==2.1.0
+markupsafe==2.1.1
     # via jinja2
 mypy-extensions==0.4.3
     # via black
@@ -61,7 +61,7 @@ tomli==2.0.1
     #   pep517
 types-python-slugify==5.0.3
     # via -r requirements/common.in
-urllib3==1.26.8
+urllib3==1.26.9
     # via requests
 validators==0.18.2
     # via -r requirements/common.in

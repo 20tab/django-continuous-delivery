@@ -1,10 +1,24 @@
 """Web project initialization CLI constants."""
 
+# Env vars
+
 GITLAB_TOKEN_ENV_VAR = "GITLAB_PRIVATE_TOKEN"
 
-MEDIA_STORAGE_CHOICES = ["local", "s3-digitalocean", "none"]
+# Deployment type
+
+DEPLOYMENT_TYPE_DIGITALOCEAN = "digitalocean-k8s"
+
+DEPLOYMENT_TYPE_OTHER = "other-k8s"
+
+DEPLOYMENT_TYPE_CHOICES = [DEPLOYMENT_TYPE_DIGITALOCEAN, DEPLOYMENT_TYPE_OTHER]
+
+# Media storage
 
 MEDIA_STORAGE_DEFAULT = "s3-digitalocean"
+
+MEDIA_STORAGE_CHOICES = ["local", MEDIA_STORAGE_DEFAULT, "none"]
+
+# Terraform backend
 
 TERRAFORM_BACKEND_DEFAULT = "gitlab"
 

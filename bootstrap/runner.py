@@ -30,6 +30,7 @@ def run(
     service_dir,
     service_slug,
     internal_service_port,
+    deployment_type,
     project_url_dev,
     project_url_stage,
     project_url_prod,
@@ -37,7 +38,6 @@ def run(
     sentry_dsn,
     media_storage,
     use_redis,
-    use_gitlab,
     gitlab_private_token,
     gitlab_group_slug,
     terraform_dir,
@@ -55,6 +55,7 @@ def run(
         project_dirname,
         service_slug,
         internal_service_port,
+        deployment_type,
         project_url_dev,
         project_url_stage,
         project_url_prod,
@@ -68,7 +69,7 @@ def run(
     create_static_directory(service_dir)
     if media_storage == "local":
         create_media_directory(service_dir)
-    if use_gitlab:
+    if gitlab_group_slug:
         gitlab_project_variables = {}
         if sentry_dsn:
             gitlab_project_variables.update(
@@ -96,6 +97,7 @@ def init_service(
     project_dirname,
     service_slug,
     internal_service_port,
+    deployment_type,
     project_url_dev,
     project_url_stage,
     project_url_prod,
@@ -108,6 +110,7 @@ def init_service(
     cookiecutter(
         os.path.dirname(os.path.dirname(__file__)),
         extra_context={
+            "deployment_type": deployment_type,
             "internal_service_port": internal_service_port,
             "media_storage": media_storage,
             "project_dirname": project_dirname,
