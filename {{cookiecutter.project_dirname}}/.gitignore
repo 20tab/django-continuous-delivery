@@ -180,3 +180,9 @@ media/
 report.xml
 
 # END local
+
+# Terraform
+.terraform.lock*
+.terraform/
+*.tfstate*
+*.tfvars
