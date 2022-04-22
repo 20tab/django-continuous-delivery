@@ -8,12 +8,13 @@ import click
 from bootstrap.collector import collect
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
+    ENVIRONMENT_DISTRIBUTION_CHOICES,
     GITLAB_TOKEN_ENV_VAR,
     MEDIA_STORAGE_CHOICES,
 )
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import slugify_option
-from bootstrap.runner import run
+from bootstrap.runner import Runner
 
 OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 
@@ -30,6 +31,9 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option(
     "--deployment-type",
     type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
+)
+@click.option(
+    "--environment-distribution", type=click.Choice(ENVIRONMENT_DISTRIBUTION_CHOICES)
 )
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
@@ -49,7 +53,7 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 def main(**options):
     """Run the setup."""
     try:
-        run(**collect(**options))
+        Runner(**collect(**options)).run()
     except BootstrapError as e:
         raise click.Abort() from e
 

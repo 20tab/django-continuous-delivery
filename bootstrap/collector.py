@@ -12,10 +12,14 @@ from slugify import slugify
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
     DEPLOYMENT_TYPE_DIGITALOCEAN,
+    DEPLOYMENT_TYPE_OTHER,
+    ENVIRONMENT_DISTRIBUTION_CHOICES,
+    ENVIRONMENT_DISTRIBUTION_DEFAULT,
+    ENVIRONMENT_DISTRIBUTION_PROMPT,
     MEDIA_STORAGE_CHOICES,
-    MEDIA_STORAGE_DEFAULT,
+    MEDIA_STORAGE_DIGITALOCEAN_S3,
     TERRAFORM_BACKEND_CHOICES,
-    TERRAFORM_BACKEND_DEFAULT,
+    TERRAFORM_BACKEND_GITLAB,
     TERRAFORM_BACKEND_TFC,
 )
 
@@ -34,6 +38,7 @@ def collect(
     service_slug,
     internal_service_port,
     deployment_type,
+    environment_distribution,
     project_url_dev,
     project_url_stage,
     project_url_prod,
@@ -52,6 +57,9 @@ def collect(
     service_slug = clean_service_slug(service_slug)
     project_dirname = clean_project_dirname(project_dirname, project_slug, service_slug)
     deployment_type = clean_deployment_type(deployment_type)
+    environment_distribution = clean_environment_distribution(
+        environment_distribution, deployment_type
+    )
     project_url_dev = validate_or_prompt_url(
         project_url_dev,
         "Development environment complete URL",
@@ -92,6 +100,7 @@ def collect(
         "service_slug": service_slug,
         "internal_service_port": internal_service_port,
         "deployment_type": deployment_type,
+        "environment_distribution": environment_distribution,
         "project_url_dev": project_url_dev,
         "project_url_stage": project_url_stage,
         "project_url_prod": project_url_prod,
@@ -174,7 +183,7 @@ def clean_terraform_backend(terraform_backend):
         if terraform_backend in TERRAFORM_BACKEND_CHOICES
         else click.prompt(
             "Terraform backend",
-            default=TERRAFORM_BACKEND_DEFAULT,
+            default=TERRAFORM_BACKEND_TFC,
             type=click.Choice(TERRAFORM_BACKEND_CHOICES, case_sensitive=False),
         )
     ).lower()
@@ -193,13 +202,28 @@ def clean_deployment_type(deployment_type):
     ).lower()
 
 
+def clean_environment_distribution(environment_distribution, deployment_type):
+    """Return the environment distribution."""
+    if deployment_type == DEPLOYMENT_TYPE_OTHER:
+        return "1"
+    return (
+        environment_distribution
+        if environment_distribution in ENVIRONMENT_DISTRIBUTION_CHOICES
+        else click.prompt(
+            ENVIRONMENT_DISTRIBUTION_PROMPT,
+            default=ENVIRONMENT_DISTRIBUTION_DEFAULT,
+            type=click.Choice(ENVIRONMENT_DISTRIBUTION_CHOICES),
+        )
+    )
+
+
 def clean_media_storage(media_storage):
     """Return the media storage."""
     return (
         media_storage
         or click.prompt(
             "Media storage",
-            default=MEDIA_STORAGE_DEFAULT,
+            default=MEDIA_STORAGE_DIGITALOCEAN_S3,
             type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
         ).lower()
     )

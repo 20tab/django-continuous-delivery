@@ -12,5 +12,6 @@
   "terraform_backend": "gitlab",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "False",
+  "environment_distribution": "1",
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }
