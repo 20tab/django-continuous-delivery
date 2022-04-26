@@ -264,8 +264,8 @@ build_production:
     - docker:20-dind
   variables:
     TF_ROOT: ${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
-    TERRAFORM_CMD: {{ {"terraform-cloud": "terraform"}.get(cookiecutter.terraform_backend, "gitlab-terraform") }}
-    TERRAFORM_IMAGE: {{ {"terraform-cloud": "hashicorp/terraform"}.get(cookiecutter.terraform_backend, "registry.gitlab.com/gitlab-org/terraform-images/stable") }}:latest
+    TERRAFORM_BACKEND: {{ cookiecutter.terraform_backend }}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
+    TERRAFORM_CMD: ./scripts/terraform.sh
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}{% if cookiecutter.terraform_backend == "terraform-cloud" %}
     - export TF_WORKSPACE={{ cookiecutter.project_slug }}-${ENVIRONMENT_SLUG}
@@ -288,7 +288,6 @@ build_production:
       -e TERRAFORM_CMD{% if cookiecutter.terraform_backend == "gitlab" %}
       -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}_${ENVIRONMENT_SLUG}{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" %}
       -e TF_CLI_CONFIG_FILE{% endif %}
-      -e TF_IN_AUTOMATION=1
       -e TF_ROOT
       -e TF_VAR_cache_url="${CACHE_URL}"{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
@@ -317,7 +316,7 @@ build_production:
       -e TF_VAR_web_concurrency="${WEB_CONCURRENCY}"
       -e TF_VAR_stack_slug="${STACK_SLUG}"{% if cookiecutter.terraform_backend == "terraform-cloud" %}
       -e TF_WORKSPACE{% endif %}
-      ${TERRAFORM_IMAGE}:latest ./scripts/deploy.sh
+      hashicorp/terraform:latest ./scripts/deploy.sh
   artifacts:
     name: plan
     paths:

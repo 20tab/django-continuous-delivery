@@ -185,4 +185,4 @@ report.xml
 .terraform.lock*
 .terraform/
 *.tfstate*
-*.tfvars
+terraform.tfvars

@@ -126,10 +126,46 @@ class Runner:
         self.add_tfvars(tf_stage, *vars)
 
     def set_tfvars(self):
-        """Set base, cluster and environment Terraform variables lists."""
+        """Set Terraform variables lists."""
+        self.project_domain and self.add_cluster_tfvars("project_domain")
+        self.letsencrypt_certificate_email and self.add_cluster_tfvars(
+            "letsencrypt_certificate_email",
+            ("ssl_enabled", True, "bool"),
+        )
         if self.use_redis:
             self.add_base_tfvars(("use_redis", True, "bool"))
             self.add_environment_tfvars(("use_redis", True, "bool"))
+        if self.project_url_monitoring:
+            self.add_cluster_tfvars(
+                ("monitoring_url", self.project_url_monitoring),
+            )
+            self.domain_prefix_monitoring and self.add_cluster_tfvars(
+                ("monitoring_domain_prefix", self.domain_prefix_monitoring),
+            )
+        if "digitalocean" in self.deployment_type:
+            self.project_domain and self.add_cluster_tfvars(
+                ("create_domain", self.digitalocean_create_domain, "bool")
+            )
+            self.add_base_tfvars(
+                ("k8s_cluster_region", self.digitalocean_k8s_cluster_region),
+                ("database_cluster_region", self.digitalocean_database_cluster_region),
+                (
+                    "database_cluster_node_size",
+                    self.digitalocean_database_cluster_node_size,
+                ),
+            )
+            self.use_redis and self.add_base_tfvars(
+                ("redis_cluster_region", self.digitalocean_redis_cluster_region),
+                ("redis_cluster_node_size", self.digitalocean_redis_cluster_node_size),
+            )
+        elif self.deployment_type == DEPLOYMENT_TYPE_OTHER:
+            self.add_environment_tfvars(
+                "postgres_image",
+                "postgres_persistent_volume_capacity",
+                "postgres_persistent_volume_claim_capacity",
+                "postgres_persistent_volume_host_path",
+            )
+            self.use_redis and self.add_environment_tfvars("redis_image")
         if self.media_storage == MEDIA_STORAGE_DIGITALOCEAN_S3:
             self.add_base_tfvars(("create_s3_bucket", True, "bool"))
             self.add_environment_tfvars(
@@ -240,9 +276,6 @@ class Runner:
             self.service_slug and gitlab_project_variables.update(
                 BACKEND_SERVICE_SLUG=f'{{value = "{self.service_slug}"}}'
             )
-            self.frontend_service_slug and gitlab_project_variables.update(
-                FRONTEND_SERVICE_SLUG=f'{{value = "{self.frontend_service_slug}"}}'
-            )
             gitlab_group_variables = {
                 f"STACK_SLUG_{i.upper()}": f'{{value = "{k}"}}'
                 for k, v in self.stacks_environments.items()
@@ -342,15 +375,19 @@ class Runner:
                 )
         return gitlab_group_variables, gitlab_project_variables
 
+    def init_terraform_cloud(self):
+        """Initialize Terraform Cloud workspace."""
+
     def init_gitlab(self):
         """Initialize the GitLab repository and associated resources."""
         click.echo(info("...creating the GitLab repository and associated resources"))
         group_variables, project_variables = self.get_gitlab_variables()
-        terraform_dir = Path(terraform_dir) / self.service_slug
+        terraform_dir = self.terraform_dir / self.service_slug
         os.makedirs(terraform_dir, exist_ok=True)
+        # TODO check vars
         env = dict(
             PATH=os.environ.get("PATH"),
-            TF_DATA_DIR=str((Path(terraform_dir) / "data").resolve()),
+            TF_DATA_DIR=str((terraform_dir / "data").resolve()),
             TF_LOG="INFO",
             TF_VAR_gitlab_group_variables="{%s}"
             % ", ".join(f"{k} = {v}" for k, v in group_variables.items()),
@@ -363,13 +400,13 @@ class Runner:
             TF_VAR_service_dir=self.service_dir,
             TF_VAR_service_slug=self.service_slug,
         )
-        state_path = Path(terraform_dir) / "state.tfstate"
-        cwd = Path(__file__).parent.parent / "terraform"
-        logs_dir = Path(logs_dir) / self.service_slug / "terraform"
+        state_path = terraform_dir / "state.tfstate"
+        logs_dir = self.logs_dir / self.service_slug / "terraform"
         os.makedirs(logs_dir)
         init_log_path = logs_dir / "init.log"
         init_stdout_path = logs_dir / "init-stdout.log"
         init_stderr_path = logs_dir / "init-stderr.log"
+        cwd = Path(__file__).parent.parent / "terraform"
         init_process = subprocess.run(
             [
                 "terraform",
@@ -452,4 +489,6 @@ class Runner:
         self.media_storage == "local" and self.create_media_directory()
         if self.gitlab_group_slug:
             self.init_gitlab()
+        if self.terraform_backend == TERRAFORM_BACKEND_TFC:
+            self.init_terraform_cloud()
         self.change_output_owner()
