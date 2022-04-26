@@ -32,13 +32,22 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
     "--deployment-type",
     type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
 )
+@click.option("--terraform-backend")
+@click.option("--terraform-cloud-hostname")
+@click.option("--terraform-cloud-token")
+@click.option("--terraform-cloud-organization")
+@click.option(
+    "--terraform-cloud-organization-create/--terraform-cloud-organization-create-skip",
+    is_flag=True,
+    default=None,
+)
+@click.option("--terraform-cloud-admin-email")
 @click.option(
     "--environment-distribution", type=click.Choice(ENVIRONMENT_DISTRIBUTION_CHOICES)
 )
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")
-@click.option("--terraform-backend")
 @click.option("--sentry-dsn")
 @click.option(
     "--media-storage",

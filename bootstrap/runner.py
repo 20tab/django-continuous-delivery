@@ -50,6 +50,11 @@ class Runner:
     project_url_stage: str
     project_url_prod: str
     terraform_backend: str
+    terraform_cloud_hostname: str
+    terraform_cloud_token: str
+    terraform_cloud_organization: str
+    terraform_cloud_organization_create: bool
+    terraform_cloud_admin_email: str
     sentry_dsn: str
     media_storage: str
     use_redis: str
@@ -206,6 +211,7 @@ class Runner:
                 "project_url_stage": self.project_url_stage,
                 "service_slug": self.service_slug,
                 "terraform_backend": self.terraform_backend,
+                "terraform_cloud_organization": self.terraform_cloud_organization,
                 "use_redis": f"{self.use_redis}",
             },
             output_dir=self.output_dir,

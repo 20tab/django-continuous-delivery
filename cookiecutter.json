@@ -10,6 +10,7 @@
   "project_url_stage": null,
   "project_url_prod": null,
   "terraform_backend": "gitlab",
+  "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "False",
   "environment_distribution": "1",

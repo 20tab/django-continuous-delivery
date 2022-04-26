@@ -13,6 +13,7 @@ from bootstrap.collector import (
     clean_project_slug,
     clean_service_dir,
     clean_service_slug,
+    clean_terraform_backend,
     clean_use_redis,
 )
 
@@ -119,6 +120,51 @@ class TestBootstrapCollector(TestCase):
             self.assertEqual(clean_service_slug(""), "backend")
         with input("my backend"):
             self.assertEqual(clean_service_slug(""), "mybackend")
+
+    def test_clean_terraform_backend(self):
+        """Test cleaning the Terraform ."""
+        self.assertEqual(
+            clean_terraform_backend("gitlab", None, None, None, None, None),
+            ("gitlab", "", "", "", None, ""),
+        )
+        with input("gitlab"):
+            self.assertEqual(
+                clean_terraform_backend("wrong-backend", None, None, None, None, None),
+                ("gitlab", "", "", "", None, ""),
+            )
+        with input("terraform-cloud", "", "myOrg", "y", "bad-email", "admin@test.com"):
+            self.assertEqual(
+                clean_terraform_backend(
+                    "wrong-backend", None, "mytfcT0k3N", None, None, None
+                ),
+                (
+                    "terraform-cloud",
+                    "app.terraform.io",
+                    "mytfcT0k3N",
+                    "myOrg",
+                    True,
+                    "admin@test.com",
+                ),
+            )
+        with input(
+            "terraform-cloud",
+            "tfc.mydomain.com",
+            {"hidden": "mytfcT0k3N"},
+            "myOrg",
+            "n",
+            None,
+        ):
+            self.assertEqual(
+                clean_terraform_backend("wrong-backend", None, None, None, None, None),
+                (
+                    "terraform-cloud",
+                    "tfc.mydomain.com",
+                    "mytfcT0k3N",
+                    "myOrg",
+                    False,
+                    "",
+                ),
+            )
 
     def test_clean_use_redis(self):
         """Test cleaning the Sentry organization."""
