@@ -50,7 +50,7 @@ docker run --interactive --tty --rm --volume $PWD:/data 20tab/talos-django:lates
 ### 👨‍💻 Shell command
 
 ```console
-./talos-django/setup.py
+./talos-django/start.py
 ```
 
 ### Example

@@ -104,7 +104,7 @@ def collect(
     )
     if gitlab_group_slug:
         sentry_dsn = validate_or_prompt_url(
-            "Sentry DSN (leave blank if unused)", sentry_dsn, default=""
+            "Sentry DSN (leave blank if unused)", sentry_dsn, default="", required=False
         )
     return {
         "uid": uid,
@@ -138,7 +138,7 @@ def collect(
     }
 
 
-def validate_or_prompt_domain(message, value=None, default=None, required=False):
+def validate_or_prompt_domain(message, value=None, default=None, required=True):
     """Validate the given domain or prompt until a valid value is provided."""
     if value is None:
         value = click.prompt(message, default=default)
@@ -151,7 +151,7 @@ def validate_or_prompt_domain(message, value=None, default=None, required=False)
     return validate_or_prompt_domain(message, None, default, required)
 
 
-def validate_or_prompt_email(message, value=None, default=None, required=False):
+def validate_or_prompt_email(message, value=None, default=None, required=True):
     """Validate the given email address or prompt until a valid value is provided."""
     if value is None:
         value = click.prompt(message, default=default)
@@ -164,7 +164,7 @@ def validate_or_prompt_email(message, value=None, default=None, required=False):
     return validate_or_prompt_email(message, None, default, required)
 
 
-def validate_or_prompt_url(message, value=None, default=None, required=False):
+def validate_or_prompt_url(message, value=None, default=None, required=True):
     """Validate the given URL or prompt until a valid value is provided."""
     if value is None:
         value = click.prompt(message, default=default)
@@ -177,7 +177,7 @@ def validate_or_prompt_url(message, value=None, default=None, required=False):
     return validate_or_prompt_url(message, None, default, required)
 
 
-def validate_or_prompt_password(message, value=None, default=None, required=False):
+def validate_or_prompt_password(message, value=None, default=None, required=True):
     """Validate the given password or prompt until a valid value is provided."""
     if value is None:
         value = click.prompt(message, default=default, hide_input=True)
@@ -249,15 +249,10 @@ def clean_terraform_backend(
     ).lower()
     if terraform_backend == TERRAFORM_BACKEND_TFC:
         terraform_cloud_hostname = validate_or_prompt_domain(
-            "Terraform host name",
-            terraform_cloud_hostname,
-            default="app.terraform.io",
-            required=True,
+            "Terraform host name", terraform_cloud_hostname, default="app.terraform.io"
         )
         terraform_cloud_token = validate_or_prompt_password(
-            "Terraform Cloud User token",
-            terraform_cloud_token,
-            required=True,
+            "Terraform Cloud User token", terraform_cloud_token
         )
         terraform_cloud_organization = terraform_cloud_organization or click.prompt(
             "Terraform Organization"
@@ -274,16 +269,15 @@ def clean_terraform_backend(
             terraform_cloud_admin_email = validate_or_prompt_email(
                 "Terraform Cloud Organization admin email (e.g. tech@20tab.com)",
                 terraform_cloud_admin_email,
-                required=True,
             )
         else:
-            terraform_cloud_admin_email = ""
+            terraform_cloud_admin_email = None
     else:
-        terraform_cloud_organization = ""
-        terraform_cloud_hostname = ""
-        terraform_cloud_token = ""
+        terraform_cloud_organization = None
+        terraform_cloud_hostname = None
+        terraform_cloud_token = None
         terraform_cloud_organization_create = None
-        terraform_cloud_admin_email = ""
+        terraform_cloud_admin_email = None
     return (
         terraform_backend,
         terraform_cloud_hostname,
@@ -366,6 +360,6 @@ def clean_gitlab_group_data(
             "GitLab private token (with API scope enabled)", hide_input=True
         )
     else:
-        gitlab_group_slug = ""
-        gitlab_private_token = ""
+        gitlab_group_slug = None
+        gitlab_private_token = None
     return (gitlab_group_slug, gitlab_private_token)

@@ -75,7 +75,7 @@ class TestBootstrapCollector(TestCase):
             )
         self.assertEqual(
             clean_gitlab_group_data("my-project", "", ""),
-            ("", ""),
+            (None, None),
         )
 
     def test_clean_media_storage(self):
@@ -127,12 +127,12 @@ class TestBootstrapCollector(TestCase):
         """Test cleaning the Terraform ."""
         self.assertEqual(
             clean_terraform_backend("gitlab", None, None, None, None, None),
-            ("gitlab", "", "", "", None, ""),
+            ("gitlab", None, None, None, None, None),
         )
         with input("gitlab"):
             self.assertEqual(
                 clean_terraform_backend("wrong-backend", None, None, None, None, None),
-                ("gitlab", "", "", "", None, ""),
+                ("gitlab", None, None, None, None, None),
             )
         with input("terraform-cloud", "", "myOrg", "y", "bad-email", "admin@test.com"):
             self.assertEqual(
@@ -164,7 +164,7 @@ class TestBootstrapCollector(TestCase):
                     "mytfcT0k3N",
                     "myOrg",
                     False,
-                    "",
+                    None,
                 ),
             )
 

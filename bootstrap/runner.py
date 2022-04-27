@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
-import base64
 import os
 import secrets
 import subprocess
@@ -9,18 +8,13 @@ from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
 from time import time
+from typing import Optional
 
 import click
 from cookiecutter.main import cookiecutter
 from pydantic import validate_arguments
 
-from bootstrap.constants import (
-    DEPLOYMENT_TYPE_OTHER,
-    MEDIA_STORAGE_AWS_S3,
-    MEDIA_STORAGE_DIGITALOCEAN_S3,
-    TERRAFORM_BACKEND_GITLAB,
-    TERRAFORM_BACKEND_TFC,
-)
+from bootstrap.constants import TERRAFORM_BACKEND_TFC
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import format_tfvar
 
@@ -38,8 +32,6 @@ warning = partial(click.style, fg="yellow")
 class Runner:
     """The bootstrap runner."""
 
-    uid: int
-    gid: int
     output_dir: Path
     project_name: str
     project_slug: str
@@ -49,22 +41,24 @@ class Runner:
     internal_service_port: int
     deployment_type: str
     environment_distribution: str
-    project_url_dev: str
-    project_url_stage: str
-    project_url_prod: str
+    project_url_dev: str = ""
+    project_url_stage: str = ""
+    project_url_prod: str = ""
     terraform_backend: str
-    terraform_cloud_hostname: str
-    terraform_cloud_token: str
-    terraform_cloud_organization: str
-    terraform_cloud_organization_create: bool
-    terraform_cloud_admin_email: str
-    sentry_dsn: str
+    terraform_cloud_hostname: Optional[str] = None
+    terraform_cloud_token: Optional[str] = None
+    terraform_cloud_organization: Optional[str] = None
+    terraform_cloud_organization_create: Optional[bool] = None
+    terraform_cloud_admin_email: Optional[str] = None
+    sentry_dsn: Optional[str] = None
     media_storage: str
-    use_redis: bool
-    gitlab_private_token: str
-    gitlab_group_slug: str
-    terraform_dir: Path
-    logs_dir: Path
+    use_redis: bool = False
+    gitlab_private_token: Optional[str] = None
+    gitlab_group_slug: Optional[str] = None
+    uid: Optional[int] = None
+    gid: Optional[int] = None
+    terraform_dir: Optional[Path] = None
+    logs_dir: Optional[Path] = None
     run_id: str = field(init=False)
     stacks_environments: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)

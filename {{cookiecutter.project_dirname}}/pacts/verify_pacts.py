@@ -1,7 +1,6 @@
 """Define tests to verify pacts."""
 
 from django.utils.module_loading import autodiscover_modules
-
 from pacts.handler import handler
 
 autodiscover_modules("tests.pact_states")
