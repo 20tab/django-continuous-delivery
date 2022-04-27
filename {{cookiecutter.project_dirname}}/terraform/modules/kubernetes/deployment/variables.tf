@@ -1,12 +1,12 @@
-variable "django_admins" {
+variable "django_additional_allowed_hosts" {
   type        = string
-  description = "The value of the DJANGO_ADMINS environment variable."
+  description = "Additional entries of the DJANGO_ALLOWED_HOSTS environment variable ('127.0.0.1', 'localhost', the service slug and the project host are included by default)."
   default     = ""
 }
 
-variable "django_allowed_hosts" {
+variable "django_admins" {
   type        = string
-  description = "The value of the DJANGO_ALLOWED_HOSTS environment variable."
+  description = "The value of the DJANGO_ADMINS environment variable."
   default     = ""
 }
 
@@ -132,6 +132,17 @@ variable "service_replicas" {
   description = "The desired numbers of replicas to deploy."
   type        = number
   default     = 1
+}
+
+variable "service_slug" {
+  description = "The service slug."
+  type        = string
+}
+
+variable "use_redis" {
+  description = "Tell if a Redis service is used."
+  type        = bool
+  default     = false
 }
 
 variable "web_concurrency" {

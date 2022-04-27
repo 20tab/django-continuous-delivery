@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
-import shutil
 from functools import partial
-from pathlib import Path
+from shutil import rmtree
 
 import click
 import validators
@@ -60,6 +59,7 @@ def collect(
     project_slug = clean_project_slug(project_name, project_slug)
     service_slug = clean_service_slug(service_slug)
     project_dirname = clean_project_dirname(project_dirname, project_slug, service_slug)
+    service_dir = clean_service_dir(output_dir, project_dirname)
     deployment_type = clean_deployment_type(deployment_type)
     (
         terraform_backend,
@@ -80,10 +80,10 @@ def collect(
         environment_distribution, deployment_type
     )
     project_url_dev = validate_or_prompt_url(
-            "Development environment complete URL",
-            project_url_dev or None,
-            default=f"https://dev.{project_slug}.com",
-        )
+        "Development environment complete URL",
+        project_url_dev or None,
+        default=f"https://dev.{project_slug}.com",
+    )
     project_url_stage = validate_or_prompt_url(
         "Staging environment complete URL",
         project_url_stage or None,
@@ -94,7 +94,6 @@ def collect(
         project_url_prod or None,
         default=f"https://www.{project_slug}.com",
     )
-    service_dir = clean_service_dir(output_dir, project_dirname)
     media_storage = clean_media_storage(media_storage)
     use_redis = clean_use_redis(use_redis)
     gitlab_group_slug, gitlab_private_token = clean_gitlab_group_data(
@@ -218,15 +217,15 @@ def clean_project_dirname(project_dirname, project_slug, service_slug):
 
 def clean_service_dir(output_dir, project_dirname):
     """Return the service directory."""
-    service_dir = str((Path(output_dir) / project_dirname).resolve())
-    if Path(service_dir).is_dir() and click.confirm(
+    service_dir = output_dir / project_dirname
+    if service_dir.is_dir() and click.confirm(
         warning(
             f'A directory "{service_dir}" already exists and '
             "must be deleted. Continue?",
         ),
         abort=True,
     ):
-        shutil.rmtree(service_dir)
+        rmtree(service_dir)
     return service_dir
 
 

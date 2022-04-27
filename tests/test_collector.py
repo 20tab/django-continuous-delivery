@@ -2,6 +2,7 @@
 
 from contextlib import contextmanager
 from io import StringIO
+from pathlib import Path
 from unittest import TestCase, mock
 
 from bootstrap.collector import (
@@ -101,18 +102,19 @@ class TestBootstrapCollector(TestCase):
             clean_project_slug("My Project", "my-new-project"), project_slug
         )
 
-    @mock.patch("pathlib.Path.is_absolute", return_value=True)
-    def test_clean_service_dir(self, m):
+    def test_clean_service_dir(self):
         """Test cleaning the service directory."""
-        self.assertTrue(
-            clean_service_dir("tests", "my_project").endswith("/tests/my_project")
-        )
-        with mock.patch("shutil.rmtree", return_value=None), mock.patch(
-            "pathlib.Path.is_dir", return_value=True
-        ), input("Y"):
-            self.assertTrue(
-                clean_service_dir("tests", "my_project").endswith("/tests/my_project")
-            )
+        MockedPath = mock.MagicMock(spec=Path)
+        output_dir = MockedPath("mocked-tests")
+        output_dir.is_absolute.return_value = True
+        service_dir = MockedPath("mocked-tests/my_project")
+        service_dir.is_dir.return_value = False
+        output_dir.__truediv__.return_value = service_dir
+        self.assertEqual(clean_service_dir(output_dir, "my_project"), service_dir)
+        service_dir.is_dir.return_value = True
+        output_dir.__truediv__.return_value = service_dir
+        with mock.patch("bootstrap.collector.rmtree", return_value=None), input("Y"):
+            self.assertEqual(clean_service_dir(output_dir, "my_project"), service_dir)
 
     def test_clean_service_slug(self):
         """Test cleaning the back end service slug."""

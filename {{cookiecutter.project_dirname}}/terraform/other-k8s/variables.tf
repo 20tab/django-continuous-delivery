@@ -1,12 +1,12 @@
-variable "django_admins" {
+variable "django_additional_allowed_hosts" {
   type        = string
-  description = "The value of the DJANGO_ADMINS environment variable."
+  description = "Additional entries of the DJANGO_ALLOWED_HOSTS environment variable ('127.0.0.1', 'localhost', the service slug and the project host are included by default)."
   default     = ""
 }
 
-variable "django_allowed_hosts" {
+variable "django_admins" {
   type        = string
-  description = "The value of the DJANGO_ALLOWED_HOSTS environment variable."
+  description = "The value of the DJANGO_ADMINS environment variable."
   default     = ""
 }
 
@@ -40,6 +40,19 @@ variable "environment" {
   description = "The name of the deploy environment, e.g. \"Production\"."
 }
 
+variable "extra_config_values" {
+  type        = map(string)
+  description = "Additional config map environment variables."
+  default     = {}
+}
+
+variable "extra_secret_values" {
+  type        = map(string)
+  description = "Additional secret environment variables."
+  default     = {}
+  sensitive   = true
+}
+
 variable "kubernetes_cluster_ca_certificate" {
   description = "The base64 encoded Kubernetes CA certificate."
   type        = string
@@ -55,6 +68,11 @@ variable "kubernetes_token" {
   description = "A Kubernetes admin token."
   type        = string
   sensitive   = true
+}
+
+variable "project_slug" {
+  description = "The project slug."
+  type        = string
 }
 
 variable "project_url" {
@@ -124,13 +142,24 @@ variable "service_replicas" {
   default     = 1
 }
 
-variable "web_concurrency" {
-  description = "The desired number of gunicorn workers."
+variable "service_slug" {
+  description = "The service slug."
   type        = string
-  default     = ""
 }
 
 variable "stack_slug" {
   description = "The slug of the stack where the service is deployed."
   type        = string
+}
+
+variable "use_redis" {
+  description = "Tell if a Redis service is used."
+  type        = bool
+  default     = false
+}
+
+variable "web_concurrency" {
+  description = "The desired number of gunicorn workers."
+  type        = string
+  default     = ""
 }

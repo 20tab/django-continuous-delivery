@@ -2,9 +2,11 @@
 
 set -euo pipefail
 
+cmd=${CI_PROJECT_DIR}/scripts/terraform.sh
+
 cd ${TF_ROOT}
-${TERRAFORM_CMD} init
-${TERRAFORM_CMD} validate
-${TERRAFORM_CMD} plan
-${TERRAFORM_CMD} plan-json
-${TERRAFORM_CMD} apply -auto-approve
+${cmd} init
+${cmd} validate
+${cmd} plan
+${cmd} plan-json
+${cmd} apply -auto-approve

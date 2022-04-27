@@ -2,6 +2,7 @@
 """Initialize a web project Django service based on a template."""
 
 import os
+from pathlib import Path
 
 import click
 
@@ -22,7 +23,13 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.command()
 @click.option("--uid", type=int)
 @click.option("--gid", type=int)
-@click.option("--output-dir", default=OUTPUT_DIR)
+@click.option(
+    "--output-dir",
+    default=OUTPUT_DIR,
+    type=click.Path(
+        exists=True, path_type=Path, file_okay=False, readable=True, writable=True
+    ),
+)
 @click.option("--project-name", prompt=True)
 @click.option("--project-slug", callback=slugify_option)
 @click.option("--project-dirname")

@@ -1,8 +1,6 @@
 locals {
-  service_slug = "{{ cookiecutter.service_slug }}"
-
   service_labels = {
-    component   = local.service_slug
+    component   = var.service_slug
     environment = var.environment
     project     = var.project_slug
     terraform   = "true"
@@ -13,14 +11,12 @@ locals {
   django_allowed_hosts = join(
     ",",
     setunion(
-      split(",", coalesce(var.django_allowed_hosts, "127.0.0.1,localhost")),
-      [local.project_host, local.service_slug]
+      split(",", coalesce(var.django_additional_allowed_hosts, "127.0.0.1,localhost")),
+      [local.project_host, var.service_slug]
     )
   )
 
-  service_container_port = coalesce(var.service_container_port, "{{ cookiecutter.internal_service_port }}")
-
-  dynamic_secret_envs = split(",", "{% if cookiecutter.use_redis == 'True' %}database-url,cache-url{% else %}database-url{% endif %}")
+  dynamic_secret_envs = var.use_redis ? ["database-url", "cache-url"] : ["database-url"]
 
   use_s3 = length(regexall("s3", var.media_storage)) > 0
 }
@@ -49,7 +45,7 @@ resource "random_password" "django_secret_key" {
 resource "kubernetes_secret_v1" "main" {
 
   metadata {
-    name      = "${local.service_slug}-env-vars"
+    name      = "${var.service_slug}-env-vars"
     namespace = var.namespace
   }
 
@@ -71,7 +67,7 @@ resource "kubernetes_secret_v1" "main" {
 
 resource "kubernetes_config_map_v1" "main" {
   metadata {
-    name      = "${local.service_slug}-env-vars"
+    name      = "${var.service_slug}-env-vars"
     namespace = var.namespace
   }
 
@@ -84,7 +80,7 @@ resource "kubernetes_config_map_v1" "main" {
       DJANGO_DEFAULT_FROM_EMAIL    = var.django_default_from_email
       DJANGO_SERVER_EMAIL          = var.django_server_email
       DJANGO_SESSION_COOKIE_DOMAIN = local.project_host
-      INTERNAL_SERVICE_PORT        = local.service_container_port
+      INTERNAL_SERVICE_PORT        = var.service_container_port
       SENTRY_ENVIRONMENT           = var.environment
       WEB_CONCURRENCY              = var.web_concurrency
     },
@@ -102,7 +98,7 @@ resource "kubernetes_config_map_v1" "main" {
 
 resource "kubernetes_deployment_v1" "main" {
   metadata {
-    name      = local.service_slug
+    name      = var.service_slug
     namespace = var.namespace
     annotations = {
       "reloader.stakater.com/auto" = "true"
@@ -123,7 +119,7 @@ resource "kubernetes_deployment_v1" "main" {
         }
         container {
           image = var.service_container_image
-          name  = local.service_slug
+          name  = var.service_slug
           port {
             container_port = local.service_container_port
           }
@@ -155,13 +151,13 @@ resource "kubernetes_deployment_v1" "main" {
 
 resource "kubernetes_service_v1" "cluster_ip" {
   metadata {
-    name      = local.service_slug
+    name      = var.service_slug
     namespace = var.namespace
   }
   spec {
     type = "ClusterIP"
     selector = {
-      component = local.service_slug
+      component = var.service_slug
     }
     port {
       port        = local.service_container_port

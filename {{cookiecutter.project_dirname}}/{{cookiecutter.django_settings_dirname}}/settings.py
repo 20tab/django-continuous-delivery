@@ -371,12 +371,12 @@ class Remote(ProjectDefault):
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
-        from sentry_sdk.integrations.django import DjangoIntegration  # noqa{% if cookiecutter.use_redis == "True" %}
+        from sentry_sdk.integrations.django import DjangoIntegration  # noqa{% if cookiecutter.use_redis %}
         from sentry_sdk.integrations.redis import RedisIntegration  # noqa{% endif %}
 
         sentry_sdk.init(
             integrations=[
-                DjangoIntegration(),{% if cookiecutter.use_redis == "True" %}
+                DjangoIntegration(),{% if cookiecutter.use_redis %}
                 RedisIntegration(),{% endif %}
             ],
             send_default_pii=True,
