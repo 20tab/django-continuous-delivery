@@ -121,7 +121,7 @@ resource "kubernetes_deployment_v1" "main" {
           image = var.service_container_image
           name  = var.service_slug
           port {
-            container_port = local.service_container_port
+            container_port = var.service_container_port
           }
           env_from {
             config_map_ref {
@@ -160,8 +160,8 @@ resource "kubernetes_service_v1" "cluster_ip" {
       component = var.service_slug
     }
     port {
-      port        = local.service_container_port
-      target_port = local.service_container_port
+      port        = var.service_container_port
+      target_port = var.service_container_port
     }
   }
 }
