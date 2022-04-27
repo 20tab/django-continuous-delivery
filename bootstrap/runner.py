@@ -12,6 +12,7 @@ from time import time
 
 import click
 from cookiecutter.main import cookiecutter
+from pydantic import validate_arguments
 
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_OTHER,
@@ -33,6 +34,7 @@ warning = partial(click.style, fg="yellow")
 
 
 @dataclass(kw_only=True)
+@validate_arguments
 class Runner:
     """The bootstrap runner."""
 
