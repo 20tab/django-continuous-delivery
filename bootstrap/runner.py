@@ -33,8 +33,8 @@ info = partial(click.style, dim=True)
 warning = partial(click.style, fg="yellow")
 
 
-@dataclass(kw_only=True)
 @validate_arguments
+@dataclass(kw_only=True)
 class Runner:
     """The bootstrap runner."""
 
