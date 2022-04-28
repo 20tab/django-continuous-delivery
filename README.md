@@ -191,12 +191,6 @@ For enabling gitlab integration the following arguments are needed:
 `--gitlab-private-token={{gitlab-private-token}}`<br/>
 `--gitlab-group-slug={{gitlab-group-slug}}`
 
-Add user to repository using comma separeted arguments
-
-`--gitlab-group-owners=user1, user@example.org`<br/>
-`--gitlab-group-maintainers=user1, user@example.org`<br/>
-`--gitlab-group-developers=user1, user@example.org`
-
 #### 🪖 Sentry
 For enabling sentry integration the following arguments are needed:
 
