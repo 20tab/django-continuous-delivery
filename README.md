@@ -15,19 +15,22 @@ In order to run Talos via Docker, a working [Docker installation](https://docs.d
 ### 👨‍💻 Shell command
 
 In order to run Talos as a shell command, first clone the repository in a local projects directory
+
 ```console
 cd ~/projects
 git clone git@github.com:20tab/django-continuous-delivery.git talos-django
 ```
+
 Then, install the following requirements
 | Requirements | Instructions |
 |--|--|
-|🌎 Terraform  | [Install Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli)  |
+|🌎 Terraform | [Install Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli) |
 |🐍 Python Dependencies | `pip install -r talos-django/requirements/common.txt` |
 
 ## 🔑 Credentials
 
 ### 🦊 GitLab
+
 If the GitLab integration is enabled, a Personal Access Token with _api_ permission is required.<br/>
 It can be generated in the GitLab User Settings panel.
 
@@ -37,6 +40,7 @@ It can be generated in the GitLab User Settings panel.
 ## 🚀️ Quickstart
 
 Change to the projects directory, for example
+
 ```console
 cd ~/projects
 ```
@@ -54,6 +58,7 @@ docker run --interactive --tty --rm --volume $PWD:/data 20tab/talos-django:lates
 ```
 
 ### Example
+
 ```console
 Project name: My Project Name
 Project slug [my-project-name]:
@@ -94,56 +99,69 @@ Initializing the backend service:
 ...creating the GitLab repository and associated resources
 ...creating the Terraform Cloud resources
 ```
+
 ## 🗒️ Arguments
 
 The following arguments can be appended to the Docker and shell commands
 
 #### User id
+
 `--uid=$UID`
 
 #### Group id
+
 `--gid=1000`
 
 #### Output directory
+
 `--output-dir="~/projects"`
 
 #### Project name
+
 `--project-name="My project name"`
 
 #### Project slug
+
 `--project-slug="my-project-name"`
 
 #### Project dirname
+
 `--project-dirname="myprojectname"`
 
 ### 🎖️ Service
 
 #### Service slug
+
 `--service-slug=backend`
 
 #### Service port
+
 `--internal-service-port=8000`
 
 ### 📐 Architecture
 
 #### Deploy type
-Description | Argument
-------------- | -------------
-DigitalOcean Kubernates  | `--deployment-type=digitalocean-k8s`
-Other Kubernetes | `--deployment-type=other-k8s`
+
+| Description             | Argument                             |
+| ----------------------- | ------------------------------------ |
+| DigitalOcean Kubernates | `--deployment-type=digitalocean-k8s` |
+| Other Kubernetes        | `--deployment-type=other-k8s`        |
 
 #### Terraform backend
-Name | Argument
-------------- | -------------
-Terraform Cloud | `--terraform-backend=terraform-cloud`
-GitLab | `--terraform-backend=gitlab`
+
+| Name            | Argument                              |
+| --------------- | ------------------------------------- |
+| Terraform Cloud | `--terraform-backend=terraform-cloud` |
+| GitLab          | `--terraform-backend=gitlab`          |
 
 ##### Terraform Cloud required argument
+
 `--terraform-cloud-hostname=app.terraform.io`<br/>
 `--terraform-cloud-token={{terraform-cloud-token}}`<br/>
 `--terraform-cloud-organization`
 
 ##### Terraform Cloud create organization
+
 `--terraform-cloud-organization-create`<br/>
 `--terraform-cloud-admin-email={{terraform-cloud-admin-email}}`
 
@@ -151,14 +169,16 @@ Disabled args
 `--terraform-cloud-organization-create-skip`
 
 #### Environment distribution
+
 Choose the environments distribution:
-Value  | Description | Argument
+Value | Description | Argument
 ------------- | ------------- | -------------
-1  | All environments share the same stack (Default) | `--environment-distribution=1`
-2  | Dev and Stage environments share the same stack, Prod has its own | `--environment-distribution=2`
-3  | Each environment has its own stack | `--environment-distribution=3`
+1 | All environments share the same stack (Default) | `--environment-distribution=1`
+2 | Dev and Stage environments share the same stack, Prod has its own | `--environment-distribution=2`
+3 | Each environment has its own stack | `--environment-distribution=3`
 
 #### Project Domain
+
 If you don't want DigitalOcean DNS configuration the following args are required
 
 `--project-url-dev=https://dev.project-domain.com`<br/>
@@ -167,14 +187,15 @@ If you don't want DigitalOcean DNS configuration the following args are required
 
 #### Media storage
 
-Value  | Description | Argument
-------------- | ------------- | -------------
-digitalocean-s3  | DigitalOcean Spaces are used to store media | `--media-storage=digitalocean-s3`
-aws-s3  | AWS S3 are used to store media | `--media-storage=aws-s3`
-local  | Docker Volume are used to store media | `--media-storage=local`
-none  | Project have no media | `--media-storage=none`
+| Value           | Description                                 | Argument                          |
+| --------------- | ------------------------------------------- | --------------------------------- |
+| digitalocean-s3 | DigitalOcean Spaces are used to store media | `--media-storage=digitalocean-s3` |
+| aws-s3          | AWS S3 are used to store media              | `--media-storage=aws-s3`          |
+| local           | Docker Volume are used to store media       | `--media-storage=local`           |
+| none            | Project have no media                       | `--media-storage=none`            |
 
 #### Redis
+
 For enabling redis integration the following arguments are needed:
 
 `--use-redis`
@@ -183,8 +204,8 @@ Disabled args
 `--no-redis`
 
 ### 🦊 GitLab
-> **⚠️ Important:  Make sure the GitLab group exists before creating.**
-> https://gitlab.com/gitlab-org/gitlab/-/issues/244345
+
+> **⚠️ Important: Make sure the GitLab group exists before creating.** > https://gitlab.com/gitlab-org/gitlab/-/issues/244345
 
 For enabling gitlab integration the following arguments are needed:
 
@@ -192,11 +213,13 @@ For enabling gitlab integration the following arguments are needed:
 `--gitlab-group-slug={{gitlab-group-slug}}`
 
 #### 🪖 Sentry
+
 For enabling sentry integration the following arguments are needed:
 
 `--sentry-dsn={{frontend-sentry-dsn}}`
 
 #### 🔇 Quiet
+
 No confirmations shown.
 
 `--quiet`

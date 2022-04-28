@@ -8,7 +8,6 @@ from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
 from time import time
-from typing import Optional
 
 import click
 from cookiecutter.main import cookiecutter
@@ -45,20 +44,20 @@ class Runner:
     project_url_stage: str = ""
     project_url_prod: str = ""
     terraform_backend: str
-    terraform_cloud_hostname: Optional[str] = None
-    terraform_cloud_token: Optional[str] = None
-    terraform_cloud_organization: Optional[str] = None
-    terraform_cloud_organization_create: Optional[bool] = None
-    terraform_cloud_admin_email: Optional[str] = None
-    sentry_dsn: Optional[str] = None
+    terraform_cloud_hostname: str | None = None
+    terraform_cloud_token: str | None = None
+    terraform_cloud_organization: str | None = None
+    terraform_cloud_organization_create: bool | None = None
+    terraform_cloud_admin_email: str | None = None
+    sentry_dsn: str | None = None
     media_storage: str
     use_redis: bool = False
-    gitlab_private_token: Optional[str] = None
-    gitlab_group_slug: Optional[str] = None
-    uid: Optional[int] = None
-    gid: Optional[int] = None
-    terraform_dir: Optional[Path] = None
-    logs_dir: Optional[Path] = None
+    gitlab_private_token: str | None = None
+    gitlab_group_slug: str | None = None
+    uid: int | None = None
+    gid: int | None = None
+    terraform_dir: Path | None = None
+    logs_dir: Path | None = None
     run_id: str = field(init=False)
     stacks_environments: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
