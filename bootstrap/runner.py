@@ -146,6 +146,7 @@ class Runner:
                 "service_slug": self.service_slug,
                 "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,
+                "tfvars": self.tfvars,
                 "use_redis": self.use_redis,
             },
             output_dir=self.output_dir,

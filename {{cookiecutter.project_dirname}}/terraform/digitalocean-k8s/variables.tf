@@ -60,6 +60,11 @@ variable "extra_secret_values" {
   sensitive   = true
 }
 
+variable "media_storage" {
+  description = "The media storage solution."
+  type        = string
+}
+
 variable "project_slug" {
   description = "The project slug."
   type        = string
