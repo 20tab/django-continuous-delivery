@@ -262,12 +262,8 @@ build_production:
     name: docker:20
   services:
     - docker:20-dind
-  variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
-    TERRAFORM_BACKEND: {{ cookiecutter.terraform_backend }}
   before_script:
-    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}{% if cookiecutter.terraform_backend != "gitlab" %}
-    - export TF_WORKSPACE={{ cookiecutter.project_slug }}-${ENVIRONMENT_SLUG}{% endif %}
+    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
     - >
       docker run --rm
@@ -275,9 +271,12 @@ build_production:
       -v ${PWD}:${PWD}
       -w ${PWD}
       -e CI_JOB_TOKEN
-      -e TERRAFORM_BACKEND{% if cookiecutter.terraform_backend == "gitlab" %}
+      -e TERRAFORM_BACKEND={{ cookiecutter.terraform_backend }}
+      -e TERRAFORM_CMD=${CI_PROJECT_DIR}/scripts/terraform.sh
+      -e TERRAFORM_EXTRA_VAR_FILE=${ENVIRONMENT_SLUG}.tfvars
+      -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars{% if cookiecutter.terraform_backend == "gitlab" %}
       -e TF_STATE_NAME=env_${ENVIRONMENT_SLUG}{% endif %}
-      -e TF_ROOT
+      -e TF_ROOT=${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
       -e TF_VAR_cache_url="${CACHE_URL}"{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
       -e TF_VAR_database_url="${DATABASE_URL}"
@@ -295,7 +294,8 @@ build_production:
       -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}{% endif %}
       -e TF_VAR_sentry_dsn="${SENTRY_DSN}"
       -e TF_VAR_service_container_image{% if cookiecutter.terraform_backend != "gitlab" %}
-      -e TF_WORKSPACE{% endif %}
+      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENVIRONMENT_SLUG}"{% endif %}
+      -e TFC_TOKEN
       registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
   artifacts:
     name: plan
