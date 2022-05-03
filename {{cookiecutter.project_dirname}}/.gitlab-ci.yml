@@ -272,7 +272,6 @@ build_production:
       -w ${PWD}
       -e CI_JOB_TOKEN
       -e TERRAFORM_BACKEND={{ cookiecutter.terraform_backend }}
-      -e TERRAFORM_CMD=${CI_PROJECT_DIR}/scripts/terraform.sh
       -e TERRAFORM_EXTRA_VAR_FILE=${ENVIRONMENT_SLUG}.tfvars
       -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars{% if cookiecutter.terraform_backend == "gitlab" %}
       -e TF_STATE_NAME=env_${ENVIRONMENT_SLUG}{% endif %}
