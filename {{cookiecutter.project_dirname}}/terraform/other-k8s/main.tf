@@ -25,6 +25,56 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca_certificate)
 }
 
+/* Providers */
+
+provider "kubernetes" {
+  host                   = var.kubernetes_host
+  token                  = var.kubernetes_token
+  cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca_certificate)
+}
+
+/* Volumes */
+
+resource "kubernetes_persistent_volume_v1" "media" {
+  count = var.media_storage == "local" ? 1 : 0
+
+  metadata {
+    name = "${local.namespace}-${var.service_slug}-media"
+  }
+  spec {
+    capacity = {
+      storage = var.media_persistent_volume_capacity
+    }
+    access_modes = ["ReadWriteOnce"]
+    persistent_volume_source {
+      host_path {
+        path = var.media_persistent_volume_host_path
+      }
+    }
+  }
+}
+
+resource "kubernetes_persistent_volume_claim_v1" "media" {
+  count = var.media_storage == "local" ? 1 : 0
+
+  metadata {
+    name      = "${var.service_slug}-media"
+    namespace = local.namespace
+  }
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = coalesce(
+          var.media_persistent_volume_claim_capacity,
+          var.media_persistent_volume_capacity
+        )
+      }
+    }
+    volume_name = kubernetes_persistent_volume_v1.media[0].metadata[0].name
+  }
+}
+
 /* Deployment */
 
 module "deployment" {
@@ -45,6 +95,8 @@ module "deployment" {
 
   media_storage = var.media_storage
 
+  media_persistent_volume_claim_name = var.media_storage == "local" ? kubernetes_persistent_volume_claim_v1.media[0].metadata[0].name : ""
+
   django_admins                   = var.django_admins
   django_additional_allowed_hosts = var.django_additional_allowed_hosts
   django_default_from_email       = var.django_default_from_email
@@ -57,9 +109,10 @@ module "deployment" {
   s3_region                       = var.s3_region
   s3_secret_key                   = var.s3_secret_key
   sentry_dsn                      = var.sentry_dsn
-  use_redis                       = var.use_redis
   web_concurrency                 = var.web_concurrency
 
   extra_config_values = var.extra_config_values
   extra_secret_values = var.extra_secret_values
+
+  additional_secrets = var.use_redis ? ["database-url", "cache-url"] : ["database-url"]
 }

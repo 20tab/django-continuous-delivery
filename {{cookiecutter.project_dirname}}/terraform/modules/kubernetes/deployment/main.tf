@@ -16,8 +16,6 @@ locals {
     )
   )
 
-  dynamic_secret_envs = var.use_redis ? ["database-url", "cache-url"] : ["database-url"]
-
   use_s3 = length(regexall("s3", var.media_storage)) > 0
 }
 
@@ -114,6 +112,16 @@ resource "kubernetes_deployment_v1" "main" {
         labels = local.service_labels
       }
       spec {
+        dynamic "volume" {
+          for_each = toset(var.media_persistent_volume_claim_name != "" ? [1] : [])
+
+          content {
+            name = "media"
+            persistent_volume_claim {
+              claim_name = var.media_persistent_volume_claim_name
+            }
+          }
+        }
         image_pull_secrets {
           name = "regcred"
         }
@@ -122,6 +130,14 @@ resource "kubernetes_deployment_v1" "main" {
           name  = var.service_slug
           port {
             container_port = var.service_container_port
+          }
+          dynamic "volume_mount" {
+            for_each = toset(var.media_persistent_volume_claim_name != "" ? [1] : [])
+
+            content {
+              name       = "media"
+              mount_path = var.media_mount_path
+            }
           }
           env_from {
             config_map_ref {
@@ -134,7 +150,7 @@ resource "kubernetes_deployment_v1" "main" {
             }
           }
           dynamic "env_from" {
-            for_each = toset(local.dynamic_secret_envs)
+            for_each = toset(var.additional_secrets)
             content {
               secret_ref {
                 name = env_from.key

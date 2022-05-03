@@ -70,6 +70,24 @@ variable "kubernetes_token" {
   sensitive   = true
 }
 
+variable "media_persistent_volume_capacity" {
+  description = "The media persistent volume capacity (e.g. 1Gi)."
+  type        = string
+  default     = "10Gi"
+}
+
+variable "media_persistent_volume_claim_capacity" {
+  description = "The media persistent volume claim capacity (e.g. 1Gi)."
+  type        = string
+  default     = ""
+}
+
+variable "media_persistent_volume_host_path" {
+  description = "The media persistent volume host path."
+  type        = string
+  default     = ""
+}
+
 variable "media_storage" {
   description = "The media storage solution."
   type        = string
