@@ -99,6 +99,10 @@ remote: pip_update  ## Install remote requirements and dependencies
 report:  ## Run coverage report
 	./scripts/report.sh
 
+.PHONY: shellplus
+shellplus:  ## Run shell_plus
+	python3 -m manage shell_plus
+
 ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
   simpletestargs := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
   $(eval $(simpletestargs):;@true)

@@ -199,7 +199,7 @@ class Local(ProjectDefault):
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
-        INTERNAL_IPS = values.ListValue([], environ_name="ALLOWED_HOSTS")
+        INTERNAL_IPS = values.ListValue(["127.0.0.1"])
         INSTALLED_APPS.append("debug_toolbar")
         MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
         DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda x: True}
