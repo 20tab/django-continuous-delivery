@@ -11,7 +11,7 @@ terraform {
   required_providers {
     gitlab = {
       source  = "gitlabhq/gitlab"
-      version = "3.12.0"
+      version = "~> 3.13"
     }
   }
 }
@@ -25,7 +25,7 @@ provider "gitlab" {
 /* Data Sources */
 
 data "gitlab_group" "group" {
-  full_path = var.gitlab_group_slug
+  full_path = var.group_slug
 }
 
 data "http" "user_info" {
@@ -117,7 +117,7 @@ resource "gitlab_project_badge" "coverage" {
 /* Group Variables */
 
 resource "gitlab_group_variable" "vars" {
-  for_each = var.gitlab_group_variables
+  for_each = var.group_variables
 
   group     = data.gitlab_group.group.id
   key       = each.key
@@ -129,7 +129,7 @@ resource "gitlab_group_variable" "vars" {
 /* Project Variables */
 
 resource "gitlab_project_variable" "vars" {
-  for_each = var.gitlab_project_variables
+  for_each = var.project_variables
 
   project           = gitlab_project.main.id
   key               = each.key

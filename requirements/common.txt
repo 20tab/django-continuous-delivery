@@ -10,7 +10,7 @@ chardet==4.0.0
     # via binaryornot
 charset-normalizer==2.0.12
     # via requests
-click==8.1.0
+click==8.1.2
     # via
     #   -r requirements/common.in
     #   black
@@ -36,15 +36,17 @@ pathspec==0.9.0
     # via black
 pep517==0.12.0
     # via pip-tools
-pip-tools==6.5.1
+pip-tools==6.6.0
     # via -r requirements/common.in
-platformdirs==2.5.1
+platformdirs==2.5.2
     # via black
 poyo==0.5.0
     # via cookiecutter
+pydantic==1.9.0
+    # via -r requirements/common.in
 python-dateutil==2.8.2
     # via arrow
-python-slugify==6.1.1
+python-slugify==6.1.2
     # via cookiecutter
 requests==2.27.1
     # via cookiecutter
@@ -59,8 +61,10 @@ tomli==2.0.1
     # via
     #   black
     #   pep517
-types-python-slugify==5.0.3
+types-python-slugify==5.0.4
     # via -r requirements/common.in
+typing-extensions==4.2.0
+    # via pydantic
 urllib3==1.26.9
     # via requests
 validators==0.18.2

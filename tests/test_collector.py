@@ -2,16 +2,19 @@
 
 from contextlib import contextmanager
 from io import StringIO
+from pathlib import Path
 from unittest import TestCase, mock
 
 from bootstrap.collector import (
     clean_deployment_type,
+    clean_environment_distribution,
     clean_gitlab_group_data,
     clean_media_storage,
     clean_project_dirname,
     clean_project_slug,
     clean_service_dir,
     clean_service_slug,
+    clean_terraform_backend,
     clean_use_redis,
 )
 
@@ -39,6 +42,18 @@ class TestBootstrapCollector(TestCase):
         with input("non-existing", ""):
             self.assertEqual(clean_deployment_type(None), "digitalocean-k8s")
 
+    def test_clean_environment_distribution(self):
+        """Test cleaning the environment distribution."""
+        self.assertEqual(clean_environment_distribution(None, "other-k8s"), "1")
+        with input("1", ""):
+            self.assertEqual(
+                clean_environment_distribution(None, "digitalocean-k8s"), "1"
+            )
+        with input("999", "3"):
+            self.assertEqual(
+                clean_environment_distribution(None, "digitalocean-k8s"), "3"
+            )
+
     def test_clean_gitlab_group_data(self):
         """Test cleaning the GitLab group data."""
         with input("Y"):
@@ -60,7 +75,7 @@ class TestBootstrapCollector(TestCase):
             )
         self.assertEqual(
             clean_gitlab_group_data("my-project", "", ""),
-            ("", ""),
+            (None, None),
         )
 
     def test_clean_media_storage(self):
@@ -87,18 +102,19 @@ class TestBootstrapCollector(TestCase):
             clean_project_slug("My Project", "my-new-project"), project_slug
         )
 
-    @mock.patch("pathlib.Path.is_absolute", return_value=True)
-    def test_clean_service_dir(self, m):
+    def test_clean_service_dir(self):
         """Test cleaning the service directory."""
-        self.assertTrue(
-            clean_service_dir("tests", "my_project").endswith("/tests/my_project")
-        )
-        with mock.patch("shutil.rmtree", return_value=None), mock.patch(
-            "pathlib.Path.is_dir", return_value=True
-        ), input("Y"):
-            self.assertTrue(
-                clean_service_dir("tests", "my_project").endswith("/tests/my_project")
-            )
+        MockedPath = mock.MagicMock(spec=Path)
+        output_dir = MockedPath("mocked-tests")
+        output_dir.is_absolute.return_value = True
+        service_dir = MockedPath("mocked-tests/my_project")
+        service_dir.is_dir.return_value = False
+        output_dir.__truediv__.return_value = service_dir
+        self.assertEqual(clean_service_dir(output_dir, "my_project"), service_dir)
+        service_dir.is_dir.return_value = True
+        output_dir.__truediv__.return_value = service_dir
+        with mock.patch("bootstrap.collector.rmtree", return_value=None), input("Y"):
+            self.assertEqual(clean_service_dir(output_dir, "my_project"), service_dir)
 
     def test_clean_service_slug(self):
         """Test cleaning the back end service slug."""
@@ -106,6 +122,51 @@ class TestBootstrapCollector(TestCase):
             self.assertEqual(clean_service_slug(""), "backend")
         with input("my backend"):
             self.assertEqual(clean_service_slug(""), "mybackend")
+
+    def test_clean_terraform_backend(self):
+        """Test cleaning the Terraform ."""
+        self.assertEqual(
+            clean_terraform_backend("gitlab", None, None, None, None, None),
+            ("gitlab", None, None, None, None, None),
+        )
+        with input("gitlab"):
+            self.assertEqual(
+                clean_terraform_backend("wrong-backend", None, None, None, None, None),
+                ("gitlab", None, None, None, None, None),
+            )
+        with input("terraform-cloud", "", "myOrg", "y", "bad-email", "admin@test.com"):
+            self.assertEqual(
+                clean_terraform_backend(
+                    "wrong-backend", None, "mytfcT0k3N", None, None, None
+                ),
+                (
+                    "terraform-cloud",
+                    "app.terraform.io",
+                    "mytfcT0k3N",
+                    "myOrg",
+                    True,
+                    "admin@test.com",
+                ),
+            )
+        with input(
+            "terraform-cloud",
+            "tfc.mydomain.com",
+            {"hidden": "mytfcT0k3N"},
+            "myOrg",
+            "n",
+            None,
+        ):
+            self.assertEqual(
+                clean_terraform_backend("wrong-backend", None, None, None, None, None),
+                (
+                    "terraform-cloud",
+                    "tfc.mydomain.com",
+                    "mytfcT0k3N",
+                    "myOrg",
+                    False,
+                    None,
+                ),
+            )
 
     def test_clean_use_redis(self):
         """Test cleaning the Sentry organization."""

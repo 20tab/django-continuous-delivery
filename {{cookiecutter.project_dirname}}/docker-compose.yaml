@@ -1,7 +1,6 @@
 version: "3.4"
 
 services:
-
   {{ cookiecutter.service_slug }}:
     build:
       args:

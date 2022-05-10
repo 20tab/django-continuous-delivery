@@ -1,12 +1,18 @@
-variable "django_admins" {
+variable "additional_secrets" {
+  type        = list(any)
+  description = "Additional Kubernetes Secret names to link to the Deployment."
+  default     = []
+}
+
+variable "django_additional_allowed_hosts" {
   type        = string
-  description = "The value of the DJANGO_ADMINS environment variable."
+  description = "Additional entries of the DJANGO_ALLOWED_HOSTS environment variable ('127.0.0.1', 'localhost', the service slug and the project host are included by default)."
   default     = ""
 }
 
-variable "django_allowed_hosts" {
+variable "django_admins" {
   type        = string
-  description = "The value of the DJANGO_ALLOWED_HOSTS environment variable."
+  description = "The value of the DJANGO_ADMINS environment variable."
   default     = ""
 }
 
@@ -50,6 +56,18 @@ variable "extra_secret_values" {
   description = "Additional secret environment variables."
   default     = {}
   sensitive   = true
+}
+
+variable "media_mount_path" {
+  description = "The mount path of the media directory inside the container."
+  type        = string
+  default     = "/app/media"
+}
+
+variable "media_persistent_volume_claim_name" {
+  description = "The media persistent volume claim name."
+  type        = string
+  default     = ""
 }
 
 variable "media_storage" {
@@ -132,6 +150,11 @@ variable "service_replicas" {
   description = "The desired numbers of replicas to deploy."
   type        = number
   default     = 1
+}
+
+variable "service_slug" {
+  description = "The service slug."
+  type        = string
 }
 
 variable "web_concurrency" {

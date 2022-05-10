@@ -2,17 +2,18 @@ variable "digitalocean_token" {
   description = "The Digital Ocean access token."
   type        = string
   sensitive   = true
+
+}
+
+variable "django_additional_allowed_hosts" {
+  type        = string
+  description = "Additional entries of the DJANGO_ALLOWED_HOSTS environment variable ('127.0.0.1', 'localhost', the service slug and the project host are included by default)."
+  default     = ""
 }
 
 variable "django_admins" {
   type        = string
   description = "The value of the DJANGO_ADMINS environment variable."
-  default     = ""
-}
-
-variable "django_allowed_hosts" {
-  type        = string
-  description = "The value of the DJANGO_ALLOWED_HOSTS environment variable."
   default     = ""
 }
 
@@ -44,6 +45,29 @@ variable "email_url" {
 variable "environment" {
   type        = string
   description = "The name of the deploy environment, e.g. \"Production\"."
+}
+
+variable "extra_config_values" {
+  type        = map(string)
+  description = "Additional config map environment variables."
+  default     = {}
+}
+
+variable "extra_secret_values" {
+  type        = map(string)
+  description = "Additional secret environment variables."
+  default     = {}
+  sensitive   = true
+}
+
+variable "media_storage" {
+  description = "The media storage solution."
+  type        = string
+}
+
+variable "project_slug" {
+  description = "The project slug."
+  type        = string
 }
 
 variable "project_url" {
@@ -104,7 +128,7 @@ variable "service_container_image" {
 variable "service_container_port" {
   description = "The service container port."
   type        = string
-  default     = ""
+  default     = "{{ cookiecutter.internal_service_port }}"
 }
 
 variable "service_replicas" {
@@ -113,13 +137,24 @@ variable "service_replicas" {
   default     = 1
 }
 
-variable "web_concurrency" {
-  description = "The desired number of gunicorn workers."
+variable "service_slug" {
+  description = "The service slug."
   type        = string
-  default     = ""
 }
 
 variable "stack_slug" {
   description = "The slug of the stack where the service is deployed."
   type        = string
+}
+
+variable "use_redis" {
+  description = "Tell if a Redis service is used."
+  type        = bool
+  default     = false
+}
+
+variable "web_concurrency" {
+  description = "The desired number of gunicorn workers."
+  type        = string
+  default     = ""
 }

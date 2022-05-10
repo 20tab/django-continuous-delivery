@@ -262,10 +262,6 @@ build_production:
     name: docker:20
   services:
     - docker:20-dind
-  variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
-    TERRAFORM_CMD: gitlab-terraform
-    TERRAFORM_IMAGE: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
@@ -275,41 +271,33 @@ build_production:
       -v ${PWD}:${PWD}
       -w ${PWD}
       -e CI_JOB_TOKEN
-      -e TERRAFORM_CMD
-      -e TF_ADDRESS=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/{{ cookiecutter.project_slug }}_${ENVIRONMENT_SLUG}
-      -e TF_IN_AUTOMATION=1
-      -e TF_ROOT
+      -e TERRAFORM_BACKEND={{ cookiecutter.terraform_backend }}
+      -e TERRAFORM_EXTRA_VAR_FILE=${ENVIRONMENT_SLUG}.tfvars
+      -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars{% if cookiecutter.terraform_backend == "gitlab" %}
+      -e TF_STATE_NAME=env_${ENVIRONMENT_SLUG}{% endif %}
+      -e TF_ROOT=${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
       -e TF_VAR_cache_url="${CACHE_URL}"{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
       -e TF_VAR_database_url="${DATABASE_URL}"
-      -e TF_VAR_django_admins="${DJANGO_ADMINS}"
-      -e TF_VAR_django_allowed_hosts="${DJANGO_ALLOWED_HOSTS}"
-      -e TF_VAR_django_default_from_email="${DJANGO_DEFAULT_FROM_EMAIL}"
-      -e TF_VAR_django_server_email="${DJANGO_SERVER_EMAIL}"
       -e TF_VAR_email_url="${EMAIL_URL}"
       -e TF_VAR_environment="${CI_ENVIRONMENT_NAME}"
-      -e TF_VAR_internal_service_port="${BACKEND_SERVICE_PORT}"{% if cookiecutter.deployment_type == "other-k8s" %}
+      -e TF_VAR_project_slug="{{ cookiecutter.project_slug }}"
+      -e TF_VAR_service_slug="{{ cookiecutter.service_slug }}"{% if cookiecutter.deployment_type == "other-k8s" %}
       -e TF_VAR_kubernetes_cluster_ca_certificate="${KUBERNETES_CLUSTER_CA_CERTIFICATE}"
       -e TF_VAR_kubernetes_host="${KUBERNETES_HOST}"
-      -e TF_VAR_kubernetes_token="${KUBERNETES_TOKEN}"{% endif %}
-      -e TF_VAR_project_url="${CI_ENVIRONMENT_URL}"{% if "s3" in cookiecutter.media_storage %}
+      -e TF_VAR_kubernetes_token="${KUBERNETES_TOKEN}"{% endif %}{% if "s3" in cookiecutter.media_storage %}
       -e TF_VAR_s3_access_id="${S3_ACCESS_ID}"
       -e TF_VAR_s3_secret_key="${S3_SECRET_KEY}"
       -e TF_VAR_s3_region="${S3_REGION}"{% if cookiecutter.media_storage == "digitalocean-s3" %}
       -e TF_VAR_s3_host="${S3_HOST}"{% elif cookiecutter.media_storage == "aws-s3" %}
-      -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}
-      -e TF_VAR_s3_file_overwrite="${S3_FILE_OVERWRITE}"{% endif %}
+      -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}{% endif %}
       -e TF_VAR_sentry_dsn="${SENTRY_DSN}"
-      -e TF_VAR_service_container_image
-      -e TF_VAR_service_container_port
-      -e TF_VAR_service_replicas
-      -e TF_VAR_web_concurrency="${WEB_CONCURRENCY}"
-      -e TF_VAR_stack_slug="${STACK_SLUG}"
-      ${TERRAFORM_IMAGE} ./scripts/deploy.sh
+      -e TF_VAR_service_container_image{% if cookiecutter.terraform_backend != "gitlab" %}
+      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENVIRONMENT_SLUG}"{% endif %}
+      -e TFC_TOKEN
+      registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
   artifacts:
     name: plan
-    paths:
-      - ${TF_ROOT}/plan.cache
     reports:
       terraform: ${TF_ROOT}/plan.json
 
