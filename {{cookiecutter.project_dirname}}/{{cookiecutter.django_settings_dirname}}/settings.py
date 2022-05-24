@@ -181,6 +181,11 @@ class ProjectDefault(Configuration):
 
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+    # CSRF Trusted Origins
+    # https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-trusted-origins
+
+    CSRF_TRUSTED_ORIGINS = values.ListValue([])
+
 
 class Local(ProjectDefault):
     """The local settings."""

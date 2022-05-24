@@ -75,6 +75,7 @@ resource "kubernetes_config_map_v1" "main" {
       DJANGO_ADMINS                = var.django_admins
       DJANGO_ALLOWED_HOSTS         = local.django_allowed_hosts
       DJANGO_CONFIGURATION         = "Remote"
+      DJANGO_CSRF_TRUSTED_ORIGINS  = var.project_url
       DJANGO_DEFAULT_FROM_EMAIL    = var.django_default_from_email
       DJANGO_SERVER_EMAIL          = var.django_server_email
       DJANGO_SESSION_COOKIE_DOMAIN = local.project_host
