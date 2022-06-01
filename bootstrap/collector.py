@@ -42,6 +42,8 @@ def collect(
     terraform_cloud_organization,
     terraform_cloud_organization_create,
     terraform_cloud_admin_email,
+    vault_token,
+    vault_address,
     environment_distribution,
     project_url_dev,
     project_url_stage,
@@ -78,6 +80,7 @@ def collect(
         terraform_cloud_organization_create,
         terraform_cloud_admin_email,
     )
+    vault_token, vault_address = clean_vault_data(vault_token, vault_address, quiet)
     environment_distribution = clean_environment_distribution(
         environment_distribution, deployment_type
     )
@@ -125,6 +128,8 @@ def collect(
         "terraform_cloud_organization": terraform_cloud_organization,
         "terraform_cloud_organization_create": terraform_cloud_organization_create,
         "terraform_cloud_admin_email": terraform_cloud_admin_email,
+        "vault_token": vault_token,
+        "vault_address": vault_address,
         "environment_distribution": environment_distribution,
         "project_url_dev": project_url_dev,
         "project_url_stage": project_url_stage,
@@ -330,6 +335,29 @@ def clean_terraform_backend(
     )
 
 
+def clean_vault_data(vault_token, vault_address, quiet=False):
+    """Return the Vault data, if applicable."""
+    if vault_token or (
+        vault_token is None
+        and click.confirm(
+            "Do you want to use Vault for secrets management?",
+        )
+    ):
+        vault_token = validate_or_prompt_password("Vault token", vault_token)
+        quiet or click.confirm(
+            warning(
+                "Make sure the Vault token has enough permissions to enable the "
+                "project secrets backends and manage the project secrets. Continue?"
+            ),
+            abort=True,
+        )
+        vault_address = validate_or_prompt_url("Vault address", vault_address)
+    else:
+        vault_token = None
+        vault_address = None
+    return vault_token, vault_address
+
+
 def clean_deployment_type(deployment_type):
     """Return the deployment type."""
     return (
@@ -374,7 +402,7 @@ def clean_use_redis(use_redis):
     """Tell whether Redis should be used."""
     if use_redis is None:
         return click.confirm(warning("Do you want to configure Redis?"), default=False)
-    return use_redis
+    return bool(use_redis)
 
 
 def clean_gitlab_group_data(

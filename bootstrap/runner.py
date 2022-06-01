@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
+import json
 import os
 import secrets
 import subprocess
@@ -15,7 +16,7 @@ from pydantic import validate_arguments
 
 from bootstrap.constants import TERRAFORM_BACKEND_TFC
 from bootstrap.exceptions import BootstrapError
-from bootstrap.helpers import format_tfvar
+from bootstrap.helpers import format_gitlab_variable, format_tfvar
 
 error = partial(click.style, fg="red")
 
@@ -49,6 +50,8 @@ class Runner:
     terraform_cloud_organization: str | None = None
     terraform_cloud_organization_create: bool | None = None
     terraform_cloud_admin_email: str | None = None
+    vault_token: str | None = None
+    vault_address: str | None = None
     sentry_dsn: str | None = None
     sentry_org: str | None = None
     sentry_url: str | None = None
@@ -62,6 +65,7 @@ class Runner:
     logs_dir: Path | None = None
     run_id: str = field(init=False)
     stacks_environments: dict = field(init=False, default_factory=dict)
+    gitlab_variables: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
@@ -71,6 +75,7 @@ class Runner:
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
         self.set_stacks_environments()
         self.set_tfvars()
+        self.set_gitlab_variables()
 
     def set_stacks_environments(self):
         """Return a dict with the environments distribution per stack."""
@@ -101,6 +106,36 @@ class Runner:
                 "stage": {"stage": stage_env},
                 "main": {"prod": prod_env},
             }
+
+    def add_gitlab_variable(
+        self, level, var_name, var_value=None, masked=False, protected=True
+    ):
+        """Add a GitLab variable to the given level registry."""
+        vars_dict = self.gitlab_variables.setdefault(level, {})
+        if var_value is None:
+            var_value = getattr(self, var_name)
+        vars_dict[var_name] = format_gitlab_variable(var_value, masked, protected)
+
+    def add_gitlab_variables(self, level, *vars):
+        """Add one or more GitLab variable to the given level registry."""
+        [
+            self.add_gitlab_variable(level, *((i,) if isinstance(i, str) else i))
+            for i in vars
+        ]
+
+    def add_gitlab_group_variables(self, *vars):
+        """Add one or more GitLab group variable."""
+        self.add_gitlab_variables("group", *vars)
+
+    def add_gitlab_project_variables(self, *vars):
+        """Add one or more GitLab project variable."""
+        self.add_gitlab_variables("project", *vars)
+
+    def render_gitlab_variables_to_string(self, level):
+        """Return the given level GitLab variables rendered to string."""
+        return "{%s}" % ", ".join(
+            f"{k} = {v}" for k, v in self.gitlab_variables.get(level, {}).items()
+        )
 
     def add_tfvar(self, tf_stage, var_name, var_value=None, var_type=None):
         """Add a Terraform value to the given .tfvars file."""
@@ -204,16 +239,27 @@ class Runner:
                 ]
             )
 
-    def get_gitlab_variables(self):
-        """Return the GitLab group and project variables."""
-        gitlab_group_variables = {}
-        gitlab_project_variables = {}
-        self.sentry_dsn and gitlab_project_variables.update(
-            SENTRY_DSN='{value = "%s", masked = true}' % self.sentry_dsn,
-            SENTRY_ORG='{value = "%s"}' % self.sentry_org,
-            SENTRY_URL='{value = "%s"}' % self.sentry_url,
-        )
-        return gitlab_group_variables, gitlab_project_variables
+    def set_gitlab_variables(self):
+        """Set the GitLab group and project variables."""
+        if self.sentry_dsn:
+            self.add_gitlab_project_variables(
+                ("SENTRY_ORG", self.sentry_org),
+                ("SENTRY_URL", self.sentry_url),
+            )
+        if not self.vault_token:
+            self.set_gitlab_variables_secrets()
+
+    def set_gitlab_variables_secrets(self):
+        """Set secrets as GitLab group and project variables."""
+        if self.sentry_dsn:
+            self.add_gitlab_project_variables(("SENTRY_DSN", self.sentry_dsn, True))
+
+    def get_vault_secrets(self):
+        """Return the Vault secrets."""
+        secrets = {}
+        if self.sentry_dsn:
+            secrets.update(sentry_dsn=self.sentry_dsn)
+        return secrets
 
     def init_terraform_cloud(self):
         """Initialize the Terraform Cloud resources."""
@@ -250,6 +296,23 @@ class Runner:
             TF_VAR_service_slug=self.service_slug,
         )
         self.run_terraform("gitlab", env)
+
+    def init_vault(self):
+        """Initialize the Vault resources."""
+        click.echo(info("...creating the Vault resources"))
+        secrets = self.get_vault_secrets()
+        if secrets:
+            envs = [
+                j["name"] for i in self.stacks_environments.values() for j in i.values()
+            ]
+            env = dict(
+                TF_VAR_project_slug=self.gitlab_group_slug,
+                TF_VAR_secrets=json.dumps({i: secrets for i in envs}),
+                TF_VAR_service_slug=self.service_slug,
+                VAULT_ADDR=self.vault_address,
+                VAULT_TOKEN=self.vault_token,
+            )
+            self.run_terraform("vault", env)
 
     def run_terraform(self, module_name, env):
         """Initialize the Terraform controlled resources."""
@@ -351,4 +414,6 @@ class Runner:
             self.init_gitlab()
         if self.terraform_backend == TERRAFORM_BACKEND_TFC:
             self.init_terraform_cloud()
+        if self.vault_token:
+            self.init_vault()
         self.change_output_owner()
