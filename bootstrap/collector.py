@@ -49,7 +49,6 @@ def collect(
     sentry_dsn,
     sentry_org,
     sentry_url,
-    use_pact,
     media_storage,
     use_redis,
     gitlab_private_token,
@@ -97,7 +96,6 @@ def collect(
         project_url_prod or None,
         default=f"https://www.{project_slug}.com",
     )
-    use_pact = clean_use_pact(use_pact)
     media_storage = clean_media_storage(media_storage)
     use_redis = clean_use_redis(use_redis)
     gitlab_group_slug, gitlab_private_token = clean_gitlab_group_data(
@@ -135,7 +133,6 @@ def collect(
         "sentry_dsn": sentry_dsn,
         "sentry_org": sentry_org,
         "sentry_url": sentry_url,
-        "use_pact": use_pact,
         "media_storage": media_storage,
         "use_redis": use_redis,
         "gitlab_private_token": gitlab_private_token,
@@ -378,13 +375,6 @@ def clean_use_redis(use_redis):
     if use_redis is None:
         return click.confirm(warning("Do you want to configure Redis?"), default=False)
     return use_redis
-
-
-def clean_use_pact(use_pact):
-    """Tell whether Redis should be used."""
-    if use_pact is None:
-        return click.confirm(warning("Do you want to use Pact?"), default=False)
-    return use_pact
 
 
 def clean_gitlab_group_data(

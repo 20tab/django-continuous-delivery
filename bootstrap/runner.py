@@ -52,7 +52,6 @@ class Runner:
     sentry_dsn: str | None = None
     sentry_org: str | None = None
     sentry_url: str | None = None
-    use_pact: bool = False
     media_storage: str
     use_redis: bool = False
     gitlab_private_token: str | None = None
@@ -150,7 +149,6 @@ class Runner:
                 "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
-                "pact_enabled": self.use_pact,
                 "use_redis": self.use_redis,
             },
             output_dir=self.output_dir,

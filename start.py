@@ -58,7 +58,6 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option("--sentry-dsn")
 @click.option("--sentry-org")
 @click.option("--sentry-url")
-@click.option("--use-pact/--no-pact", is_flag=True, default=None)
 @click.option(
     "--media-storage",
     type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),

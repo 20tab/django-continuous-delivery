@@ -17,7 +17,6 @@ from bootstrap.collector import (
     clean_service_dir,
     clean_service_slug,
     clean_terraform_backend,
-    clean_use_pact,
     clean_use_redis,
 )
 
@@ -184,10 +183,6 @@ class TestBootstrapCollector(TestCase):
                     None,
                 ),
             )
-
-    def test_clean_use_pact(self):
-        """Test cleaning the use pact."""
-        self.assertEqual(clean_use_pact("Y"), "Y")
 
     def test_clean_use_redis(self):
         """Test cleaning the use redis."""

@@ -24,9 +24,9 @@ services:
       - DJANGO_SUPERUSER_EMAIL
       - DJANGO_SUPERUSER_PASSWORD
       - DJANGO_SUPERUSER_USERNAME
-      - EMAIL_URL{% if cookiecutter.pact_enabled %}
+      - EMAIL_URL
       - PACT_BROKER_URL
-      - PACT_PROVIDER_NAME{% endif %}
+      - PACT_PROVIDER_NAME
       - PYTHONBREAKPOINT
       - SERVICE_PORT
     ports:
