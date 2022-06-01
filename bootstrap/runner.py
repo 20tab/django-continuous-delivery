@@ -50,6 +50,9 @@ class Runner:
     terraform_cloud_organization_create: bool | None = None
     terraform_cloud_admin_email: str | None = None
     sentry_dsn: str | None = None
+    sentry_org: str | None = None
+    sentry_url: str | None = None
+    use_pact: bool = False
     media_storage: str
     use_redis: bool = False
     gitlab_private_token: str | None = None
@@ -147,6 +150,7 @@ class Runner:
                 "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
+                "pact_enabled": self.use_pact,
                 "use_redis": self.use_redis,
             },
             output_dir=self.output_dir,
@@ -207,7 +211,9 @@ class Runner:
         gitlab_group_variables = {}
         gitlab_project_variables = {}
         self.sentry_dsn and gitlab_project_variables.update(
-            SENTRY_DSN='{value = "%s", masked = true}' % self.sentry_dsn
+            SENTRY_DSN='{value = "%s", masked = true}' % self.sentry_dsn,
+            SENTRY_ORG='{value = "%s"}' % self.sentry_org,
+            SENTRY_URL='{value = "%s"}' % self.sentry_url,
         )
         return gitlab_group_variables, gitlab_project_variables
 

@@ -12,6 +12,7 @@
   "terraform_backend": "gitlab",
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
+  "pact_enabled": false,
   "use_redis": false,
   "environment_distribution": "1",
   "tfvars": {},

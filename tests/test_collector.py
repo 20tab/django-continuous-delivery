@@ -12,9 +12,12 @@ from bootstrap.collector import (
     clean_media_storage,
     clean_project_dirname,
     clean_project_slug,
+    clean_sentry_dsn,
+    clean_sentry_org,
     clean_service_dir,
     clean_service_slug,
     clean_terraform_backend,
+    clean_use_pact,
     clean_use_redis,
 )
 
@@ -102,6 +105,20 @@ class TestBootstrapCollector(TestCase):
             clean_project_slug("My Project", "my-new-project"), project_slug
         )
 
+    def test_clean_sentry_dsn(self):
+        """Test cleaning the Sentry DSN."""
+        with input("https://public@sentry.example.com/1"):
+            self.assertEqual(
+                clean_sentry_dsn("https://public@sentry.example.com/1"),
+                "https://public@sentry.example.com/1",
+            )
+
+    def test_clean_sentry_org(self):
+        """Test cleaning the Sentry organization."""
+        self.assertEqual(clean_sentry_org("My Project"), "My Project")
+        with input("My Project"):
+            self.assertEqual(clean_sentry_org(None), "My Project")
+
     def test_clean_service_dir(self):
         """Test cleaning the service directory."""
         MockedPath = mock.MagicMock(spec=Path)
@@ -168,6 +185,10 @@ class TestBootstrapCollector(TestCase):
                 ),
             )
 
+    def test_clean_use_pact(self):
+        """Test cleaning the use pact."""
+        self.assertEqual(clean_use_pact("Y"), "Y")
+
     def test_clean_use_redis(self):
-        """Test cleaning the Sentry organization."""
+        """Test cleaning the use redis."""
         self.assertEqual(clean_use_redis("Y"), "Y")
