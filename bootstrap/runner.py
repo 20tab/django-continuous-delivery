@@ -227,18 +227,6 @@ class Runner:
         click.echo(info("...creating the '/media' directory"))
         (self.service_dir / "media").mkdir(exist_ok=True)
 
-    def change_output_owner(self):
-        """Change the owner of the output directory recursively."""
-        if self.uid:
-            subprocess.run(
-                [
-                    "chown",
-                    "-R",
-                    ":".join(map(str, filter(None, (self.uid, self.gid)))),
-                    self.service_dir,
-                ]
-            )
-
     def set_gitlab_variables(self):
         """Set the GitLab group and project variables."""
         if self.sentry_dsn:
@@ -282,16 +270,13 @@ class Runner:
     def init_gitlab(self):
         """Initialize the GitLab resources."""
         click.echo(info("...creating the GitLab resources"))
-        group_variables, project_variables = self.get_gitlab_variables()
         env = dict(
-            TF_VAR_group_variables="{%s}"
-            % ", ".join(f"{k} = {v}" for k, v in group_variables.items()),
-            TF_VAR_group_slug=self.gitlab_group_slug,
             TF_VAR_gitlab_token=self.gitlab_private_token,
+            TF_VAR_group_slug=self.gitlab_group_slug,
+            TF_VAR_group_variables=self.render_gitlab_variables_to_string("group"),
             TF_VAR_project_name=self.project_name,
             TF_VAR_project_slug=self.project_slug,
-            TF_VAR_project_variables="{%s}"
-            % ", ".join(f"{k} = {v}" for k, v in project_variables.items()),
+            TF_VAR_project_variables=self.render_gitlab_variables_to_string("project"),
             TF_VAR_service_dir=self.service_dir,
             TF_VAR_service_slug=self.service_slug,
         )
@@ -400,6 +385,18 @@ class Runner:
                 )
             )
             raise BootstrapError
+
+    def change_output_owner(self):
+        """Change the owner of the output directory recursively."""
+        if self.uid:
+            subprocess.run(
+                [
+                    "chown",
+                    "-R",
+                    ":".join(map(str, filter(None, (self.uid, self.gid)))),
+                    self.service_dir,
+                ]
+            )
 
     def run(self):
         """Run the bootstrap."""
