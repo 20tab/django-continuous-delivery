@@ -75,15 +75,15 @@ class Runner:
     def set_stacks_environments(self):
         """Return a dict with the environments distribution per stack."""
         dev_env = {
-            "name": "Development",
+            "name": "development",
             "url": self.project_url_dev,
         }
         stage_env = {
-            "name": "Staging",
+            "name": "staging",
             "url": self.project_url_stage,
         }
         prod_env = {
-            "name": "Production",
+            "name": "production",
             "url": self.project_url_prod,
         }
         if self.environment_distribution == "1":
