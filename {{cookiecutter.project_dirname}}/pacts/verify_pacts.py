@@ -1,4 +1,4 @@
-"""Define tests to verify pacts."""
+"""Pact verification tests."""
 
 from django.utils.module_loading import autodiscover_modules
 

@@ -1,4 +1,4 @@
-"""Define pacts provider state handler."""
+"""Pact provider state handler."""
 
 import re
 from datetime import datetime
