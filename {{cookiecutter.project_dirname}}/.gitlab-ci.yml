@@ -17,30 +17,84 @@ variables:
   VERSION_BEFORE_REF: $CI_COMMIT_BEFORE_SHA
   VERSION_REF: $CI_COMMIT_SHA
 
-sentry_release:
+.development:
+  rules: &development-rules
+    - &pipeline-push-rule
+      if: $CI_PIPELINE_SOURCE == "trigger"
+      when: never
+    - &development-rule
+      if: $CI_COMMIT_BRANCH == "develop"
+      variables:
+        ENV_SLUG: dev
+        STACK_SLUG: "${STACK_SLUG_DEV}"
+  environment:
+    name: Development{% if cookiecutter.project_url_dev %}
+    url: {{ cookiecutter.project_url_dev }}{% endif %}
+
+.staging:
+  rules: &staging-rules
+    - <<: *pipeline-push-rule
+    - &staging-rule
+      if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        ENV_SLUG: stage
+        STACK_SLUG: "${STACK_SLUG_STAGE}"
+  environment:
+    name: Staging{% if cookiecutter.project_url_stage %}
+    url: {{ cookiecutter.project_url_stage }}{% endif %}
+
+.production:
+  rules: &production-rules
+    - <<: *pipeline-push-rule
+    - &production-rule
+      if: $CI_COMMIT_TAG
+      variables:
+        ENV_SLUG: prod
+        STACK_SLUG: "${STACK_SLUG_PROD}"
+  environment:
+    name: Production{% if cookiecutter.project_url_prod %}
+    url: {{ cookiecutter.project_url_prod }}{% endif %}
+
+.sentry_release:
   stage: .pre
   image: docker:20
   services:
     - docker:20-dind
   rules:
-    - &pipeline-push-rule
-      if: $CI_PIPELINE_SOURCE == "trigger"
+    - if: ${SENTRY_ENABLED} != "true"
       when: never
-    - if: $SENTRY_ENABLED && ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG)
   script:
     - RELEASE_START=$(date +%s)
     - >
       docker run --rm
       -v ${PWD}:${PWD}
       -w ${PWD}{% if cookiecutter.vault_project_path %}
-      -e CI_JOB_JWT_V2{% endif %}
+      -e CI_JOB_JWT_V2
+      -e ENV_SLUG{% else %}
       -e SENTRY_AUTH_TOKEN
-      -e SENTRY_DSN
+      -e SENTRY_DSN{% endif %}
       -e SENTRY_ORG
+      -e SENTRY_PROJECT_NAME
       -e SENTRY_URL{% if cookiecutter.vault_project_path %}
       -e VAULT_ADDR
       -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"{% endif %}
+      -e VERSION_REF
       getsentry/sentry-cli:latest ./scripts/sentry.sh release
+
+sentry_release_development:
+  extends:
+    - .development
+    - .sentry_release
+
+sentry_release_staging:
+  extends:
+    - .staging
+    - .sentry_release
+
+sentry_release_production:
+  extends:
+    - .production
+    - .sentry_release
 
 test:
   stage: Test
@@ -134,42 +188,6 @@ pages:
   artifacts:
     paths:
       - public
-
-.development:
-  rules: &development-rules
-    - <<: *pipeline-push-rule
-    - &development-rule
-      if: $CI_COMMIT_BRANCH == "develop"
-      variables:
-        ENV_SLUG: dev
-        STACK_SLUG: "${STACK_SLUG_DEV}"
-  environment:
-    name: development{% if cookiecutter.project_url_dev %}
-    url: {{ cookiecutter.project_url_dev }}{% endif %}
-
-.staging:
-  rules: &staging-rules
-    - <<: *pipeline-push-rule
-    - &staging-rule
-      if: $CI_COMMIT_BRANCH == "main"
-      variables:
-        ENV_SLUG: stage
-        STACK_SLUG: "${STACK_SLUG_STAGE}"
-  environment:
-    name: staging{% if cookiecutter.project_url_stage %}
-    url: {{ cookiecutter.project_url_stage }}{% endif %}
-
-.production:
-  rules: &production-rules
-    - <<: *pipeline-push-rule
-    - &production-rule
-      if: $CI_COMMIT_TAG
-      variables:
-        ENV_SLUG: prod
-        STACK_SLUG: "${STACK_SLUG_PROD}"
-  environment:
-    name: production{% if cookiecutter.project_url_prod %}
-    url: {{ cookiecutter.project_url_prod }}{% endif %}
 
 .can-i-deploy:
   stage: Pact-check
@@ -439,7 +457,8 @@ create-version-tag_production:
     - RELEASE_END=$(date +%s)
     - >
       docker run --rm{% if cookiecutter.vault_project_path %}
-      -e CI_JOB_JWT_V2
+      -e CI_JOB_JWT_V2{% endif %}
+      -e CI_ENVIRONMENT_NAME{% if cookiecutter.vault_project_path %}
       -e ENV_SLUG{% endif %}
       -e SENTRY_AUTH_TOKEN
       -e SENTRY_DSN
@@ -447,6 +466,7 @@ create-version-tag_production:
       -e SENTRY_URL{% if cookiecutter.vault_project_path %}
       -e VAULT_ADDR
       -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"{% endif %}
+      -e VERSION_REF
       getsentry/sentry-cli:latest ./scripts/sentry.sh success
 
 sentry_success_development:
@@ -492,7 +512,8 @@ sentry_success_production:
   script:
     - >
       docker run --rm{% if cookiecutter.vault_project_path %}
-      -e CI_JOB_JWT_V2
+      -e CI_JOB_JWT_V2{% endif %}
+      -e CI_ENVIRONMENT_NAME{% if cookiecutter.vault_project_path %}
       -e ENV_SLUG{% endif %}
       -e SENTRY_AUTH_TOKEN
       -e SENTRY_DSN

@@ -14,14 +14,14 @@ fi
 
 case "${1}" in
   "release")
-    sentry-cli releases new $VERSION_REF -p $SENTRY_PROJECT_NAME --log-level=debug;
-    sentry-cli releases set-commits $VERSION_REF --auto;
-    sentry-cli releases finalize $VERSION_REF;
+    sentry-cli releases new ${VERSION_REF} -p ${SENTRY_PROJECT_NAME} --log-level=debug;
+    sentry-cli releases set-commits ${VERSION_REF} --auto;
+    sentry-cli releases finalize ${VERSION_REF};
   ;;
   "success")
-    sentry-cli releases deploys $VERSION_REF new -e $CI_ENVIRONMENT_NAME -t $((RELEASE_END-RELEASE_START));
+    sentry-cli releases deploys ${VERSION_REF} new -e ${CI_ENVIRONMENT_NAME} -t $((RELEASE_END-RELEASE_START));
   ;;
   "failure")
-    sentry-cli send-event -m "Deploy to $CI_ENVIRONMENT_NAME failed.";
+    sentry-cli send-event -m "Deploy to ${CI_ENVIRONMENT_NAME} failed.";
   ;;
 esac
