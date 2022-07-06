@@ -14,7 +14,18 @@ import click
 from cookiecutter.main import cookiecutter
 from pydantic import validate_arguments
 
-from bootstrap.constants import TERRAFORM_BACKEND_TFC
+from bootstrap.constants import (
+    DEV_ENV_NAME,
+    DEV_ENV_SLUG,
+    DEV_STACK_SLUG,
+    MAIN_STACK_SLUG,
+    PROD_ENV_NAME,
+    PROD_ENV_SLUG,
+    STAGE_ENV_NAME,
+    STAGE_ENV_SLUG,
+    STAGE_STACK_SLUG,
+    TERRAFORM_BACKEND_TFC,
+)
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import format_gitlab_variable, format_tfvar
 
@@ -89,31 +100,35 @@ class Runner:
     def set_stacks_environments(self):
         """Return a dict with the environments distribution per stack."""
         dev_env = {
-            "name": "development",
+            "name": DEV_ENV_NAME,
             "url": self.project_url_dev,
         }
         stage_env = {
-            "name": "staging",
+            "name": STAGE_ENV_NAME,
             "url": self.project_url_stage,
         }
         prod_env = {
-            "name": "production",
+            "name": PROD_ENV_NAME,
             "url": self.project_url_prod,
         }
         if self.environment_distribution == "1":
             self.stacks_environments = {
-                "main": {"dev": dev_env, "stage": stage_env, "prod": prod_env}
+                MAIN_STACK_SLUG: {
+                    DEV_ENV_SLUG: dev_env,
+                    STAGE_ENV_SLUG: stage_env,
+                    PROD_ENV_SLUG: prod_env,
+                }
             }
         elif self.environment_distribution == "2":
             self.stacks_environments = {
-                "dev": {"dev": dev_env, "stage": stage_env},
-                "main": {"prod": prod_env},
+                DEV_STACK_SLUG: {DEV_ENV_SLUG: dev_env, STAGE_ENV_SLUG: stage_env},
+                MAIN_STACK_SLUG: {PROD_ENV_SLUG: prod_env},
             }
         elif self.environment_distribution == "3":
             self.stacks_environments = {
-                "dev": {"dev": dev_env},
-                "stage": {"stage": stage_env},
-                "main": {"prod": prod_env},
+                DEV_STACK_SLUG: {DEV_ENV_SLUG: dev_env},
+                STAGE_STACK_SLUG: {STAGE_ENV_SLUG: stage_env},
+                MAIN_STACK_SLUG: {PROD_ENV_SLUG: prod_env},
             }
 
     def register_gitlab_variable(
