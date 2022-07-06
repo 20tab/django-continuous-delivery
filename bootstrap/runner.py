@@ -215,7 +215,7 @@ class Runner:
         """Collect the Vault secrets for the given environment."""
         # Sentry vars are used by the GitLab CI/CD
         self.sentry_dsn and self.register_vault_environment_secret(
-            env_slug, "sentry", dict(sentry_dsn=self.sentry_dsn)
+            env_slug, f"sentry_{self.service_slug}", dict(sentry_dsn=self.sentry_dsn)
         )
 
     def collect_vault_secrets(self):
