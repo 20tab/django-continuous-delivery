@@ -204,6 +204,7 @@ class Runner:
         for stack_slug, stack_envs in self.stacks_environments.items():
             for env_slug, env_data in stack_envs.items():
                 self.register_environment_tfvars(
+                    ("environment", env_data["name"]),
                     ("project_url", env_data["url"]),
                     ("stack_slug", stack_slug),
                     env_slug=env_slug,
