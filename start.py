@@ -50,7 +50,7 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 )
 @click.option("--terraform-cloud-admin-email")
 @click.option("--vault-token")
-@click.option("--vault-address")
+@click.option("--vault-url")
 @click.option(
     "--environment-distribution", type=click.Choice(ENVIRONMENT_DISTRIBUTION_CHOICES)
 )

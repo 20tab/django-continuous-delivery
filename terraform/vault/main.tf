@@ -14,7 +14,7 @@ provider "vault" {}
 resource "vault_generic_secret" "main" {
   for_each = var.secrets
 
-  path = "${var.project_slug}/${var.service_slug}/${each.key}"
+  path = "${var.project_path}/${each.key}"
 
   data_json = jsonencode(each.value)
 }

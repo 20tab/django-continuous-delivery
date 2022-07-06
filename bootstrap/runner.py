@@ -51,7 +51,7 @@ class Runner:
     terraform_cloud_organization_create: bool | None = None
     terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
-    vault_address: str | None = None
+    vault_url: str | None = None
     sentry_dsn: str | None = None
     sentry_org: str | None = None
     sentry_url: str | None = None
@@ -67,15 +67,24 @@ class Runner:
     stacks_environments: dict = field(init=False, default_factory=dict)
     gitlab_variables: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
+    vault_project_path: str = field(init=False, default="")
+    vault_secrets: dict = field(init=False, default_factory=dict)
+    terraform_outputs: dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
         """Finalize initialization."""
         self.run_id = f"{time():.0f}"
         self.terraform_dir = self.terraform_dir or Path(f".terraform/{self.run_id}")
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
+        self.set_vault_project_path()
         self.set_stacks_environments()
-        self.set_tfvars()
-        self.set_gitlab_variables()
+        self.collect_tfvars()
+        self.collect_gitlab_variables()
+
+    def set_vault_project_path(self):
+        """Set the Vault project path."""
+        if self.vault_url:
+            self.vault_project_path = self.gitlab_group_slug or self.project_slug
 
     def set_stacks_environments(self):
         """Return a dict with the environments distribution per stack."""
@@ -107,29 +116,46 @@ class Runner:
                 "main": {"prod": prod_env},
             }
 
-    def add_gitlab_variable(
+    def register_gitlab_variable(
         self, level, var_name, var_value=None, masked=False, protected=True
     ):
-        """Add a GitLab variable to the given level registry."""
+        """Register a GitLab variable at the given level."""
         vars_dict = self.gitlab_variables.setdefault(level, {})
         if var_value is None:
             var_value = getattr(self, var_name)
         vars_dict[var_name] = format_gitlab_variable(var_value, masked, protected)
 
-    def add_gitlab_variables(self, level, *vars):
-        """Add one or more GitLab variable to the given level registry."""
+    def register_gitlab_variables(self, level, *vars):
+        """Register one or more GitLab variable at the given level."""
         [
-            self.add_gitlab_variable(level, *((i,) if isinstance(i, str) else i))
+            self.register_gitlab_variable(level, *((i,) if isinstance(i, str) else i))
             for i in vars
         ]
 
-    def add_gitlab_group_variables(self, *vars):
-        """Add one or more GitLab group variable."""
-        self.add_gitlab_variables("group", *vars)
+    def register_gitlab_group_variables(self, *vars):
+        """Register one or more GitLab group variable."""
+        self.register_gitlab_variables("group", *vars)
 
-    def add_gitlab_project_variables(self, *vars):
-        """Add one or more GitLab project variable."""
-        self.add_gitlab_variables("project", *vars)
+    def register_gitlab_project_variables(self, *vars):
+        """Register one or more GitLab project variable."""
+        self.register_gitlab_variables("project", *vars)
+
+    def collect_gitlab_variables(self):
+        """Collect the GitLab group and project variables."""
+        if self.sentry_dsn:
+            self.register_gitlab_project_variables(
+                ("SENTRY_ORG", self.sentry_org),
+                ("SENTRY_URL", self.sentry_url),
+            )
+        if not self.vault_token:
+            self.collect_gitlab_variables_secrets()
+
+    def collect_gitlab_variables_secrets(self):
+        """Collect secrets as GitLab group and project variables."""
+        if self.sentry_dsn:
+            self.register_gitlab_project_variables(
+                ("SENTRY_DSN", self.sentry_dsn, True)
+            )
 
     def render_gitlab_variables_to_string(self, level):
         """Return the given level GitLab variables rendered to string."""
@@ -137,33 +163,51 @@ class Runner:
             f"{k} = {v}" for k, v in self.gitlab_variables.get(level, {}).items()
         )
 
-    def add_tfvar(self, tf_stage, var_name, var_value=None, var_type=None):
-        """Add a Terraform value to the given .tfvars file."""
+    def register_tfvar(self, tf_stage, var_name, var_value=None, var_type=None):
+        """Register a Terraform variable value for the given stage."""
         vars_list = self.tfvars.setdefault(tf_stage, [])
         if var_value is None:
             var_value = getattr(self, var_name)
         vars_list.append("=".join((var_name, format_tfvar(var_value, var_type))))
 
-    def add_tfvars(self, tf_stage, *vars):
-        """Add one or more Terraform variables to the given stage."""
-        [self.add_tfvar(tf_stage, *((i,) if isinstance(i, str) else i)) for i in vars]
+    def register_tfvars(self, tf_stage, *vars):
+        """Register one or more Terraform variables to the given stage."""
+        [
+            self.register_tfvar(tf_stage, *((i,) if isinstance(i, str) else i))
+            for i in vars
+        ]
 
-    def add_environment_tfvars(self, *vars, env_slug=None):
-        """Add one or more environment Terraform variables."""
+    def register_environment_tfvars(self, *vars, env_slug=None):
+        """Register one or more environment Terraform variables."""
         tf_stage = "environment" + (env_slug and f"_{env_slug}" or "")
-        self.add_tfvars(tf_stage, *vars)
+        self.register_tfvars(tf_stage, *vars)
 
-    def set_tfvars(self):
-        """Set Terraform variables lists."""
-        self.add_environment_tfvars(("media_storage", self.media_storage))
-        self.add_environment_tfvars(("use_redis", self.use_redis, "bool"))
+    def collect_tfvars(self):
+        """Collect Terraform variables."""
+        self.register_environment_tfvars(("media_storage", self.media_storage))
+        self.register_environment_tfvars(("use_redis", self.use_redis, "bool"))
         for stack_slug, stack_envs in self.stacks_environments.items():
             for env_slug, env_data in stack_envs.items():
-                self.add_environment_tfvars(
+                self.register_environment_tfvars(
                     ("project_url", env_data["url"]),
                     ("stack_slug", stack_slug),
                     env_slug=env_slug,
                 )
+
+    def collect_vault_environment_secrets(self, env_slug):
+        """Collect the Vault secrets for the given environment."""
+        # Sentry vars are used by the GitLab CI/CD
+        self.sentry_dsn and self.register_vault_environment_secret(
+            env_slug, "sentry", dict(sentry_dsn=self.sentry_dsn)
+        )
+
+    def collect_vault_secrets(self):
+        """Collect Vault secrets."""
+        [
+            self.collect_vault_environment_secrets(env_slug)
+            for stack_envs in self.stacks_environments.values()
+            for env_slug in stack_envs
+        ]
 
     def init_service(self):
         """Initialize the service."""
@@ -185,6 +229,7 @@ class Runner:
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
                 "use_redis": self.use_redis,
+                "vault_project_path": self.vault_project_path,
             },
             output_dir=self.output_dir,
             no_input=True,
@@ -227,28 +272,6 @@ class Runner:
         click.echo(info("...creating the '/media' directory"))
         (self.service_dir / "media").mkdir(exist_ok=True)
 
-    def set_gitlab_variables(self):
-        """Set the GitLab group and project variables."""
-        if self.sentry_dsn:
-            self.add_gitlab_project_variables(
-                ("SENTRY_ORG", self.sentry_org),
-                ("SENTRY_URL", self.sentry_url),
-            )
-        if not self.vault_token:
-            self.set_gitlab_variables_secrets()
-
-    def set_gitlab_variables_secrets(self):
-        """Set secrets as GitLab group and project variables."""
-        if self.sentry_dsn:
-            self.add_gitlab_project_variables(("SENTRY_DSN", self.sentry_dsn, True))
-
-    def get_vault_secrets(self):
-        """Return the Vault secrets."""
-        secrets = {}
-        if self.sentry_dsn:
-            secrets.update(sentry_dsn=self.sentry_dsn)
-        return secrets
-
     def init_terraform_cloud(self):
         """Initialize the Terraform Cloud resources."""
         click.echo(info("...creating the Terraform Cloud resources"))
@@ -284,22 +307,17 @@ class Runner:
 
     def init_vault(self):
         """Initialize the Vault resources."""
-        click.echo(info("...creating the Vault resources"))
-        secrets = self.get_vault_secrets()
-        if secrets:
-            envs = [
-                j["name"] for i in self.stacks_environments.values() for j in i.values()
-            ]
-            env = dict(
-                TF_VAR_project_slug=self.gitlab_group_slug,
-                TF_VAR_secrets=json.dumps({i: secrets for i in envs}),
-                TF_VAR_service_slug=self.service_slug,
-                VAULT_ADDR=self.vault_address,
-                VAULT_TOKEN=self.vault_token,
-            )
-            self.run_terraform("vault", env)
+        click.echo(info("...creating the Vault resources with Terraform"))
+        self.collect_vault_secrets()
+        env = dict(
+            TF_VAR_project_path=self.vault_project_path,
+            TF_VAR_secrets=json.dumps(self.vault_secrets),
+            VAULT_ADDR=self.vault_url,
+            VAULT_TOKEN=self.vault_token,
+        )
+        self.run_terraform("vault", env)
 
-    def run_terraform(self, module_name, env):
+    def run_terraform(self, module_name, env, outputs=None):
         """Initialize the Terraform controlled resources."""
         cwd = Path(__file__).parent.parent / "terraform" / module_name
         terraform_dir = self.terraform_dir / self.service_slug / module_name
@@ -342,6 +360,17 @@ class Runner:
                 text=True,
             )
             apply_stdout_path.write_text(apply_process.stdout)
+            for output_name in outputs or []:
+                output_process = subprocess.run(
+                    ["terraform", "output", "-raw", output_name],
+                    capture_output=True,
+                    cwd=cwd,
+                    env=env,
+                    text=True,
+                )
+                self.terraform_outputs.setdefault(module_name, {})[
+                    output_name
+                ] = output_process.stdout
             if apply_process.returncode != 0:
                 apply_stderr_path.write_text(apply_process.stderr)
                 click.echo(
