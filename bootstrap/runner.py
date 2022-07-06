@@ -161,6 +161,7 @@ class Runner:
             self.register_gitlab_project_variables(
                 ("SENTRY_ORG", self.sentry_org),
                 ("SENTRY_URL", self.sentry_url),
+                ("SENTRY_ENABLED", "true")
             )
         if not self.vault_token:
             self.collect_gitlab_variables_secrets()

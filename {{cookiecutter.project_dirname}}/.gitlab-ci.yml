@@ -26,21 +26,21 @@ sentry_release:
     - &pipeline-push-rule
       if: $CI_PIPELINE_SOURCE == "trigger"
       when: never
-    - if: $SENTRY_DSN && ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG)
+    - if: $SENTRY_ENABLED && ($CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_TAG)
   script:
     - RELEASE_START=$(date +%s)
     - >
       docker run --rm
       -v ${PWD}:${PWD}
-      -w ${PWD}
+      -w ${PWD}{% if cookiecutter.vault_project_path %}
+      -e CI_JOB_JWT_V2{% endif %}
       -e SENTRY_AUTH_TOKEN
       -e SENTRY_DSN
       -e SENTRY_ORG
-      -e SENTRY_URL
-      getsentry/sentry-cli:latest sh -c
-      "sentry-cli releases new $VERSION_REF -p $SENTRY_PROJECT_NAME --log-level=debug;
-      sentry-cli releases set-commits $VERSION_REF --auto;
-      sentry-cli releases finalize $VERSION_REF"
+      -e SENTRY_URL{% if cookiecutter.vault_project_path %}
+      -e VAULT_ADDR
+      -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"{% endif %}
+      getsentry/sentry-cli:latest ./scripts/sentry.sh release
 
 test:
   stage: Test
@@ -141,7 +141,7 @@ pages:
     - &development-rule
       if: $CI_COMMIT_BRANCH == "develop"
       variables:
-        ENVIRONMENT_SLUG: dev
+        ENV_SLUG: dev
         STACK_SLUG: "${STACK_SLUG_DEV}"
   environment:
     name: development{% if cookiecutter.project_url_dev %}
@@ -153,7 +153,7 @@ pages:
     - &staging-rule
       if: $CI_COMMIT_BRANCH == "main"
       variables:
-        ENVIRONMENT_SLUG: stage
+        ENV_SLUG: stage
         STACK_SLUG: "${STACK_SLUG_STAGE}"
   environment:
     name: staging{% if cookiecutter.project_url_stage %}
@@ -165,7 +165,7 @@ pages:
     - &production-rule
       if: $CI_COMMIT_TAG
       variables:
-        ENVIRONMENT_SLUG: prod
+        ENV_SLUG: prod
         STACK_SLUG: "${STACK_SLUG_PROD}"
   environment:
     name: production{% if cookiecutter.project_url_prod %}
@@ -286,10 +286,10 @@ build_production:
       -e PROJECT_DIR=${CI_PROJECT_DIR}
       -e PROJECT_SLUG={{ cookiecutter.project_slug }}
       -e TERRAFORM_BACKEND={{ cookiecutter.terraform_backend }}
-      -e TERRAFORM_EXTRA_VAR_FILE=${ENVIRONMENT_SLUG}.tfvars
+      -e TERRAFORM_EXTRA_VAR_FILE=${ENV_SLUG}.tfvars
       -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars{% if cookiecutter.terraform_backend == "gitlab" %}
       -e TF_ROOT=${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}{% if cookiecutter.terraform_backend == "gitlab" %}
-      -e TF_STATE_NAME="env_${ENVIRONMENT_SLUG}"{% endif %}{% if not cookiecutter.vault_project_path %}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
+      -e TF_STATE_NAME="env_${ENV_SLUG}"{% endif %}{% if not cookiecutter.vault_project_path %}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
       -e TF_VAR_email_url="${EMAIL_URL}"
       -e TF_VAR_service_slug="{{ cookiecutter.service_slug }}"{% if cookiecutter.deployment_type == "other-k8s" %}
@@ -303,7 +303,7 @@ build_production:
       -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}
       -e TF_VAR_sentry_dsn="${SENTRY_DSN}"
       -e TF_VAR_service_container_image{% if cookiecutter.terraform_backend != "gitlab" %}
-      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENVIRONMENT_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and not cookiecutter.vault_project_path %}
+      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and not cookiecutter.vault_project_path %}
       -e TFC_TOKEN{% endif %}{% if cookiecutter.vault_project_path %}
       -e VAULT_ADDR
       -e VAULT_ENV_SECRETS="email sentry"
@@ -438,12 +438,16 @@ create-version-tag_production:
   script:
     - RELEASE_END=$(date +%s)
     - >
-      docker run --rm
+      docker run --rm{% if cookiecutter.vault_project_path %}
+      -e CI_JOB_JWT_V2
+      -e ENV_SLUG{% endif %}
       -e SENTRY_AUTH_TOKEN
       -e SENTRY_DSN
       -e SENTRY_ORG
-      -e SENTRY_URL
-      getsentry/sentry-cli:latest sentry-cli releases deploys $VERSION_REF new -e $CI_ENVIRONMENT_NAME -t $((RELEASE_END-RELEASE_START))
+      -e SENTRY_URL{% if cookiecutter.vault_project_path %}
+      -e VAULT_ADDR
+      -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"{% endif %}
+      getsentry/sentry-cli:latest ./scripts/sentry.sh success
 
 sentry_success_development:
   extends:
@@ -452,7 +456,7 @@ sentry_success_development:
   needs: ["deploy_development"]
   rules:
     - &sentry-rule
-      if: $SENTRY_DSN == null
+      if: $SENTRY_ENABLED == false
       when: never
     - <<: *pipeline-push-rule
     - <<: *development-rule
@@ -487,12 +491,16 @@ sentry_success_production:
     - docker:20-dind
   script:
     - >
-      docker run --rm
+      docker run --rm{% if cookiecutter.vault_project_path %}
+      -e CI_JOB_JWT_V2
+      -e ENV_SLUG{% endif %}
       -e SENTRY_AUTH_TOKEN
       -e SENTRY_DSN
       -e SENTRY_ORG
-      -e SENTRY_URL
-      getsentry/sentry-cli:latest sentry-cli send-event -m "Deploy to $CI_ENVIRONMENT_NAME failed."
+      -e SENTRY_URL{% if cookiecutter.vault_project_path %}
+      -e VAULT_ADDR
+      -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"{% endif %}
+      getsentry/sentry-cli:latest ./scripts/sentry.sh failure
 
 sentry_failure_development:
   extends:
