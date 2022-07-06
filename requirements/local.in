@@ -1,4 +1,4 @@
 -r test.in
 ipdb~=0.13.0
-pre-commit~=2.18.0
-pyupgrade~=2.32.0
+pre-commit~=2.19.0
+pyupgrade~=2.34.0

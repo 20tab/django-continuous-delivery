@@ -25,7 +25,7 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: "v2.32.0"
+    rev: "v2.34.0"
     hooks:
       - id: pyupgrade
         args: [--py310-plus]
@@ -45,4 +45,4 @@ repos:
           - flake8-assertive~=2.1.0
           - flake8-bugbear~=22.4.25
           - flake8-docstrings~=1.6.0
-          - flake8-isort~=4.1.0
+          - flake8-isort~=4.1.1
