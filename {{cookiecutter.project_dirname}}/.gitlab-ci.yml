@@ -79,6 +79,7 @@ variables:
       -e VAULT_ADDR
       -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"{% endif %}
       -e VERSION_REF
+      --entrypoint=""
       getsentry/sentry-cli:latest ./scripts/ci_sentry.sh ${SENTRY_CMD}
 
 .sentry_release:
