@@ -355,7 +355,7 @@ class Runner:
         return (
             Path(__file__).parent.parent / "terraform" / module_name,
             self.logs_dir / self.service_slug / "terraform" / module_name,
-            self.terraform_dir / self.service_slug / module_name,
+            self.terraform_dir / self.service_slug / module_name / "data",
         )
 
     def run_terraform_init(self, cwd, env, logs_dir, state_path):
@@ -458,22 +458,24 @@ class Runner:
         """Destroy all Terraform modules resources."""
         for module_name in self.terraform_run_modules:
             click.echo(warning(f"Destroying Terraform {module_name} resources."))
-            cwd, logs_dir, _terraform_dir = self.get_terraform_module_dirs(module_name)
-            self.run_terraform_destroy(cwd, env, logs_dir)
+            cwd, logs_dir, data_dir = self.get_terraform_module_dirs(module_name)
+            self.run_terraform_destroy(
+                cwd, {**env, "TF_DATA_DIR": str(data_dir.resolve())}, logs_dir
+            )
 
     def run_terraform(self, module_name, env, outputs=None):
         """Initialize the Terraform controlled resources."""
         self.terraform_run_modules.append(module_name)
-        cwd, logs_dir, terraform_dir = self.get_terraform_module_dirs(module_name)
-        os.makedirs(terraform_dir, exist_ok=True)
+        cwd, logs_dir, data_dir = self.get_terraform_module_dirs(module_name)
+        os.makedirs(data_dir, exist_ok=True)
         os.makedirs(logs_dir)
         env = dict(
             **env,
             PATH=os.environ.get("PATH"),
-            TF_DATA_DIR=str((terraform_dir / "data").resolve()),
+            TF_DATA_DIR=str(data_dir.resolve()),
             TF_LOG="INFO",
         )
-        self.run_terraform_init(cwd, env, logs_dir, terraform_dir / "state.tfstate")
+        self.run_terraform_init(cwd, env, logs_dir, data_dir / "terraform.tfstate")
         self.run_terraform_apply(cwd, env, logs_dir)
         outputs and self.terraform_outputs.update(
             {module_name: self.get_terraform_outputs(cwd, env, outputs)}
