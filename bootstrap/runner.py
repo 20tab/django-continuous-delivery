@@ -100,7 +100,7 @@ class Runner:
             self.vault_project_path = self.gitlab_group_slug or self.project_slug
 
     def set_stacks_environments(self):
-        """Store a dict with the environments distribution per stack."""
+        """Set a dict with the environments distribution per stack."""
         dev_env = {
             "name": DEV_ENV_NAME,
             "url": self.project_url_dev,
@@ -134,7 +134,7 @@ class Runner:
             }
 
     def set_environments_stacks(self):
-        """Store a dict with environments to stacks mapping."""
+        """Set a dict with environments to stacks mapping."""
         self.environments_stacks = {
             env_slug: stack_slug
             for stack_slug, stack_envs in self.stacks_environments.items()

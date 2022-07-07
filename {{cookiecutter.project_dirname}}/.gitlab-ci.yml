@@ -294,8 +294,8 @@ can-i-deploy_production:
 
 build_development:
   extends:
-    - .build
     - .development
+    - .build
   needs:
     - job: can-i-deploy_development
       optional: true
@@ -448,21 +448,24 @@ rollback_production:
       --tag \"env:${ENV_SLUG}\""
 
 create-version-tag_development:
-  extends: .create-version-tag
+  extends:
+    - .create-version-tag
   needs: ["deploy_development"]
   rules:
     - <<: *skip-pact-rule
     - *development-rules
 
 create-version-tag_staging:
-  extends: .create-version-tag
+  extends:
+    - .create-version-tag
   needs: ["deploy_staging"]
   rules:
     - <<: *skip-pact-rule
     - *staging-rules
 
 create-version-tag_production:
-  extends: .create-version-tag
+  extends:
+    - .create-version-tag
   needs: ["deploy_production"]
   rules:
     - <<: *skip-pact-rule
