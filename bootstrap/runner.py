@@ -81,6 +81,7 @@ class Runner:
     tfvars: dict = field(init=False, default_factory=dict)
     vault_project_path: str = field(init=False, default="")
     vault_secrets: dict = field(init=False, default_factory=dict)
+    terraform_run_modules: list = field(init=False, default_factory=list)
     terraform_outputs: dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
