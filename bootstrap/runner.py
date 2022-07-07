@@ -222,6 +222,10 @@ class Runner:
                     env_slug=env_slug,
                 )
 
+    def register_vault_environment_secret(self, env_slug, name, data):
+        """Register a Vault environment secret locally."""
+        self.vault_secrets[f"envs/{env_slug}/{name}"] = data
+
     def collect_vault_environment_secrets(self, env_slug):
         """Collect the Vault secrets for the given environment."""
         # Sentry vars are used by the GitLab CI/CD
