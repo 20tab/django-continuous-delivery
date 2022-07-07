@@ -76,6 +76,7 @@ class Runner:
     logs_dir: Path | None = None
     run_id: str = field(init=False)
     stacks_environments: dict = field(init=False, default_factory=dict)
+    environments_stacks: dict = field(init=False, default_factory=dict)
     gitlab_variables: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
     vault_project_path: str = field(init=False, default="")
@@ -89,6 +90,7 @@ class Runner:
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
         self.set_vault_project_path()
         self.set_stacks_environments()
+        self.set_environments_stacks()
         self.collect_tfvars()
         self.collect_gitlab_variables()
 
@@ -98,7 +100,7 @@ class Runner:
             self.vault_project_path = self.gitlab_group_slug or self.project_slug
 
     def set_stacks_environments(self):
-        """Return a dict with the environments distribution per stack."""
+        """Store a dict with the environments distribution per stack."""
         dev_env = {
             "name": DEV_ENV_NAME,
             "url": self.project_url_dev,
@@ -131,6 +133,14 @@ class Runner:
                 MAIN_STACK_SLUG: {PROD_ENV_SLUG: prod_env},
             }
 
+    def set_environments_stacks(self):
+        """Store a dict with environments to stacks mapping."""
+        self.environments_stacks = {
+            env_slug: stack_slug
+            for stack_slug, stack_envs in self.stacks_environments.items()
+            for env_slug in stack_envs
+        }
+
     def register_gitlab_variable(
         self, level, var_name, var_value=None, masked=False, protected=True
     ):
@@ -161,7 +171,7 @@ class Runner:
             self.register_gitlab_project_variables(
                 ("SENTRY_ORG", self.sentry_org),
                 ("SENTRY_URL", self.sentry_url),
-                ("SENTRY_ENABLED", "true")
+                ("SENTRY_ENABLED", "true"),
             )
         if not self.vault_token:
             self.collect_gitlab_variables_secrets()
@@ -233,6 +243,7 @@ class Runner:
             os.path.dirname(os.path.dirname(__file__)),
             extra_context={
                 "deployment_type": self.deployment_type,
+                "environments_stacks": self.environments_stacks,
                 "internal_service_port": self.internal_service_port,
                 "media_storage": self.media_storage,
                 "project_dirname": self.project_dirname,

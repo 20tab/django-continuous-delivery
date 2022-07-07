@@ -15,6 +15,7 @@
   "use_redis": false,
   "vault_project_path": "{{ cookiecutter.project_slug }}",
   "environment_distribution": "1",
+  "environments_stacks": {},
   "tfvars": {},
   "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }
