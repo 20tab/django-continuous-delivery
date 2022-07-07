@@ -169,7 +169,7 @@ pact-verify-test:
       -e VAULT_ADDR
       -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"
       --entrypoint=""
-      vault:1.11.0 ./scripts/ci_pact.sh get-secret`{% endif %}
+      alpine ./scripts/ci_pact.sh get-secret`{% endif %}
   script:
     - docker-compose build
     - >
