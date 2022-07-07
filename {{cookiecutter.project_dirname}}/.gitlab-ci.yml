@@ -26,7 +26,7 @@ variables:
       if: $CI_COMMIT_BRANCH == "develop"
       variables:
         ENV_SLUG: dev
-        STACK_SLUG: "{{ cookiecutter.environments_stacks.dev }}"
+        STACK_SLUG: {{ cookiecutter.environments_stacks.dev }}
   environment:
     name: Development{% if cookiecutter.project_url_dev %}
     url: {{ cookiecutter.project_url_dev }}{% endif %}
@@ -38,7 +38,7 @@ variables:
       if: $CI_COMMIT_BRANCH == "main"
       variables:
         ENV_SLUG: stage
-        STACK_SLUG: "{{ cookiecutter.environments_stacks.stage }}"
+        STACK_SLUG: {{ cookiecutter.environments_stacks.stage }}
   environment:
     name: Staging{% if cookiecutter.project_url_stage %}
     url: {{ cookiecutter.project_url_stage }}{% endif %}
@@ -50,7 +50,7 @@ variables:
       if: $CI_COMMIT_TAG
       variables:
         ENV_SLUG: prod
-        STACK_SLUG: "{{ cookiecutter.environments_stacks.prod }}"
+        STACK_SLUG: {{ cookiecutter.environments_stacks.prod }}
   environment:
     name: Production{% if cookiecutter.project_url_prod %}
     url: {{ cookiecutter.project_url_prod }}{% endif %}
