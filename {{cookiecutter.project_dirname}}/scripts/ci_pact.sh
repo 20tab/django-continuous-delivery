@@ -11,7 +11,7 @@ if [ "${VAULT_ADDR}" != "" ]; then
 
   pact_secrets=`./vault kv get -format='json' -field=data ${VAULT_PROJECT_PATH}/envs/${ENV_SLUG}/pact`
 
-  export PACT_BROKER_BASE_URL=`echo ${pact_secrets} | jq -r .pact_broker_url`
+  export PACT_BROKER_BASE_URL=`echo ${pact_secrets} | jq -r .pact_broker_base_url`
   export PACT_BROKER_PASSWORD=`echo ${pact_secrets} | jq -r .pact_broker_password`
   export PACT_BROKER_USERNAME=`echo ${pact_secrets} | jq -r .pact_broker_username`
 fi
