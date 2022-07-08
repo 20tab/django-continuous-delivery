@@ -366,8 +366,8 @@ build_production:
       -e TF_VAR_s3_region="${S3_REGION}"
       -e TF_VAR_s3_host="${S3_HOST}"
       -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}
-      -e TF_VAR_sentry_dsn="${SENTRY_DSN}"
-      -e TF_VAR_service_container_image{% endif %}{% if cookiecutter.terraform_backend != "gitlab" %}
+      -e TF_VAR_sentry_dsn="${SENTRY_DSN}"{% endif %}
+      -e TF_VAR_service_container_image{% if cookiecutter.terraform_backend != "gitlab" %}
       -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and not cookiecutter.vault_project_path %}
       -e TFC_TOKEN{% endif %}{% if cookiecutter.vault_project_path %}
       -e VAULT_ADDR

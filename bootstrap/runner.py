@@ -211,8 +211,11 @@ class Runner:
 
     def collect_tfvars(self):
         """Collect Terraform variables."""
-        self.register_environment_tfvars(("media_storage", self.media_storage))
-        self.register_environment_tfvars(("use_redis", self.use_redis, "bool"))
+        self.register_environment_tfvars(
+            ("media_storage", self.media_storage),
+            ("service_slug", self.service_slug),
+            ("use_redis", self.use_redis, "bool"),
+        )
         for stack_slug, stack_envs in self.stacks_environments.items():
             for env_slug, env_data in stack_envs.items():
                 self.register_environment_tfvars(

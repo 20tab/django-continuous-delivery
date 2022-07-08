@@ -4,8 +4,8 @@ if [ "${VAULT_ADDR}" != "" ]; then
   apk update 1> /dev/null
   apk add curl jq 1> /dev/null
 
-  curl https://releases.hashicorp.com/vault/${VAULT_VERSION:=1.11.0}/vault_${VAULT_VERSION}_linux_386.zip --output vault.zip
-  unzip vault.zip
+  curl https://releases.hashicorp.com/vault/${VAULT_VERSION:=1.11.0}/vault_${VAULT_VERSION}_linux_386.zip --output vault.zip 1> /dev/null
+  unzip vault.zip 1> /dev/null
 
   export VAULT_TOKEN=`./vault write -field=token auth/gitlab-jwt-${VAULT_PROJECT_PATH}/login role=gitlab-jwt-${VAULT_PROJECT_PATH}-envs-${ENV_SLUG} jwt=${CI_JOB_JWT_V2}`
 
