@@ -73,7 +73,6 @@ module "deployment" {
   s3_region                       = var.s3_region
   s3_secret_key                   = var.s3_secret_key
   sentry_dsn                      = var.sentry_dsn
-  use_redis                       = var.use_redis
   web_concurrency                 = var.web_concurrency
 
   extra_config_values = var.extra_config_values
