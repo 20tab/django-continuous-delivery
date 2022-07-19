@@ -11,7 +11,6 @@ stages:
 variables:
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
-  PACT_BROKER_URL: "${PACT_BROKER_AUTH_URL}"
   PACT_PROVIDER_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
   SENTRY_PROJECT_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
   VERSION_BEFORE_REF: ${CI_COMMIT_BEFORE_SHA}
@@ -165,8 +164,9 @@ pact-verify-test:
       -e VAULT_ADDR
       --entrypoint=""
       vault sh -c
-      'VAULT_TOKEN=$(vault write -field=token auth/gitlab-jwt-{{ cookiecutter.vault_project_path }}/login role=gitlab-jwt-{{ cookiecutter.vault_project_path }}-envs-${ENV_SLUG} jwt=${CI_JOB_JWT_V2});
-      vault kv get -field=pact_broker_auth_url {{ cookiecutter.vault_project_path }}/envs/${ENV_SLUG}/pact'`{% endif %}
+      'export VAULT_TOKEN=$(vault write -field=token auth/gitlab-jwt-{{ cookiecutter.vault_project_path }}/login role=gitlab-jwt-{{ cookiecutter.vault_project_path }}-pact jwt=${CI_JOB_JWT_V2});
+      vault kv get -field=pact_broker_auth_url {{ cookiecutter.vault_project_path }}/pact'`{% else %}
+    - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"{% endif %}
   script:
     - docker-compose build
     - >
@@ -193,7 +193,8 @@ pact-verify-webhook:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $PACT_ENABLED == "true"
       allow_failure: true{% if cookiecutter.vault_project_path %}
   before_script:
-    - *vault-pact-broker-url{% endif %}
+    - *vault-pact-broker-url{% else %}
+    - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"{% endif %}
   script:
     - docker-compose build
     - >
