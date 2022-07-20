@@ -369,7 +369,7 @@ build_production:
       -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and not cookiecutter.vault_project_path %}
       -e TFC_TOKEN{% endif %}{% if cookiecutter.vault_project_path %}
       -e VAULT_ADDR
-      -e VAULT_ENV_SECRETS="email sentry"
+      -e VAULT_ENV_SECRETS="email sentry_backend"
       -e VAULT_PROJECT_PATH="{{ cookiecutter.vault_project_path }}"
       -e VAULT_STACK_SECRETS="digitalocean k8s s3"
       -e VAULT_VERSION{% endif %}
