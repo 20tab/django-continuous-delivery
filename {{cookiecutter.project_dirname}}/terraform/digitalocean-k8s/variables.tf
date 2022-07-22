@@ -2,7 +2,6 @@ variable "digitalocean_token" {
   description = "The Digital Ocean access token."
   type        = string
   sensitive   = true
-
 }
 
 variable "django_additional_allowed_hosts" {

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
+import json
 import os
 import secrets
 import subprocess
@@ -13,9 +14,20 @@ import click
 from cookiecutter.main import cookiecutter
 from pydantic import validate_arguments
 
-from bootstrap.constants import TERRAFORM_BACKEND_TFC
+from bootstrap.constants import (
+    DEV_ENV_NAME,
+    DEV_ENV_SLUG,
+    DEV_STACK_SLUG,
+    MAIN_STACK_SLUG,
+    PROD_ENV_NAME,
+    PROD_ENV_SLUG,
+    STAGE_ENV_NAME,
+    STAGE_ENV_SLUG,
+    STAGE_STACK_SLUG,
+    TERRAFORM_BACKEND_TFC,
+)
 from bootstrap.exceptions import BootstrapError
-from bootstrap.helpers import format_tfvar
+from bootstrap.helpers import format_gitlab_variable, format_tfvar
 
 error = partial(click.style, fg="red")
 
@@ -49,7 +61,11 @@ class Runner:
     terraform_cloud_organization: str | None = None
     terraform_cloud_organization_create: bool | None = None
     terraform_cloud_admin_email: str | None = None
+    vault_token: str | None = None
+    vault_url: str | None = None
     sentry_dsn: str | None = None
+    sentry_org: str | None = None
+    sentry_url: str | None = None
     media_storage: str
     use_redis: bool = False
     gitlab_private_token: str | None = None
@@ -60,73 +76,173 @@ class Runner:
     logs_dir: Path | None = None
     run_id: str = field(init=False)
     stacks_environments: dict = field(init=False, default_factory=dict)
+    environments_stacks: dict = field(init=False, default_factory=dict)
+    gitlab_variables: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
+    vault_project_path: str = field(init=False, default="")
+    vault_secrets: dict = field(init=False, default_factory=dict)
+    terraform_run_modules: list = field(init=False, default_factory=list)
+    terraform_outputs: dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
         """Finalize initialization."""
         self.run_id = f"{time():.0f}"
         self.terraform_dir = self.terraform_dir or Path(f".terraform/{self.run_id}")
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
+        self.set_vault_project_path()
         self.set_stacks_environments()
-        self.set_tfvars()
+        self.set_environments_stacks()
+        self.collect_tfvars()
+        self.collect_gitlab_variables()
+
+    def set_vault_project_path(self):
+        """Set the Vault project path."""
+        if self.vault_url:
+            self.vault_project_path = self.gitlab_group_slug or self.project_slug
 
     def set_stacks_environments(self):
-        """Return a dict with the environments distribution per stack."""
+        """Set a dict with the environments distribution per stack."""
         dev_env = {
-            "name": "Development",
+            "name": DEV_ENV_NAME,
             "url": self.project_url_dev,
         }
         stage_env = {
-            "name": "Staging",
+            "name": STAGE_ENV_NAME,
             "url": self.project_url_stage,
         }
         prod_env = {
-            "name": "Production",
+            "name": PROD_ENV_NAME,
             "url": self.project_url_prod,
         }
         if self.environment_distribution == "1":
             self.stacks_environments = {
-                "main": {"dev": dev_env, "stage": stage_env, "prod": prod_env}
+                MAIN_STACK_SLUG: {
+                    DEV_ENV_SLUG: dev_env,
+                    STAGE_ENV_SLUG: stage_env,
+                    PROD_ENV_SLUG: prod_env,
+                }
             }
         elif self.environment_distribution == "2":
             self.stacks_environments = {
-                "dev": {"dev": dev_env, "stage": stage_env},
-                "main": {"prod": prod_env},
+                DEV_STACK_SLUG: {DEV_ENV_SLUG: dev_env, STAGE_ENV_SLUG: stage_env},
+                MAIN_STACK_SLUG: {PROD_ENV_SLUG: prod_env},
             }
         elif self.environment_distribution == "3":
             self.stacks_environments = {
-                "dev": {"dev": dev_env},
-                "stage": {"stage": stage_env},
-                "main": {"prod": prod_env},
+                DEV_STACK_SLUG: {DEV_ENV_SLUG: dev_env},
+                STAGE_STACK_SLUG: {STAGE_ENV_SLUG: stage_env},
+                MAIN_STACK_SLUG: {PROD_ENV_SLUG: prod_env},
             }
 
-    def add_tfvar(self, tf_stage, var_name, var_value=None, var_type=None):
-        """Add a Terraform value to the given .tfvars file."""
+    def set_environments_stacks(self):
+        """Set a dict with environments to stacks mapping."""
+        self.environments_stacks = {
+            env_slug: stack_slug
+            for stack_slug, stack_envs in self.stacks_environments.items()
+            for env_slug in stack_envs
+        }
+
+    def register_gitlab_variable(
+        self, level, var_name, var_value=None, masked=False, protected=True
+    ):
+        """Register a GitLab variable at the given level."""
+        vars_dict = self.gitlab_variables.setdefault(level, {})
+        if var_value is None:
+            var_value = getattr(self, var_name)
+        vars_dict[var_name] = format_gitlab_variable(var_value, masked, protected)
+
+    def register_gitlab_variables(self, level, *vars):
+        """Register one or more GitLab variable at the given level."""
+        [
+            self.register_gitlab_variable(level, *((i,) if isinstance(i, str) else i))
+            for i in vars
+        ]
+
+    def register_gitlab_group_variables(self, *vars):
+        """Register one or more GitLab group variable."""
+        self.register_gitlab_variables("group", *vars)
+
+    def register_gitlab_project_variables(self, *vars):
+        """Register one or more GitLab project variable."""
+        self.register_gitlab_variables("project", *vars)
+
+    def collect_gitlab_variables(self):
+        """Collect the GitLab group and project variables."""
+        if self.sentry_dsn:
+            self.register_gitlab_project_variables(
+                ("SENTRY_ORG", self.sentry_org),
+                ("SENTRY_URL", self.sentry_url),
+                ("SENTRY_ENABLED", "true"),
+            )
+        if not self.vault_token:
+            self.collect_gitlab_variables_secrets()
+
+    def collect_gitlab_variables_secrets(self):
+        """Collect secrets as GitLab group and project variables."""
+        if self.sentry_dsn:
+            self.register_gitlab_project_variables(
+                ("SENTRY_DSN", self.sentry_dsn, True)
+            )
+
+    def render_gitlab_variables_to_string(self, level):
+        """Return the given level GitLab variables rendered to string."""
+        return "{%s}" % ", ".join(
+            f"{k} = {v}" for k, v in self.gitlab_variables.get(level, {}).items()
+        )
+
+    def register_tfvar(self, tf_stage, var_name, var_value=None, var_type=None):
+        """Register a Terraform variable value for the given stage."""
         vars_list = self.tfvars.setdefault(tf_stage, [])
         if var_value is None:
             var_value = getattr(self, var_name)
         vars_list.append("=".join((var_name, format_tfvar(var_value, var_type))))
 
-    def add_tfvars(self, tf_stage, *vars):
-        """Add one or more Terraform variables to the given stage."""
-        [self.add_tfvar(tf_stage, *((i,) if isinstance(i, str) else i)) for i in vars]
+    def register_tfvars(self, tf_stage, *vars):
+        """Register one or more Terraform variables to the given stage."""
+        [
+            self.register_tfvar(tf_stage, *((i,) if isinstance(i, str) else i))
+            for i in vars
+        ]
 
-    def add_environment_tfvars(self, *vars, env_slug=None):
-        """Add one or more environment Terraform variables."""
+    def register_environment_tfvars(self, *vars, env_slug=None):
+        """Register one or more environment Terraform variables."""
         tf_stage = "environment" + (env_slug and f"_{env_slug}" or "")
-        self.add_tfvars(tf_stage, *vars)
+        self.register_tfvars(tf_stage, *vars)
 
-    def set_tfvars(self):
-        """Set Terraform variables lists."""
-        self.add_environment_tfvars(("media_storage", self.media_storage))
-        self.add_environment_tfvars(("use_redis", self.use_redis, "bool"))
+    def collect_tfvars(self):
+        """Collect Terraform variables."""
+        self.register_environment_tfvars(
+            ("media_storage", self.media_storage),
+            ("service_slug", self.service_slug),
+            ("use_redis", self.use_redis, "bool"),
+        )
         for stack_slug, stack_envs in self.stacks_environments.items():
             for env_slug, env_data in stack_envs.items():
-                self.add_environment_tfvars(
+                self.register_environment_tfvars(
+                    ("environment", env_data["name"]),
                     ("project_url", env_data["url"]),
                     ("stack_slug", stack_slug),
                     env_slug=env_slug,
                 )
+
+    def register_vault_environment_secret(self, env_slug, name, data):
+        """Register a Vault environment secret locally."""
+        self.vault_secrets[f"envs/{env_slug}/{name}"] = data
+
+    def collect_vault_environment_secrets(self, env_slug):
+        """Collect the Vault secrets for the given environment."""
+        # Sentry vars are used by the GitLab CI/CD
+        self.sentry_dsn and self.register_vault_environment_secret(
+            env_slug, f"sentry_{self.service_slug}", dict(sentry_dsn=self.sentry_dsn)
+        )
+
+    def collect_vault_secrets(self):
+        """Collect Vault secrets."""
+        [
+            self.collect_vault_environment_secrets(env_slug)
+            for stack_envs in self.stacks_environments.values()
+            for env_slug in stack_envs
+        ]
 
     def init_service(self):
         """Initialize the service."""
@@ -135,6 +251,7 @@ class Runner:
             os.path.dirname(os.path.dirname(__file__)),
             extra_context={
                 "deployment_type": self.deployment_type,
+                "environments_stacks": self.environments_stacks,
                 "internal_service_port": self.internal_service_port,
                 "media_storage": self.media_storage,
                 "project_dirname": self.project_dirname,
@@ -148,6 +265,7 @@ class Runner:
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
                 "use_redis": self.use_redis,
+                "vault_project_path": self.vault_project_path,
             },
             output_dir=self.output_dir,
             no_input=True,
@@ -190,27 +308,6 @@ class Runner:
         click.echo(info("...creating the '/media' directory"))
         (self.service_dir / "media").mkdir(exist_ok=True)
 
-    def change_output_owner(self):
-        """Change the owner of the output directory recursively."""
-        if self.uid:
-            subprocess.run(
-                [
-                    "chown",
-                    "-R",
-                    ":".join(map(str, filter(None, (self.uid, self.gid)))),
-                    self.service_dir,
-                ]
-            )
-
-    def get_gitlab_variables(self):
-        """Return the GitLab group and project variables."""
-        gitlab_group_variables = {}
-        gitlab_project_variables = {}
-        self.sentry_dsn and gitlab_project_variables.update(
-            SENTRY_DSN='{value = "%s", masked = true}' % self.sentry_dsn
-        )
-        return gitlab_group_variables, gitlab_project_variables
-
     def init_terraform_cloud(self):
         """Initialize the Terraform Cloud resources."""
         click.echo(info("...creating the Terraform Cloud resources"))
@@ -232,34 +329,46 @@ class Runner:
     def init_gitlab(self):
         """Initialize the GitLab resources."""
         click.echo(info("...creating the GitLab resources"))
-        group_variables, project_variables = self.get_gitlab_variables()
         env = dict(
-            TF_VAR_group_variables="{%s}"
-            % ", ".join(f"{k} = {v}" for k, v in group_variables.items()),
-            TF_VAR_group_slug=self.gitlab_group_slug,
             TF_VAR_gitlab_token=self.gitlab_private_token,
+            TF_VAR_group_slug=self.gitlab_group_slug,
+            TF_VAR_group_variables=self.render_gitlab_variables_to_string("group"),
             TF_VAR_project_name=self.project_name,
             TF_VAR_project_slug=self.project_slug,
-            TF_VAR_project_variables="{%s}"
-            % ", ".join(f"{k} = {v}" for k, v in project_variables.items()),
+            TF_VAR_project_variables=self.render_gitlab_variables_to_string("project"),
             TF_VAR_service_dir=self.service_dir,
             TF_VAR_service_slug=self.service_slug,
         )
         self.run_terraform("gitlab", env)
 
-    def run_terraform(self, module_name, env):
-        """Initialize the Terraform controlled resources."""
-        cwd = Path(__file__).parent.parent / "terraform" / module_name
-        terraform_dir = self.terraform_dir / self.service_slug / module_name
-        os.makedirs(terraform_dir, exist_ok=True)
-        env.update(
-            PATH=os.environ.get("PATH"),
-            TF_DATA_DIR=str((terraform_dir / "data").resolve()),
-            TF_LOG="INFO",
+    def init_vault(self):
+        """Initialize the Vault resources."""
+        click.echo(info("...creating the Vault resources with Terraform"))
+        self.collect_vault_secrets()
+        env = dict(
+            TF_VAR_project_path=self.vault_project_path,
+            TF_VAR_secrets=json.dumps(self.vault_secrets),
+            VAULT_ADDR=self.vault_url,
+            VAULT_TOKEN=self.vault_token,
         )
-        state_path = terraform_dir / "state.tfstate"
-        logs_dir = self.logs_dir / self.service_slug / "terraform" / module_name
-        os.makedirs(logs_dir)
+        self.run_terraform("vault", env)
+
+    def get_terraform_module_params(self, module_name, env):
+        """Return Terraform parameters for the given module."""
+        return (
+            Path(__file__).parent.parent / "terraform" / module_name,
+            self.logs_dir / self.service_slug / "terraform" / module_name,
+            terraform_dir := self.terraform_dir / self.service_slug / module_name,
+            {
+                **env,
+                "PATH": os.environ.get("PATH"),
+                "TF_DATA_DIR": str((terraform_dir / "data").resolve()),
+                "TF_LOG": "INFO",
+            },
+        )
+
+    def run_terraform_init(self, cwd, env, logs_dir, state_path):
+        """Run Terraform init."""
         init_log_path = logs_dir / "init.log"
         init_stdout_path = logs_dir / "init-stdout.log"
         init_stderr_path = logs_dir / "init-stderr.log"
@@ -278,61 +387,116 @@ class Runner:
             text=True,
         )
         init_stdout_path.write_text(init_process.stdout)
-        if init_process.returncode == 0:
-            apply_log_path = logs_dir / "apply.log"
-            apply_stdout_path = logs_dir / "apply-stdout.log"
-            apply_stderr_path = logs_dir / "apply-stderr.log"
-            apply_process = subprocess.run(
-                ["terraform", "apply", "-auto-approve", "-input=false", "-no-color"],
-                capture_output=True,
-                cwd=cwd,
-                env=dict(**env, TF_LOG_PATH=str(apply_log_path.resolve())),
-                text=True,
-            )
-            apply_stdout_path.write_text(apply_process.stdout)
-            if apply_process.returncode != 0:
-                apply_stderr_path.write_text(apply_process.stderr)
-                click.echo(
-                    error(
-                        f"Error applying {module_name} Terraform configuration "
-                        f"(check {apply_stderr_path} and {apply_log_path})"
-                    )
-                )
-                destroy_log_path = logs_dir / "destroy.log"
-                destroy_stdout_path = logs_dir / "destroy-stdout.log"
-                destroy_stderr_path = logs_dir / "destroy-stderr.log"
-                destroy_process = subprocess.run(
-                    [
-                        "terraform",
-                        "destroy",
-                        "-auto-approve",
-                        "-input=false",
-                        "-no-color",
-                    ],
-                    capture_output=True,
-                    cwd=cwd,
-                    env=dict(**env, TF_LOG_PATH=str(destroy_log_path.resolve())),
-                    text=True,
-                )
-                destroy_stdout_path.write_text(destroy_process.stdout)
-                if destroy_process.returncode != 0:
-                    destroy_stderr_path.write_text(destroy_process.stderr)
-                    click.echo(
-                        error(
-                            f"Error performing {module_name} Terraform destroy "
-                            f"(check {destroy_stderr_path} and {destroy_log_path})"
-                        )
-                    )
-                raise BootstrapError
-        else:
+        if init_process.returncode != 0:
             init_stderr_path.write_text(init_process.stderr)
             click.echo(
                 error(
-                    f"Error performing {module_name} Terraform init "
+                    "Terraform init failed "
                     f"(check {init_stderr_path} and {init_log_path})"
                 )
             )
             raise BootstrapError
+
+    def run_terraform_apply(self, cwd, env, logs_dir):
+        """Run Terraform apply."""
+        apply_log_path = logs_dir / "apply.log"
+        apply_stdout_path = logs_dir / "apply-stdout.log"
+        apply_stderr_path = logs_dir / "apply-stderr.log"
+        apply_process = subprocess.run(
+            ["terraform", "apply", "-auto-approve", "-input=false", "-no-color"],
+            capture_output=True,
+            cwd=cwd,
+            env=dict(**env, TF_LOG_PATH=str(apply_log_path.resolve())),
+            text=True,
+        )
+        apply_stdout_path.write_text(apply_process.stdout)
+        if apply_process.returncode != 0:
+            apply_stderr_path.write_text(apply_process.stderr)
+            click.echo(
+                error(
+                    "Terraform apply failed "
+                    f"(check {apply_stderr_path} and {apply_log_path})"
+                )
+            )
+            self.reset_terraform()
+            raise BootstrapError
+
+    def run_terraform_destroy(self, cwd, env, logs_dir):
+        """Run Terraform destroy."""
+        destroy_log_path = logs_dir / "destroy.log"
+        destroy_stdout_path = logs_dir / "destroy-stdout.log"
+        destroy_stderr_path = logs_dir / "destroy-stderr.log"
+        destroy_process = subprocess.run(
+            [
+                "terraform",
+                "destroy",
+                "-auto-approve",
+                "-input=false",
+                "-no-color",
+            ],
+            capture_output=True,
+            cwd=cwd,
+            env=dict(**env, TF_LOG_PATH=str(destroy_log_path.resolve())),
+            text=True,
+        )
+        destroy_stdout_path.write_text(destroy_process.stdout)
+        if destroy_process.returncode != 0:
+            destroy_stderr_path.write_text(destroy_process.stderr)
+            click.echo(
+                error(
+                    "Terraform destroy failed "
+                    f"(check {destroy_stderr_path} and {destroy_log_path})"
+                )
+            )
+            raise BootstrapError
+
+    def get_terraform_outputs(self, cwd, env, outputs):
+        """Get Terraform outputs."""
+        return {
+            output_name: subprocess.run(
+                ["terraform", "output", "-raw", output_name],
+                capture_output=True,
+                cwd=cwd,
+                env=env,
+                text=True,
+            ).stdout
+            for output_name in outputs
+        }
+
+    def reset_terraform(self):
+        """Destroy all Terraform modules resources."""
+        for module_name, env in self.terraform_run_modules:
+            click.echo(warning(f"Destroying Terraform {module_name} resources."))
+            cwd, logs_dir, _terraform_dir, env = self.get_terraform_module_params(
+                module_name, env
+            )
+            self.run_terraform_destroy(cwd, env, logs_dir)
+
+    def run_terraform(self, module_name, env, outputs=None):
+        """Initialize the Terraform controlled resources."""
+        self.terraform_run_modules.append((module_name, env))
+        cwd, logs_dir, terraform_dir, env = self.get_terraform_module_params(
+            module_name, env
+        )
+        os.makedirs(terraform_dir, exist_ok=True)
+        os.makedirs(logs_dir)
+        self.run_terraform_init(cwd, env, logs_dir, terraform_dir / "terraform.tfstate")
+        self.run_terraform_apply(cwd, env, logs_dir)
+        outputs and self.terraform_outputs.update(
+            {module_name: self.get_terraform_outputs(cwd, env, outputs)}
+        )
+
+    def change_output_owner(self):
+        """Change the owner of the output directory recursively."""
+        if self.uid:
+            subprocess.run(
+                [
+                    "chown",
+                    "-R",
+                    ":".join(map(str, filter(None, (self.uid, self.gid)))),
+                    self.service_dir,
+                ]
+            )
 
     def run(self):
         """Run the bootstrap."""
@@ -347,4 +511,6 @@ class Runner:
             self.init_gitlab()
         if self.terraform_backend == TERRAFORM_BACKEND_TFC:
             self.init_terraform_cloud()
+        if self.vault_token:
+            self.init_vault()
         self.change_output_owner()

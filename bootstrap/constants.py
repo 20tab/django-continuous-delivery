@@ -1,5 +1,27 @@
 """Web project initialization CLI constants."""
 
+# Stacks
+
+DEV_STACK_SLUG = "dev"
+
+STAGE_STACK_SLUG = "stage"
+
+MAIN_STACK_SLUG = "main"
+
+# Environments
+
+DEV_ENV_NAME = "development"
+
+DEV_ENV_SLUG = "dev"
+
+STAGE_ENV_NAME = "staging"
+
+STAGE_ENV_SLUG = "stage"
+
+PROD_ENV_NAME = "production"
+
+PROD_ENV_SLUG = "prod"
+
 # Env vars
 
 GITLAB_TOKEN_ENV_VAR = "GITLAB_PRIVATE_TOKEN"

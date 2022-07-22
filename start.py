@@ -49,6 +49,8 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
     default=None,
 )
 @click.option("--terraform-cloud-admin-email")
+@click.option("--vault-token")
+@click.option("--vault-url")
 @click.option(
     "--environment-distribution", type=click.Choice(ENVIRONMENT_DISTRIBUTION_CHOICES)
 )
@@ -56,6 +58,8 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")
 @click.option("--sentry-dsn")
+@click.option("--sentry-org")
+@click.option("--sentry-url")
 @click.option(
     "--media-storage",
     type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
