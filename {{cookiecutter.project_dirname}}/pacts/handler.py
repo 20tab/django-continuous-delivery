@@ -1,10 +1,12 @@
 """Define pacts provider state handler."""
 
 import re
+import shutil
 from datetime import datetime
 from unittest.mock import patch
 
 import time_machine
+from django.conf import settings
 from pactman.verifier.verify import ProviderStateMissing
 
 
@@ -63,6 +65,7 @@ class ProviderStatesHandler:
         """Clean up after handling states."""
         try:
             self.context["freezer"].stop()
+            shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
         except KeyError:
             pass
         [i.stop() for i in self.patchers]
