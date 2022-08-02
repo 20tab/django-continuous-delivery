@@ -69,11 +69,11 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
