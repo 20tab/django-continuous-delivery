@@ -402,3 +402,8 @@ class Remote(ProjectDefault):
     AWS_STORAGE_BUCKET_NAME = values.Value()
 
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
+
+    # DB Transaction pooling and server-side cursors
+    # https://docs.djangoproject.com/en/4.0/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
+
+    DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
