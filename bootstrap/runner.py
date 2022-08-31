@@ -18,6 +18,7 @@ from bootstrap.constants import (
     DEV_ENV_NAME,
     DEV_ENV_SLUG,
     DEV_STACK_SLUG,
+    GITLAB_URL_DEFAULT,
     MAIN_STACK_SLUG,
     PROD_ENV_NAME,
     PROD_ENV_SLUG,
@@ -87,6 +88,7 @@ class Runner:
 
     def __post_init__(self):
         """Finalize initialization."""
+        self.gitlab_url = self.gitlab_url and self.gitlab_url.rstrip("/")
         self.run_id = f"{time():.0f}"
         self.terraform_dir = self.terraform_dir or Path(f".terraform/{self.run_id}")
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
@@ -340,6 +342,9 @@ class Runner:
             TF_VAR_project_variables=self.render_gitlab_variables_to_string("project"),
             TF_VAR_service_dir=self.service_dir,
             TF_VAR_service_slug=self.service_slug,
+        )
+        self.gitlab_url != GITLAB_URL_DEFAULT and env.update(
+            GITLAB_BASE_URL=f"{self.gitlab_url}/api/v4/"
         )
         self.run_terraform("gitlab", env)
 
