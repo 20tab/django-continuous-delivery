@@ -4,6 +4,11 @@ variable "gitlab_token" {
   sensitive   = true
 }
 
+variable "gitlab_url" {
+  description = "The GitLab url"
+  type        = string
+}
+
 variable "group_slug" {
   description = "The slug of the GitLab group."
   type        = string

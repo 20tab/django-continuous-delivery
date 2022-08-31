@@ -62,23 +62,37 @@ class TestBootstrapCollector(TestCase):
         with input("Y"):
             self.assertEqual(
                 clean_gitlab_group_data(
-                    "my-project", "my-gitlab-group", "mYV4l1DT0k3N"
+                    "my-project",
+                    "https://gitlab.com/",
+                    "my-gitlab-group",
+                    "mYV4l1DT0k3N",
                 ),
-                ("my-gitlab-group", "mYV4l1DT0k3N"),
+                ("https://gitlab.com", "my-gitlab-group", "mYV4l1DT0k3N"),
             )
-        with input("Y", "my-gitlab-group", "Y"):
+        with input("Y", "https://gitlab.com", "my-gitlab-group", "Y"):
             self.assertEqual(
-                clean_gitlab_group_data("my-project", None, "mYV4l1DT0k3N"),
-                ("my-gitlab-group", "mYV4l1DT0k3N"),
+                clean_gitlab_group_data(
+                    "my-project",
+                    None,
+                    None,
+                    "mYV4l1DT0k3N",
+                ),
+                ("https://gitlab.com", "my-gitlab-group", "mYV4l1DT0k3N"),
             )
-        with input("Y", "my-gitlab-group", "Y", {"hidden": "mYV4l1DT0k3N"}):
+        with input(
+            "Y",
+            "https://gitlab.com",
+            "my-gitlab-group",
+            "Y",
+            {"hidden": "mYV4l1DT0k3N"},
+        ):
             self.assertEqual(
-                clean_gitlab_group_data("my-project", None, None),
-                ("my-gitlab-group", "mYV4l1DT0k3N"),
+                clean_gitlab_group_data("my-project", None, None, None),
+                ("https://gitlab.com", "my-gitlab-group", "mYV4l1DT0k3N"),
             )
         self.assertEqual(
-            clean_gitlab_group_data("my-project", "", ""),
-            (None, None),
+            clean_gitlab_group_data("my-project", "", "", ""),
+            (None, None, None),
         )
 
     def test_clean_media_storage(self):
