@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 import string
 from pathlib import Path
 
+import dj_database_url
 from configurations import Configuration, values
 
 
@@ -82,7 +83,9 @@ class ProjectDefault(Configuration):
     # Database
     # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
-    DATABASES = values.DatabaseURLValue()
+    DATABASES = {
+        "default": dj_database_url.config(),
+    }
 
     # Password validation
     # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
@@ -407,3 +410,6 @@ class Remote(ProjectDefault):
     # https://docs.djangoproject.com/en/4.0/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
 
     DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
+    ProjectDefault.DATABASES["default"][
+        "DISABLE_SERVER_SIDE_CURSORS"
+    ] = DISABLE_SERVER_SIDE_CURSORS
