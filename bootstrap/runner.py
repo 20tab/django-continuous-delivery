@@ -18,6 +18,7 @@ from bootstrap.constants import (
     DEV_ENV_NAME,
     DEV_ENV_SLUG,
     DEV_STACK_SLUG,
+    GITLAB_URL_DEFAULT,
     MAIN_STACK_SLUG,
     PROD_ENV_NAME,
     PROD_ENV_SLUG,
@@ -68,8 +69,9 @@ class Runner:
     sentry_url: str | None = None
     media_storage: str
     use_redis: bool = False
-    gitlab_private_token: str | None = None
+    gitlab_url: str | None = None
     gitlab_group_slug: str | None = None
+    gitlab_private_token: str | None = None
     uid: int | None = None
     gid: int | None = None
     terraform_dir: Path | None = None
@@ -86,6 +88,7 @@ class Runner:
 
     def __post_init__(self):
         """Finalize initialization."""
+        self.gitlab_url = self.gitlab_url and self.gitlab_url.rstrip("/")
         self.run_id = f"{time():.0f}"
         self.terraform_dir = self.terraform_dir or Path(f".terraform/{self.run_id}")
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
@@ -331,6 +334,7 @@ class Runner:
         click.echo(info("...creating the GitLab resources"))
         env = dict(
             TF_VAR_gitlab_token=self.gitlab_private_token,
+            TF_VAR_gitlab_url=self.gitlab_url,
             TF_VAR_group_slug=self.gitlab_group_slug,
             TF_VAR_group_variables=self.render_gitlab_variables_to_string("group"),
             TF_VAR_project_name=self.project_name,
@@ -338,6 +342,9 @@ class Runner:
             TF_VAR_project_variables=self.render_gitlab_variables_to_string("project"),
             TF_VAR_service_dir=self.service_dir,
             TF_VAR_service_slug=self.service_slug,
+        )
+        self.gitlab_url != GITLAB_URL_DEFAULT and env.update(
+            GITLAB_BASE_URL=f"{self.gitlab_url}/api/v4/"
         )
         self.run_terraform("gitlab", env)
 
