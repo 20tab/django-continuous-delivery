@@ -1,4 +1,4 @@
-variable "project_path" {
+variable "project_slug" {
   description = "The project slug."
   type        = string
 }

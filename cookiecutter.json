@@ -13,7 +13,7 @@
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": false,
-  "vault_project_path": "{{ cookiecutter.project_slug }}",
+  "use_vault": false,
   "environment_distribution": "1",
   "environments_stacks": {},
   "tfvars": {},
