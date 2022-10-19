@@ -80,7 +80,7 @@ resource "null_resource" "init_repo" {
           "git checkout -b main",
           "git push -u origin main -o ci.skip",
           "git remote set-url origin %s",
-          "git checkout develop",
+          "git checkout develop"
         ]),
         replace(
           gitlab_project.main.http_url_to_repo,
@@ -119,7 +119,7 @@ resource "gitlab_tag_protection" "tags" {
 
 /* Badges */
 
-resource "gitlab_project_badge" "root_group_coverage" {
+resource "gitlab_project_badge" "coverage" {
   count = local.pages_base_url != "" ? 1 : 0
 
   project   = gitlab_project.main.id
