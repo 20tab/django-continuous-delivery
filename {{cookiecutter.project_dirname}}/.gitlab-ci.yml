@@ -192,8 +192,8 @@ pact-verify-webhook:
     {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $PACT_ENABLED == "true"
-      allow_failure: true{% if cookiecutter.use_vault == "true" %}
-  before_script:
+      allow_failure: true
+  before_script:{% if cookiecutter.use_vault == "true" %}
     - *vault-pact-broker-url{% else %}
     - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"{% endif %}
   script:
