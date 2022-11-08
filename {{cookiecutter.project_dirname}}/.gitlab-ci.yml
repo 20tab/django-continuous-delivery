@@ -65,17 +65,17 @@ variables:
       docker run --rm
       -v ${PWD}:${PWD}
       -w ${PWD}
-      -e CI_ENVIRONMENT_NAME{% if cookiecutter.use_vault %}
+      -e CI_ENVIRONMENT_NAME{% if cookiecutter.use_vault == "true" %}
       -e CI_JOB_JWT_V2
       -e ENV_SLUG{% endif %}
       -e PROJECT_SLUG
       -e RELEASE_END
-      -e RELEASE_START{% if not cookiecutter.use_vault %}
+      -e RELEASE_START{% if cookiecutter.use_vault == "false" %}
       -e SENTRY_AUTH_TOKEN
       -e SENTRY_DSN{% endif %}
       -e SENTRY_ORG
       -e SENTRY_PROJECT_NAME
-      -e SENTRY_URL{% if cookiecutter.use_vault %}
+      -e SENTRY_URL{% if cookiecutter.use_vault == "true" %}
       -e SERVICE_SLUG={{ cookiecutter.service_slug }}
       -e VAULT_ADDR{% endif %}
       -e VERSION_REF
@@ -159,7 +159,7 @@ pact-verify-test:
     - if: $PACT_ENABLED == "true"
       allow_failure: true
   before_script:
-    - if [ "${CI_COMMIT_BRANCH}" ]; then PACT_CONSUMER_TAG="branch:${CI_COMMIT_BRANCH}"; else PACT_CONSUMER_TAG="tag:${CI_COMMIT_TAG}"; fi{% if cookiecutter.use_vault %}
+    - if [ "${CI_COMMIT_BRANCH}" ]; then PACT_CONSUMER_TAG="branch:${CI_COMMIT_BRANCH}"; else PACT_CONSUMER_TAG="tag:${CI_COMMIT_TAG}"; fi{% if cookiecutter.use_vault == "true" %}
     - &vault-pact-broker-url >
       export PACT_BROKER_URL=`docker run --rm
       -e VAULT_ADDR
@@ -192,7 +192,7 @@ pact-verify-webhook:
     {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $PACT_ENABLED == "true"
-      allow_failure: true{% if cookiecutter.use_vault %}
+      allow_failure: true{% if cookiecutter.use_vault == "true" %}
   before_script:
     - *vault-pact-broker-url{% else %}
     - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"{% endif %}
@@ -229,13 +229,13 @@ pages:
     - >
       docker run --rm
       -v ${PWD}:${PWD}
-      -w ${PWD}{% if cookiecutter.use_vault %}
+      -w ${PWD}{% if cookiecutter.use_vault == "true" %}
       -e CI_JOB_JWT_V2
       -e ENV_SLUG{% else %}
       -e PACT_BROKER_BASE_URL
       -e PACT_BROKER_PASSWORD
       -e PACT_BROKER_USERNAME{% endif %}
-      -e PROJECT_SLUG{% if cookiecutter.use_vault %}
+      -e PROJECT_SLUG{% if cookiecutter.use_vault == "true" %}
       -e VAULT_ADDR{% endif %}
       --entrypoint=""
       pactfoundation/pact-cli:latest-node14 ./scripts/ci_pact.sh ${PACT_CMD}
@@ -335,7 +335,7 @@ build_production:
       -w ${PWD}{% if cookiecutter.terraform_backend == "gitlab" %}
       -e CI_API_V4_URL
       -e CI_COMMIT_SHA
-      -e CI_JOB_ID{% if cookiecutter.use_vault %}
+      -e CI_JOB_ID{% if cookiecutter.use_vault == "true" %}
       -e CI_JOB_JWT_V2{% endif %}
       -e CI_JOB_STAGE
       -e CI_JOB_TOKEN
@@ -343,7 +343,7 @@ build_production:
       -e CI_PROJECT_NAME
       -e CI_PROJECT_NAMESPACE
       -e CI_PROJECT_PATH
-      -e CI_PROJECT_URL{% elif cookiecutter.use_vault %}
+      -e CI_PROJECT_URL{% elif cookiecutter.use_vault == "true" %}
       -e CI_JOB_JWT_V2{% endif %}
       -e ENV_SLUG
       -e PROJECT_DIR=${CI_PROJECT_DIR}
@@ -353,7 +353,7 @@ build_production:
       -e TERRAFORM_EXTRA_VAR_FILE=${ENV_SLUG}.tfvars
       -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars
       -e TF_ROOT=${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}{% if cookiecutter.terraform_backend == "gitlab" %}
-      -e TF_STATE_NAME="env_${ENV_SLUG}"{% endif %}{% if not cookiecutter.use_vault %}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
+      -e TF_STATE_NAME="env_${ENV_SLUG}"{% endif %}{% if cookiecutter.use_vault == "false" %}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
       -e TF_VAR_email_url="${EMAIL_URL}"
       -e TF_VAR_service_slug="{{ cookiecutter.service_slug }}"{% if cookiecutter.deployment_type == "other-k8s" %}
@@ -367,8 +367,8 @@ build_production:
       -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}
       -e TF_VAR_sentry_dsn="${SENTRY_DSN}"{% endif %}
       -e TF_VAR_service_container_image{% if cookiecutter.terraform_backend != "gitlab" %}
-      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and not cookiecutter.use_vault %}
-      -e TFC_TOKEN{% endif %}{% if cookiecutter.use_vault %}
+      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and cookiecutter.use_vault == "false" %}
+      -e TFC_TOKEN{% endif %}{% if cookiecutter.use_vault == "true" %}
       -e VAULT_ADDR
       -e VAULT_ENV_SECRETS="email sentry_backend"
       -e VAULT_STACK_SECRETS="digitalocean k8s s3"
