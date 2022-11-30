@@ -370,8 +370,8 @@ build_production:
       -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and cookiecutter.use_vault == "false" %}
       -e TFC_TOKEN{% endif %}{% if cookiecutter.use_vault == "true" %}
       -e VAULT_ADDR
-      -e VAULT_ROLE="backend-${ENV_SLUG}"
-      -e VAULT_SECRETS="digitalocean email k8s s3 backend/extra backend/sentry"
+      -e VAULT_ROLE="{{ cookiecutter.service_slug }}-${ENV_SLUG}"
+      -e VAULT_SECRETS="digitalocean email k8s s3 {{ cookiecutter.service_slug }}/extra {{ cookiecutter.service_slug }}/sentry"
       -e VAULT_SECRETS_PREFIX="envs/${CI_ENVIRONMENT_NAME}"
       -e VAULT_VERSION{% endif %}
       registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
