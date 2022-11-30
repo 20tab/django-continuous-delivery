@@ -19,6 +19,7 @@ omit = [
     "{{cookiecutter.django_settings_dirname}}/workers.py",
     "{{cookiecutter.django_settings_dirname}}/wsgi.py",
     "manage*.py",
+    "pact/*",
     "venv/*",
 ]
 source = ["."]
@@ -30,7 +31,10 @@ default_section = "THIRDPARTY"
 known_first_party = [
     "{{ cookiecutter.django_settings_dirname }}",
 ]
-known_third_party = "django"
+known_third_party = [
+    "django",
+    "pact",
+]
 profile = "black"
 skip = [
     ".vscode-server",
