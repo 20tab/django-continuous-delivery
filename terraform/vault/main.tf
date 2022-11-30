@@ -2,12 +2,24 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "3.7.0"
+      version = "~>3.11.0"
     }
   }
 }
 
-provider "vault" {}
+provider "vault" {
+  address = var.vault_address
+
+  token = var.vault_token
+
+  dynamic "auth_login_oidc" {
+    for_each = var.vault_token == "" ? ["default"] : []
+
+    content {
+      role = auth_login_oidc.value
+    }
+  }
+}
 
 /* Secrets */
 

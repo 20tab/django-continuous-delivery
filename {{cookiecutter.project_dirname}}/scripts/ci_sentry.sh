@@ -3,14 +3,11 @@
 if [ "${VAULT_ADDR}" != "" ]; then
   apk update && apk add curl jq
 
-  curl https://releases.hashicorp.com/vault/${VAULT_VERSION:=1.11.0}/vault_${VAULT_VERSION}_linux_386.zip --output vault.zip
-  unzip vault.zip
+  export VAULT_TOKEN=`curl --silent --request POST --data "role=pact" --data "jwt=${CI_JOB_JWT_V2}" ${VAULT_ADDR%/}/v1/auth/gitlab-jwt/login | jq -r .auth.client_token`
 
-  export VAULT_TOKEN=`./vault write -field=token auth/gitlab-jwt-${PROJECT_SLUG}/login role=envs-${ENV_SLUG} jwt=${CI_JOB_JWT_V2}`
+  export SENTRY_AUTH_TOKEN=`curl --silent --header "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR%/}/v1/${PROJECT_SLUG}/envs/${ENV_NAME}/sentry | jq -r .data.sentry_auth_token`
 
-  export SENTRY_AUTH_TOKEN=`./vault kv get -format='json' -field=data ${PROJECT_SLUG}/envs/${ENV_SLUG}/sentry | jq -r .sentry_auth_token`
-
-  export SENTRY_DSN=`./vault kv get -format='json' -field=data ${PROJECT_SLUG}/envs/${ENV_SLUG}/sentry_${SERVICE_SLUG} | jq -r .sentry_dsn`
+  export SENTRY_DSN=`curl --silent --header "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR%/}/v1/${PROJECT_SLUG}/envs/${ENV_NAME}/${SERVICE_SLUG}/sentry | jq -r .data.sentry_dsn`
 fi
 
 case "${1}" in

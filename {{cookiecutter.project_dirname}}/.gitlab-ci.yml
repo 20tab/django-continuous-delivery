@@ -16,7 +16,7 @@ variables:
   SENTRY_PROJECT_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
   VERSION_BEFORE_REF: ${CI_COMMIT_BEFORE_SHA}
   VERSION_REF: ${CI_COMMIT_SHA}
-
+{% with env=cookiecutter.resources.envs[0] %}
 .development:
   rules: &development-rules
     - &pipeline-push-rule
@@ -25,36 +25,36 @@ variables:
     - &development-rule
       if: $CI_COMMIT_BRANCH == "develop"
       variables:
-        ENV_SLUG: dev
-        STACK_SLUG: {{ cookiecutter.environments_stacks.dev }}
+        ENV_SLUG: {{ env.slug }}
+        STACK_SLUG: {{ env.stack_slug }}
   environment:
-    name: Development{% if cookiecutter.project_url_dev %}
-    url: {{ cookiecutter.project_url_dev }}{% endif %}
-
+    name: {{ env.name }}{% if env.url %}
+    url: {{ env.url }}{% endif %}
+{% endwith %}{% with env=cookiecutter.resources.envs[1] %}
 .staging:
   rules: &staging-rules
     - <<: *pipeline-push-rule
     - &staging-rule
       if: $CI_COMMIT_BRANCH == "main"
       variables:
-        ENV_SLUG: stage
-        STACK_SLUG: {{ cookiecutter.environments_stacks.stage }}
+        ENV_SLUG: {{ env.slug }}
+        STACK_SLUG: {{ env.stack_slug }}
   environment:
-    name: Staging{% if cookiecutter.project_url_stage %}
-    url: {{ cookiecutter.project_url_stage }}{% endif %}
-
+    name: {{ env.name }}{% if env.url %}
+    url: {{ env.url }}{% endif %}
+{% endwith %}{% with env=cookiecutter.resources.envs[2] %}
 .production:
   rules: &production-rules
     - <<: *pipeline-push-rule
     - &production-rule
       if: $CI_COMMIT_TAG
       variables:
-        ENV_SLUG: prod
-        STACK_SLUG: {{ cookiecutter.environments_stacks.prod }}
+        ENV_SLUG: {{ env.slug }}
+        STACK_SLUG: {{ env.stack_slug }}
   environment:
-    name: Production{% if cookiecutter.project_url_prod %}
-    url: {{ cookiecutter.project_url_prod }}{% endif %}
-
+    name: {{ env.name }}{% if env.url %}
+    url: {{ env.url }}{% endif %}
+{% endwith %}
 .sentry:
   stage: .pre
   image: docker:20
@@ -67,7 +67,7 @@ variables:
       -w ${PWD}
       -e CI_ENVIRONMENT_NAME{% if cookiecutter.use_vault == "true" %}
       -e CI_JOB_JWT_V2
-      -e ENV_SLUG{% endif %}
+      -e ENV_NAME=${CI_ENVIRONMENT_NAME}{% endif %}
       -e PROJECT_SLUG
       -e RELEASE_END
       -e RELEASE_START{% if cookiecutter.use_vault == "false" %}
@@ -370,8 +370,9 @@ build_production:
       -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and cookiecutter.use_vault == "false" %}
       -e TFC_TOKEN{% endif %}{% if cookiecutter.use_vault == "true" %}
       -e VAULT_ADDR
-      -e VAULT_ENV_SECRETS="email sentry_backend"
-      -e VAULT_STACK_SECRETS="digitalocean k8s s3"
+      -e VAULT_ROLE="backend-${ENV_SLUG}"
+      -e VAULT_SECRETS="digitalocean email k8s s3 backend/extra backend/sentry"
+      -e VAULT_SECRETS_PREFIX="envs/${CI_ENVIRONMENT_NAME}"
       -e VAULT_VERSION{% endif %}
       registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
   artifacts:
