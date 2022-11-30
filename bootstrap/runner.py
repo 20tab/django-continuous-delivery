@@ -67,7 +67,6 @@ class Runner:
     terraform_cloud_organization: str | None = None
     terraform_cloud_organization_create: bool | None = None
     terraform_cloud_admin_email: str | None = None
-    vault_token: str | None = None
     vault_url: str | None = None
     sentry_dsn: str | None = None
     sentry_org: str | None = None
@@ -169,7 +168,7 @@ class Runner:
                 ("SENTRY_URL", self.sentry_url),
                 ("SENTRY_ENABLED", "true"),
             )
-        if not self.vault_token:
+        if not self.vault_url:
             self.collect_gitlab_variables_secrets()
 
     def collect_gitlab_variables_secrets(self):
@@ -512,6 +511,6 @@ class Runner:
             self.init_terraform_cloud()
         if self.gitlab_group_path:
             self.init_gitlab()
-        if self.vault_token:
+        if self.vault_url:
             self.init_vault()
         self.change_output_owner()
