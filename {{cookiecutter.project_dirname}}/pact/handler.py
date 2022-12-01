@@ -82,10 +82,10 @@ class ProviderStatesHandler:
         """Clean up after handling states."""
         self.context.cleanup()
 
-    def run(self, name, **params):
+    def run(self, provider_state_name, **params):
         """Set up the given provider state."""
         self.context.set_default_freezer()
-        for handler_name in name.split("/"):
+        for handler_name in provider_state_name.split("/"):
             self.handle(handler_name.strip(), self.context, **params)
 
 
