@@ -3,6 +3,14 @@ target-version = ["py310"]
 
 [tool.isort]
 atomic = true
+combine_as_imports = true
+default_section = "THIRDPARTY"
+known_local_folder = [
+    "pacts",
+]
+known_third_party = [
+    "django",
+]
 profile = "black"
 
 [tool.mypy]
