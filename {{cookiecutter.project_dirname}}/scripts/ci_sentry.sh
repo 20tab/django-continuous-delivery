@@ -1,7 +1,11 @@
 #!/bin/sh -e
 
+apk update && apk add git
+
+git config --global --add safe.directory ${PROJECT_DIR}
+
 if [ "${VAULT_ADDR}" != "" ]; then
-  apk update && apk add curl jq
+  apk add curl jq
 
   export VAULT_TOKEN=`curl --silent --request POST --data "role=pact" --data "jwt=${CI_JOB_JWT_V2}" ${VAULT_ADDR%/}/v1/auth/gitlab-jwt/login | jq -r .auth.client_token`
 

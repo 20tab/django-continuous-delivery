@@ -68,6 +68,7 @@ variables:
       -e CI_ENVIRONMENT_NAME{% if cookiecutter.use_vault == "true" %}
       -e CI_JOB_JWT_V2
       -e ENV_NAME=${CI_ENVIRONMENT_NAME}{% endif %}
+      -e PROJECT_DIR=${CI_PROJECT_DIR}
       -e PROJECT_SLUG
       -e RELEASE_END
       -e RELEASE_START{% if cookiecutter.use_vault == "false" %}
