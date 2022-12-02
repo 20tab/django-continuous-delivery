@@ -330,6 +330,8 @@ build_production:
     name: docker:20
   services:
     - docker:20-dind
+  variables:
+    TF_ROOT: ${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
   before_script:
     - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
   script:
@@ -357,7 +359,7 @@ build_production:
       -e TERRAFORM_BACKEND={{ cookiecutter.terraform_backend }}
       -e TERRAFORM_EXTRA_VAR_FILE=${ENV_SLUG}.tfvars
       -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars
-      -e TF_ROOT=${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}{% if cookiecutter.terraform_backend == "gitlab" %}
+      -e TF_ROOT{% if cookiecutter.terraform_backend == "gitlab" %}
       -e TF_STATE_NAME="env_${ENV_SLUG}"{% endif %}{% if cookiecutter.use_vault == "false" %}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
       -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
       -e TF_VAR_email_url="${EMAIL_URL}"
