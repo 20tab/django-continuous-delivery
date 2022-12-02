@@ -1,0 +1,1 @@
+"""Pact contract testing resources."""
