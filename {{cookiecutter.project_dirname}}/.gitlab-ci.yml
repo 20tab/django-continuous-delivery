@@ -27,6 +27,7 @@ variables:
       variables:
         ENV_SLUG: {{ env.slug }}
         STACK_SLUG: {{ env.stack_slug }}
+        VAULT_ROLE: {{ cookiecutter.service_slug }}-{{ env.slug }}
   environment:
     name: {{ env.name }}{% if env.url %}
     url: {{ env.url }}{% endif %}
@@ -39,6 +40,7 @@ variables:
       variables:
         ENV_SLUG: {{ env.slug }}
         STACK_SLUG: {{ env.stack_slug }}
+        VAULT_ROLE: {{ cookiecutter.service_slug }}-{{ env.slug }}
   environment:
     name: {{ env.name }}{% if env.url %}
     url: {{ env.url }}{% endif %}
@@ -51,6 +53,7 @@ variables:
       variables:
         ENV_SLUG: {{ env.slug }}
         STACK_SLUG: {{ env.stack_slug }}
+        VAULT_ROLE: {{ cookiecutter.service_slug }}-{{ env.slug }}
   environment:
     name: {{ env.name }}{% if env.url %}
     url: {{ env.url }}{% endif %}
@@ -78,7 +81,8 @@ variables:
       -e SENTRY_PROJECT_NAME
       -e SENTRY_URL{% if cookiecutter.use_vault == "true" %}
       -e SERVICE_SLUG={{ cookiecutter.service_slug }}
-      -e VAULT_ADDR{% endif %}
+      -e VAULT_ADDR
+      -e VAULT_ROLE{% endif %}
       -e VERSION_REF
       --entrypoint=""
       getsentry/sentry-cli:latest ./scripts/ci_sentry.sh ${SENTRY_CMD}
@@ -371,7 +375,7 @@ build_production:
       -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and cookiecutter.use_vault == "false" %}
       -e TFC_TOKEN{% endif %}{% if cookiecutter.use_vault == "true" %}
       -e VAULT_ADDR
-      -e VAULT_ROLE="{{ cookiecutter.service_slug }}-${ENV_SLUG}"
+      -e VAULT_ROLE
       -e VAULT_SECRETS="digitalocean email k8s s3 {{ cookiecutter.service_slug }}/extra {{ cookiecutter.service_slug }}/sentry"
       -e VAULT_SECRETS_PREFIX="envs/${CI_ENVIRONMENT_NAME}"
       -e VAULT_VERSION{% endif %}
