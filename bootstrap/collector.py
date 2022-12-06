@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
+import re
 from functools import partial
 from shutil import rmtree
 
@@ -15,6 +16,7 @@ from bootstrap.constants import (
     ENVIRONMENT_DISTRIBUTION_CHOICES,
     ENVIRONMENT_DISTRIBUTION_DEFAULT,
     ENVIRONMENT_DISTRIBUTION_PROMPT,
+    GITLAB_URL_DEFAULT,
     MEDIA_STORAGE_CHOICES,
     MEDIA_STORAGE_DIGITALOCEAN_S3,
     TERRAFORM_BACKEND_CHOICES,
@@ -53,8 +55,9 @@ def collect(
     sentry_url,
     media_storage,
     use_redis,
+    gitlab_url,
     gitlab_private_token,
-    gitlab_group_slug,
+    gitlab_group_path,
     terraform_dir,
     logs_dir,
     quiet,
@@ -101,13 +104,13 @@ def collect(
     )
     media_storage = clean_media_storage(media_storage)
     use_redis = clean_use_redis(use_redis)
-    gitlab_group_slug, gitlab_private_token = clean_gitlab_group_data(
-        project_slug,
-        gitlab_group_slug,
+    gitlab_url, gitlab_private_token, gitlab_group_path = clean_gitlab_data(
+        gitlab_url,
         gitlab_private_token,
+        gitlab_group_path,
         quiet,
     )
-    if gitlab_group_slug:
+    if gitlab_group_path:
         (sentry_org, sentry_url, sentry_dsn) = clean_sentry_data(
             sentry_org, sentry_url, sentry_dsn
         )
@@ -140,8 +143,9 @@ def collect(
         "sentry_url": sentry_url,
         "media_storage": media_storage,
         "use_redis": use_redis,
+        "gitlab_url": gitlab_url,
         "gitlab_private_token": gitlab_private_token,
-        "gitlab_group_slug": gitlab_group_slug,
+        "gitlab_group_path": gitlab_group_path,
         "terraform_dir": terraform_dir,
         "logs_dir": logs_dir,
     }
@@ -173,19 +177,6 @@ def validate_or_prompt_email(message, value=None, default=None, required=True):
     return validate_or_prompt_email(message, None, default, required)
 
 
-def validate_or_prompt_url(message, value=None, default=None, required=True):
-    """Validate the given URL or prompt until a valid value is provided."""
-    if value is None:
-        value = click.prompt(message, default=default)
-    try:
-        if not required and value == "" or validators.url(value):
-            return value.strip("/")
-    except validators.ValidationFailure:
-        pass
-    click.echo(error("Please type a valid URL!"))
-    return validate_or_prompt_url(message, None, default, required)
-
-
 def validate_or_prompt_password(message, value=None, default=None, required=True):
     """Validate the given password or prompt until a valid value is provided."""
     if value is None:
@@ -197,6 +188,41 @@ def validate_or_prompt_password(message, value=None, default=None, required=True
         pass
     click.echo(error("Please type at least 8 chars!"))
     return validate_or_prompt_password(message, None, default, required)
+
+
+def validate_or_prompt_path(message, value=None, default=None, required=True):
+    """Validate the given path or prompt until a valid path is provided."""
+    if value is None:
+        value = click.prompt(message, default=default)
+    try:
+        if (
+            not required
+            and value == ""
+            or re.match(r"^(?:[\w_\-]+)(?:\/[\w_\-]+)*\/?$", value)
+        ):
+            return value.rstrip("/")
+    except validators.ValidationFailure:
+        pass
+    click.echo(
+        error(
+            "Please type a valid slash-separated path containing letters, digits, "
+            "dashes and underscores!"
+        )
+    )
+    return validate_or_prompt_path(message, None, default, required)
+
+
+def validate_or_prompt_url(message, value=None, default=None, required=True):
+    """Validate the given URL or prompt until a valid value is provided."""
+    if value is None:
+        value = click.prompt(message, default=default)
+    try:
+        if not required and value == "" or validators.url(value):
+            return value.strip("/")
+    except validators.ValidationFailure:
+        pass
+    click.echo(error("Please type a valid URL!"))
+    return validate_or_prompt_url(message, None, default, required)
 
 
 def clean_project_slug(project_name, project_slug):
@@ -405,31 +431,35 @@ def clean_use_redis(use_redis):
     return bool(use_redis)
 
 
-def clean_gitlab_group_data(
-    project_slug,
-    gitlab_group_slug,
+def clean_gitlab_data(
+    gitlab_url,
     gitlab_private_token,
+    gitlab_group_path,
     quiet=False,
 ):
     """Return GitLab group data."""
-    if gitlab_group_slug or (
-        gitlab_group_slug is None
+    if gitlab_group_path or (
+        gitlab_group_path is None
         and click.confirm(warning("Do you want to use GitLab?"), default=True)
     ):
-        gitlab_group_slug = slugify(
-            gitlab_group_slug or click.prompt("GitLab group slug", default=project_slug)
-        )
-        quiet or click.confirm(
-            warning(
-                f'Make sure the GitLab "{gitlab_group_slug}" group exists '
-                "before proceeding. Continue?"
-            ),
-            abort=True,
+        gitlab_url = validate_or_prompt_url(
+            "GitLab URL", gitlab_url, default=GITLAB_URL_DEFAULT
         )
         gitlab_private_token = gitlab_private_token or click.prompt(
             "GitLab private token (with API scope enabled)", hide_input=True
         )
+        gitlab_group_path = validate_or_prompt_path(
+            "GitLab group full path", gitlab_group_path
+        )
+        quiet or click.confirm(
+            warning(
+                f'Make sure the GitLab "{gitlab_group_path}" group exists '
+                "before proceeding. Continue?"
+            ),
+            abort=True,
+        )
     else:
-        gitlab_group_slug = None
+        gitlab_url = None
         gitlab_private_token = None
-    return (gitlab_group_slug, gitlab_private_token)
+        gitlab_group_path = None
+    return (gitlab_url, gitlab_private_token, gitlab_group_path)

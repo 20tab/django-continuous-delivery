@@ -18,6 +18,7 @@ from bootstrap.constants import (
     DEV_ENV_NAME,
     DEV_ENV_SLUG,
     DEV_STACK_SLUG,
+    GITLAB_URL_DEFAULT,
     MAIN_STACK_SLUG,
     PROD_ENV_NAME,
     PROD_ENV_SLUG,
@@ -68,8 +69,9 @@ class Runner:
     sentry_url: str | None = None
     media_storage: str
     use_redis: bool = False
+    gitlab_url: str | None = None
+    gitlab_group_path: str | None = None
     gitlab_private_token: str | None = None
-    gitlab_group_slug: str | None = None
     uid: int | None = None
     gid: int | None = None
     terraform_dir: Path | None = None
@@ -79,26 +81,20 @@ class Runner:
     environments_stacks: dict = field(init=False, default_factory=dict)
     gitlab_variables: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
-    vault_project_path: str = field(init=False, default="")
     vault_secrets: dict = field(init=False, default_factory=dict)
     terraform_run_modules: list = field(init=False, default_factory=list)
     terraform_outputs: dict = field(init=False, default_factory=dict)
 
     def __post_init__(self):
         """Finalize initialization."""
+        self.gitlab_url = self.gitlab_url and self.gitlab_url.rstrip("/")
         self.run_id = f"{time():.0f}"
         self.terraform_dir = self.terraform_dir or Path(f".terraform/{self.run_id}")
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
-        self.set_vault_project_path()
         self.set_stacks_environments()
         self.set_environments_stacks()
         self.collect_tfvars()
         self.collect_gitlab_variables()
-
-    def set_vault_project_path(self):
-        """Set the Vault project path."""
-        if self.vault_url:
-            self.vault_project_path = self.gitlab_group_slug or self.project_slug
 
     def set_stacks_environments(self):
         """Set a dict with the environments distribution per stack."""
@@ -264,8 +260,8 @@ class Runner:
                 "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
-                "use_redis": self.use_redis,
-                "vault_project_path": self.vault_project_path,
+                "use_redis": self.use_redis and "true" or "false",
+                "use_vault": self.vault_url and "true" or "false",
             },
             output_dir=self.output_dir,
             no_input=True,
@@ -331,13 +327,17 @@ class Runner:
         click.echo(info("...creating the GitLab resources"))
         env = dict(
             TF_VAR_gitlab_token=self.gitlab_private_token,
-            TF_VAR_group_slug=self.gitlab_group_slug,
+            TF_VAR_gitlab_url=self.gitlab_url,
+            TF_VAR_group_path=self.gitlab_group_path,
             TF_VAR_group_variables=self.render_gitlab_variables_to_string("group"),
             TF_VAR_project_name=self.project_name,
             TF_VAR_project_slug=self.project_slug,
             TF_VAR_project_variables=self.render_gitlab_variables_to_string("project"),
             TF_VAR_service_dir=self.service_dir,
             TF_VAR_service_slug=self.service_slug,
+        )
+        self.gitlab_url != GITLAB_URL_DEFAULT and env.update(
+            GITLAB_BASE_URL=f"{self.gitlab_url}/api/v4/"
         )
         self.run_terraform("gitlab", env)
 
@@ -346,7 +346,7 @@ class Runner:
         click.echo(info("...creating the Vault resources with Terraform"))
         self.collect_vault_secrets()
         env = dict(
-            TF_VAR_project_path=self.vault_project_path,
+            TF_VAR_project_slug=self.project_slug,
             TF_VAR_secrets=json.dumps(self.vault_secrets),
             VAULT_ADDR=self.vault_url,
             VAULT_TOKEN=self.vault_token,
@@ -486,6 +486,17 @@ class Runner:
             {module_name: self.get_terraform_outputs(cwd, env, outputs)}
         )
 
+    def make_sed(self, file_path, placeholder, replace_value):
+        """Replace a placeholder value with a given one in a given file."""
+        subprocess.run(
+            [
+                "sed",
+                "-i",
+                f"s/{placeholder}/{replace_value}/",
+                str(self.output_dir / self.project_dirname / file_path),
+            ]
+        )
+
     def change_output_owner(self):
         """Change the owner of the output directory recursively."""
         if self.uid:
@@ -507,7 +518,7 @@ class Runner:
         self.compile_requirements()
         self.create_static_directory()
         self.media_storage == "local" and self.create_media_directory()
-        if self.gitlab_group_slug:
+        if self.gitlab_group_path:
             self.init_gitlab()
         if self.terraform_backend == TERRAFORM_BACKEND_TFC:
             self.init_terraform_cloud()

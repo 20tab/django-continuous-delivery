@@ -210,7 +210,7 @@ Disabled args
 For enabling gitlab integration the following arguments are needed:
 
 `--gitlab-private-token={{gitlab-private-token}}`<br/>
-`--gitlab-group-slug={{gitlab-group-slug}}`
+`--gitlab-group-path={{gitlab-group-path}}`
 
 #### 🪖 Sentry
 
