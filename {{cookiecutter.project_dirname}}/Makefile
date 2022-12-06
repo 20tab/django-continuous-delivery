@@ -123,9 +123,9 @@ CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 .PHONY: verifypacts
 verifypacts:  ## Verify pact for all environments consumer tags
 	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:development"
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:staging"
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:production"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:dev"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:stage"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:prod"
 
 .PHONY: verifybranchpacts
 verifybranchpacts:  ## Verify pact for the current branch consumer tag

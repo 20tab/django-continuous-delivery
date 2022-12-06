@@ -43,7 +43,7 @@ terraform {
   required_providers {
     tfe = {
       source  = "hashicorp/tfe"
-      version = "~> 0.32"
+      version = "~> 0.37"
     }
   }
 }
@@ -52,7 +52,6 @@ provider "tfe" {
   hostname = var.hostname
   token    = var.terraform_cloud_token
 }
-
 
 /* Organization */
 

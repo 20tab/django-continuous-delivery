@@ -8,7 +8,7 @@ from unittest import TestCase, mock
 from bootstrap.collector import (
     clean_deployment_type,
     clean_environment_distribution,
-    clean_gitlab_group_data,
+    clean_gitlab_data,
     clean_media_storage,
     clean_project_dirname,
     clean_project_slug,
@@ -57,28 +57,46 @@ class TestBootstrapCollector(TestCase):
                 clean_environment_distribution(None, "digitalocean-k8s"), "3"
             )
 
-    def test_clean_gitlab_group_data(self):
+    def test_clean_gitlab_data(self):
         """Test cleaning the GitLab group data."""
         with input("Y"):
             self.assertEqual(
-                clean_gitlab_group_data(
-                    "my-project", "my-gitlab-group", "mYV4l1DT0k3N"
+                clean_gitlab_data(
+                    "https://gitlab.com/",
+                    "mYV4l1DT0k3N",
+                    "my-gitlab-group",
                 ),
-                ("my-gitlab-group", "mYV4l1DT0k3N"),
+                ("https://gitlab.com", "mYV4l1DT0k3N", "my-gitlab-group"),
             )
-        with input("Y", "my-gitlab-group", "Y"):
+        with input(
+            "Y", "https://gitlab.com", "/wrong/", "parent-group/my-project-group", "Y"
+        ):
             self.assertEqual(
-                clean_gitlab_group_data("my-project", None, "mYV4l1DT0k3N"),
-                ("my-gitlab-group", "mYV4l1DT0k3N"),
+                clean_gitlab_data(
+                    None,
+                    "mYV4l1DT0k3N",
+                    None,
+                ),
+                (
+                    "https://gitlab.com",
+                    "mYV4l1DT0k3N",
+                    "parent-group/my-project-group",
+                ),
             )
-        with input("Y", "my-gitlab-group", "Y", {"hidden": "mYV4l1DT0k3N"}):
+        with input(
+            "Y",
+            "https://gitlab.com",
+            {"hidden": "mYV4l1DT0k3N"},
+            "my-project-group",
+            "Y",
+        ):
             self.assertEqual(
-                clean_gitlab_group_data("my-project", None, None),
-                ("my-gitlab-group", "mYV4l1DT0k3N"),
+                clean_gitlab_data(None, None, None),
+                ("https://gitlab.com", "mYV4l1DT0k3N", "my-project-group"),
             )
         self.assertEqual(
-            clean_gitlab_group_data("my-project", "", ""),
-            (None, None),
+            clean_gitlab_data("", "", ""),
+            (None, None, None),
         )
 
     def test_clean_media_storage(self):
