@@ -17,7 +17,7 @@ fi
 case "${1}" in
   "release")
     sentry-cli releases new ${VERSION_REF} -p ${SENTRY_PROJECT_NAME} --log-level=debug;
-    sentry-cli releases set-commits ${VERSION_REF} --auto;
+    sentry-cli releases set-commits ${VERSION_REF} --auto --ignore-missing;
     sentry-cli releases finalize ${VERSION_REF};
   ;;
   "success")
