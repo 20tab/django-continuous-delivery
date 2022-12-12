@@ -1,9 +1,11 @@
 """Pact provider state handler."""
 
 import re
+import shutil
 from datetime import datetime
 
 import time_machine
+from django.conf import settings
 from django.utils.text import slugify
 from pactman.verifier.verify import ProviderStateMissing
 
@@ -35,6 +37,7 @@ class ProviderStatesContext(dict):
     def cleanup(self):
         """Clean up the context."""
         self.freezer and self.freezer.stop()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
         [i.stop() for i in self.patchers.values()]
         [i.stop() for i in self.requests_mockers.values()]
 
