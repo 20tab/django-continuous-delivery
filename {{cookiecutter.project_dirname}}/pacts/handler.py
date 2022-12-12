@@ -3,21 +3,52 @@
 import re
 import shutil
 from datetime import datetime
-from unittest.mock import patch
 
 import time_machine
 from django.conf import settings
+from django.utils.text import slugify
 from pactman.verifier.verify import ProviderStateMissing
+
+DEFAULT_DATETIME = datetime(2021, 5, 17, 8, 30, 00)
+
+
+def make_key(*args):  # pragma: no cover
+    """Make a key."""
+    return slugify("-".join(str(i) for i in args if i))
+
+
+class ProviderStatesContext(dict):
+    """A context for Provider states inizialization."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the instance."""
+        self.live_server = None
+        self.freezer = None
+        self.patchers = {}
+        self.requests_mockers = {}
+        return super().__init_subclass__()
+
+    def set_default_freezer(self):
+        """Set the default freezer."""
+        freezer = time_machine.travel(DEFAULT_DATETIME, tick=False)
+        freezer.start()
+        self.freezer = freezer
+
+    def cleanup(self):
+        """Clean up the context."""
+        self.freezer and self.freezer.stop()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+        [i.stop() for i in self.patchers.values()]
+        [i.stop() for i in self.requests_mockers.values()]
 
 
 class ProviderStatesHandler:
-    """A handler for provider states."""
+    """A Provider states handler."""
 
     def __init__(self):
         """Initialize the instance."""
         self.handlers = []
-        self.context = {}
-        self.patchers = []
+        self.context = ProviderStatesContext()
 
     def register(self, state_matcher):
         """Register the given function as a handler."""
@@ -33,50 +64,32 @@ class ProviderStatesHandler:
 
         return outer_wrapper
 
-    def add_patch(self, *args, **kwargs):
-        """Create a patcher."""
-        self.patchers.append(patch(*args, **kwargs))
+    def set_live_server(self, live_server):
+        """Set the live server in context."""
+        self.context.live_server = live_server
 
-    def init_patchers(self):
-        """Initialize the patchers."""
-        [i.start() for i in self.patchers]
-
-    def set_default_freezer(self):
-        """Set the default freezer."""
-        frozen_datetime = datetime(2021, 5, 17, 8, 30, 00)
-        freezer = time_machine.travel(frozen_datetime, tick=False)
-        freezer.start()
-        self.context["freezer"] = freezer
-
-    def handle(self, state, context):
+    def handle(self, state, context, **params):
         """Handle the given provider state."""
         handlers = iter(self.handlers)
         while True:
             try:
                 pattern, function = next(handlers)
-            except StopIteration:
-                break
-            else:
                 if result := pattern.match(state):
-                    return function(context=context, **result.groupdict())
+                    function(context=context, **params, **result.groupdict())
+                    return
+            except (StopIteration, TypeError):
+                break
         raise ProviderStateMissing(state)
 
     def tear_down(self):
         """Clean up after handling states."""
-        try:
-            self.context["freezer"].stop()
-            shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
-        except KeyError:
-            pass
-        [i.stop() for i in self.patchers]
+        self.context.cleanup()
 
-    def run(self, name, **params):
+    def run(self, provider_state_name, **params):
         """Set up the given provider state."""
-        self.context = {**params, "patchers": {}}
-        self.set_default_freezer()
-        self.init_patchers()
-        for handler_name in name.split("/"):
-            self.handle(handler_name.strip(), self.context)
+        self.context.set_default_freezer()
+        for handler_name in provider_state_name.split("/"):
+            self.handle(handler_name.strip(), self.context, **params)
 
 
 handler = ProviderStatesHandler()
