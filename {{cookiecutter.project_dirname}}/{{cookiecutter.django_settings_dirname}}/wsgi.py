@@ -9,11 +9,11 @@ https://docs.djangoproject.com/en/stable/howto/deployment/wsgi/
 
 import os
 
-os.environ.setdefault("DJANGO_CONFIGURATION", "Local")
+os.environ.setdefault("DJANGO_CONFIGURATION", "Remote")
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "{{ cookiecutter.django_settings_dirname }}.settings"
 )
 
-from configurations.wsgi import get_wsgi_application  # noqa isort:skip
+from configurations.wsgi import get_wsgi_application
 
 application = get_wsgi_application()
