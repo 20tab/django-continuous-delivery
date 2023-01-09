@@ -9,8 +9,8 @@ variable "gitlab_url" {
   type        = string
 }
 
-variable "group_slug" {
-  description = "The slug of the GitLab group."
+variable "group_path" {
+  description = "The GitLab group full path."
   type        = string
 }
 

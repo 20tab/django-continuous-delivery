@@ -69,11 +69,11 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
@@ -123,9 +123,9 @@ CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 .PHONY: verifypacts
 verifypacts:  ## Verify pact for all environments consumer tags
 	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:development"
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:staging"
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:production"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:dev"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:stage"
+	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:prod"
 
 .PHONY: verifybranchpacts
 verifybranchpacts:  ## Verify pact for the current branch consumer tag

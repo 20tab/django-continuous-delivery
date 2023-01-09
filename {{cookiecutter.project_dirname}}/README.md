@@ -40,15 +40,7 @@ To install and use virtualenv, please, visit the official [Python tutorial](http
 
 ### Git clone
 
-To get the existing project, change directory, clone the project repository and enter the newly created **{{ cookiecutter.project_slug }}** directory:
-
-```bash
-cd ~/projects/
-git clone git@gitlab.com:{{ cookiecutter.project_slug }}/{{ cookiecutter.service_slug }}.git {{ cookiecutter.project_dirname }} &&
-$ cd {{ cookiecutter.project_dirname }}
-```
-
-**NOTE** : Make sure you switch to the correct branch (e.g. `git checkout develop`)
+To get the existing project, change directory, clone the project repository and enter the newly created **{{ cookiecutter.project_slug }}** directory.
 
 ### Git hooks
 
