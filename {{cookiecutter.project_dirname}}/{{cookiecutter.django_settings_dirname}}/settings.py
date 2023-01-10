@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
 import string
+from copy import deepcopy
 from pathlib import Path
 
 import dj_database_url
