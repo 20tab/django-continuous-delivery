@@ -200,6 +200,11 @@ class Local(ProjectDefault):
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
 
+    # Kolo
+    # https://github.com/kolofordjango/kolo
+
+    MIDDLEWARE.append("kolo.middleware.KoloMiddleware")
+
     # Django Debug Toolbar
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
 
@@ -230,11 +235,7 @@ class Local(ProjectDefault):
             "disable_abstract_fields": False,
             "disable_fields": False,
             "exclude_columns": [
-                "date_joined",
-                "is_active",
-                "is_staff",
-                "is_superuser",
-                "last_login",
+                "id",
             ],
             "exclude_models": ",".join(
                 (
@@ -242,9 +243,7 @@ class Local(ProjectDefault):
                     "AbstractBaseUser",
                     "AbstractUser",
                     "ContentType",
-                    "Group",
                     "LogEntry",
-                    "Permission",
                     "PermissionsMixin",
                     "Session",
                     "UserGroup",
@@ -252,12 +251,12 @@ class Local(ProjectDefault):
             ),
             "group_models": True,
             "hide_edge_labels": True,
-            "inheritance": False,
-            "language": "it",
+            "inheritance": True,
+            "language": "en",
             "layout": "dot",
             "relations_as_fields": True,
             "theme": "django2018",
-            "verbose_names": True,
+            "verbose_names": False,
         }
 
 
@@ -344,6 +343,17 @@ class Remote(ProjectDefault):
     # https://django-configurations.readthedocs.io/en/stable/values/
 
     EMAIL = values.EmailURLValue()
+
+    # Argon2 is the winner of the 2015 Password Hashing Competition
+    # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
+
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.Argon2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+        "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+        "django.contrib.auth.hashers.ScryptPasswordHasher",
+    ]
 
     # Security
     # https://docs.djangoproject.com/en/stable/topics/security/
