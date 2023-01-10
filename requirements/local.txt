@@ -1,43 +1,111 @@
-arrow==1.2.2
+aiodns==3.0.0
+    # via checkov
+aiohttp==3.8.3
+    # via checkov
+aiomultiprocess==0.9.0
+    # via checkov
+aiosignal==1.3.1
+    # via aiohttp
+argcomplete==2.0.0
+    # via checkov
+arrow==1.2.3
     # via jinja2-time
-asttokens==2.0.5
+asttokens==2.2.1
     # via stack-data
-attrs==21.4.0
-    # via flake8-bugbear
+async-timeout==4.0.2
+    # via aiohttp
+attrs==22.2.0
+    # via
+    #   aiohttp
+    #   flake8-bugbear
+    #   jsonschema
 backcall==0.2.0
     # via ipython
+bc-detect-secrets==1.4.8
+    # via checkov
+bc-jsonpath-ng==1.5.8
+    # via checkov
+bc-python-hcl2==0.3.51
+    # via checkov
+beautifulsoup4==4.11.1
+    # via policy-sentry
 binaryornot==0.4.4
     # via cookiecutter
 black==22.3.0
     # via -r requirements/common.in
-certifi==2022.6.15
+boto3==1.26.46
+    # via
+    #   checkov
+    #   cloudsplaining
+botocore==1.29.46
+    # via
+    #   boto3
+    #   cloudsplaining
+    #   s3transfer
+cached-property==1.5.2
+    # via cloudsplaining
+cachetools==5.2.1
+    # via checkov
+certifi==2022.12.7
     # via requests
+cffi==1.15.1
+    # via pycares
 cfgv==3.3.1
     # via pre-commit
-chardet==5.0.0
+chardet==5.1.0
     # via binaryornot
-charset-normalizer==2.1.0
-    # via requests
+charset-normalizer==2.1.1
+    # via
+    #   aiohttp
+    #   checkov
+    #   requests
+checkov==2.2.252
+    # via -r requirements/test.in
 click==8.1.3
     # via
     #   -r requirements/common.in
     #   black
+    #   checkov
+    #   click-option-group
+    #   cloudsplaining
     #   cookiecutter
     #   pip-tools
+    #   policy-sentry
+click-option-group==0.5.5
+    # via cloudsplaining
+cloudsplaining==0.5.0
+    # via checkov
+colorama==0.4.6
+    # via checkov
+configargparse==1.5.3
+    # via checkov
+contextlib2==21.6.0
+    # via schema
 cookiecutter==2.1.1
     # via -r requirements/common.in
-coverage[toml]==6.4.1
+coverage[toml]==6.4.4
     # via -r requirements/test.in
+cyclonedx-python-lib==3.1.3
+    # via checkov
 decorator==5.1.1
     # via
+    #   bc-jsonpath-ng
     #   ipdb
     #   ipython
     #   validators
-distlib==0.3.4
+deep-merge==0.0.4
+    # via checkov
+distlib==0.3.6
     # via virtualenv
-executing==0.8.3
+docker==6.0.1
+    # via checkov
+dockerfile-parse==2.0.0
+    # via checkov
+dpath==1.5.0
+    # via checkov
+executing==1.2.0
     # via stack-data
-filelock==3.7.1
+filelock==3.9.0
     # via virtualenv
 flake8==4.0.1
     # via
@@ -49,47 +117,89 @@ flake8-bugbear==22.4.25
     # via -r requirements/test.in
 flake8-docstrings==1.6.0
     # via -r requirements/test.in
-flake8-isort==4.1.1
+flake8-isort==4.1.2.post0
     # via -r requirements/test.in
-identify==2.5.1
+frozenlist==1.3.3
+    # via
+    #   aiohttp
+    #   aiosignal
+gitdb==4.0.10
+    # via gitpython
+gitpython==3.1.30
+    # via checkov
+identify==2.5.12
     # via pre-commit
-idna==3.3
-    # via requests
-ipdb==0.13.9
+idna==3.4
+    # via
+    #   requests
+    #   yarl
+importlib-metadata==6.0.0
+    # via checkov
+ipdb==0.13.11
     # via -r requirements/local.in
-ipython==8.4.0
+ipython==8.8.0
     # via ipdb
 isort==5.10.1
     # via
     #   -r requirements/test.in
     #   flake8-isort
-jedi==0.18.1
+jedi==0.18.2
     # via ipython
 jinja2==3.1.2
     # via
+    #   cloudsplaining
     #   cookiecutter
     #   jinja2-time
 jinja2-time==0.2.0
     # via cookiecutter
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
+    #   checkov
+jsonschema==4.17.3
+    # via checkov
+junit-xml==1.9
+    # via checkov
+lark==1.1.5
+    # via
+    #   bc-python-hcl2
+    #   pycep-parser
+markdown==3.4.1
+    # via cloudsplaining
 markupsafe==2.1.1
     # via jinja2
-matplotlib-inline==0.1.3
+matplotlib-inline==0.1.6
     # via ipython
 mccabe==0.6.1
     # via flake8
-mypy==0.961
+multidict==6.0.4
+    # via
+    #   aiohttp
+    #   yarl
+mypy==0.991
     # via -r requirements/test.in
 mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
+networkx==2.6.3
+    # via checkov
 nodeenv==1.7.0
     # via pre-commit
+packageurl-python==0.10.4
+    # via
+    #   checkov
+    #   cyclonedx-python-lib
+packaging==23.0
+    # via
+    #   checkov
+    #   docker
 parso==0.8.3
     # via jedi
-pathspec==0.9.0
+pathspec==0.10.3
     # via black
-pep517==0.12.0
+pep517==0.13.0
     # via pip-tools
 pexpect==4.8.0
     # via ipython
@@ -97,85 +207,143 @@ pickleshare==0.7.5
     # via ipython
 pip-tools==6.6.2
     # via -r requirements/common.in
-platformdirs==2.5.2
+platformdirs==2.6.2
     # via
     #   black
     #   virtualenv
+ply==3.11
+    # via bc-jsonpath-ng
+policy-sentry==0.12.5
+    # via cloudsplaining
+policyuniverse==1.5.0.20220613
+    # via checkov
 pre-commit==2.19.0
     # via -r requirements/local.in
-prompt-toolkit==3.0.30
+prettytable==3.6.0
+    # via checkov
+prompt-toolkit==3.0.36
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
+pycares==4.3.0
+    # via aiodns
+pycep-parser==0.3.9
+    # via checkov
 pycodestyle==2.8.0
     # via flake8
-pydantic==1.9.1
+pycparser==2.21
+    # via cffi
+pydantic==1.9.2
     # via -r requirements/common.in
-pydocstyle==6.1.1
+pydocstyle==6.2.3
     # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
-pygments==2.12.0
+pygments==2.14.0
     # via ipython
+pyrsistent==0.19.3
+    # via jsonschema
 python-dateutil==2.8.2
-    # via arrow
-python-slugify==6.1.2
+    # via
+    #   arrow
+    #   botocore
+python-slugify==7.0.0
     # via cookiecutter
 pyupgrade==2.34.0
     # via -r requirements/local.in
 pyyaml==6.0
     # via
+    #   bc-detect-secrets
+    #   checkov
+    #   cloudsplaining
     #   cookiecutter
+    #   policy-sentry
     #   pre-commit
+regex==2022.10.31
+    # via pycep-parser
 requests==2.28.1
-    # via cookiecutter
+    # via
+    #   bc-detect-secrets
+    #   checkov
+    #   cookiecutter
+    #   docker
+    #   policy-sentry
+    #   update-checker
+s3transfer==0.6.0
+    # via boto3
+schema==0.7.5
+    # via
+    #   checkov
+    #   cloudsplaining
+    #   policy-sentry
+semantic-version==2.10.0
+    # via checkov
 six==1.16.0
     # via
     #   asttokens
+    #   junit-xml
     #   python-dateutil
-    #   virtualenv
+smmap==5.0.0
+    # via gitdb
 snowballstemmer==2.2.0
     # via pydocstyle
-stack-data==0.3.0
+sortedcontainers==2.4.0
+    # via cyclonedx-python-lib
+soupsieve==2.3.2.post1
+    # via beautifulsoup4
+stack-data==0.6.2
     # via ipython
-testfixtures==6.18.5
-    # via flake8-isort
+tabulate==0.9.0
+    # via checkov
+termcolor==2.2.0
+    # via checkov
 text-unidecode==1.3
     # via python-slugify
-tokenize-rt==4.2.1
+tokenize-rt==5.0.0
     # via pyupgrade
 toml==0.10.2
     # via
-    #   ipdb
+    #   cyclonedx-python-lib
     #   pre-commit
-tomli==2.0.1
-    # via
-    #   black
-    #   coverage
-    #   mypy
-    #   pep517
-traitlets==5.3.0
+tqdm==4.64.1
+    # via checkov
+traitlets==5.8.1
     # via
     #   ipython
     #   matplotlib-inline
 types-python-slugify==5.0.4
     # via -r requirements/common.in
-typing-extensions==4.3.0
+typing-extensions==4.4.0
     # via
+    #   checkov
     #   mypy
+    #   pycep-parser
     #   pydantic
-urllib3==1.26.9
-    # via requests
+update-checker==0.18.0
+    # via checkov
+urllib3==1.26.13
+    # via
+    #   botocore
+    #   docker
+    #   requests
 validators==0.20.0
     # via -r requirements/common.in
-virtualenv==20.15.1
+virtualenv==20.17.1
     # via pre-commit
 wcwidth==0.2.5
-    # via prompt-toolkit
-wheel==0.37.1
+    # via
+    #   prettytable
+    #   prompt-toolkit
+websocket-client==1.4.2
+    # via docker
+wheel==0.38.4
     # via pip-tools
+yarl==1.8.2
+    # via aiohttp
+zipp==3.11.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

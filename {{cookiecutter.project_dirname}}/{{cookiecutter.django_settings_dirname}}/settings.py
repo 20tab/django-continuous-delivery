@@ -334,6 +334,7 @@ class Remote(ProjectDefault):
 
     @property
     def DATABASES(self):
+        """Return the DATABASES for remote configurations."""
         databases = deepcopy(ProjectDefault.DATABASES)
         databases["default"][
             "DISABLE_SERVER_SIDE_CURSORS"

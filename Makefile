@@ -5,6 +5,7 @@ check:  ## Check code formatting and import sorting
 	python3 -m black --check .
 	python3 -m isort --check .
 	python3 -m flake8
+	checkov --download-external-modules=false --evaluate-variables=true --soft-fail --quiet --directory .
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
