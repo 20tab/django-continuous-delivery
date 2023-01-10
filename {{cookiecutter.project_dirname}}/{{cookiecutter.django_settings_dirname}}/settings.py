@@ -90,10 +90,10 @@ class ProjectDefault(Configuration):
 
     # Password validation
     # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
-    # fmt: off
+
     AUTH_PASSWORD_VALIDATORS = [
         {
-            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator", # noqa: E501
         },
         {
             "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -105,7 +105,7 @@ class ProjectDefault(Configuration):
             "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
         },
     ]
-    # fmt: on
+
     # Internationalization
     # https://docs.djangoproject.com/en/stable/topics/i18n/
 
@@ -204,7 +204,7 @@ class Local(ProjectDefault):
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
 
     try:
-        import debug_toolbar  # noqa
+        import debug_toolbar  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -217,7 +217,7 @@ class Local(ProjectDefault):
     # https://django-extensions.readthedocs.io/en/stable/graph_models.html
 
     try:
-        import django_extensions  # noqa
+        import django_extensions  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -301,7 +301,7 @@ class Testing(ProjectDefault):
     # https://behave-django.readthedocs.io/en/latest/installation.html
 
     try:
-        import behave_django  # noqa
+        import behave_django  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -378,7 +378,7 @@ class Remote(ProjectDefault):
     # http://whitenoise.evans.io/en/stable/django.html
 
     try:
-        import whitenoise  # noqa
+        import whitenoise  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -389,7 +389,7 @@ class Remote(ProjectDefault):
     # https://sentry.io/for/django/
 
     try:
-        import sentry_sdk  # noqa
+        import sentry_sdk
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover{% if cookiecutter.use_redis == "true" %}

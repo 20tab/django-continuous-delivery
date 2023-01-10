@@ -7,8 +7,8 @@ import sys
 def main():
     """Run administrative tasks."""
     try:
-        from dotenv import find_dotenv, load_dotenv  # noqa
-    except ModuleNotFoundError:  # pragma: no cover
+        from dotenv import find_dotenv, load_dotenv
+    except ModuleNotFoundError:
         pass
     else:
         load_dotenv(find_dotenv())  # does not override already set variables
