@@ -130,6 +130,24 @@ test:  ## Run test
 .PHONY: update
 update: pip precommit_update ## Run update
 
+.PHONY: trivy
+trivy:  ## Scan docker image vulnerabilities with trivy
+	docker run --rm \
+	--user=$$UID:`id -g` \
+	--volume /var/run/docker.sock:/var/run/docker.sock \
+	--volume $$PWD/.trivy:/app/.trivy \
+	--name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }} \
+	aquasec/trivy image \
+	--no-progress \
+	--cache-dir .trivycache/ \
+	--format template --template "@contrib/html.tpl" \
+	--output "/app/.trivy/report.html" \
+	--security-checks vuln \
+	--severity CRITICAL,HIGH,MEDIUM,LOW \
+	{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}:latest
+
+CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
 .PHONY: verifybranchpacts

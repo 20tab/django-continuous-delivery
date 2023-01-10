@@ -169,10 +169,11 @@ cython_debug/
 media/
 
 # Others
-*.bak
 .bash_history
-.local
 .ipython
+.local
+.trivy
+*.bak
 *.local*
 /data/
 /manage_local.py

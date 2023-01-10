@@ -3,6 +3,7 @@ stages:
   - Pact-verify
   - Pact-check
   - Build
+  - Deploy-check
   - Deploy
   - Pact-tag
   - Report
@@ -216,13 +217,14 @@ pact-verify-webhook:
 pages:
   stage: Report
   image: busybox
-  needs: ["test"]
+  needs: ["test", "deploy_check_development"]]
   rules:
     - <<: *pipeline-push-rule
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - mkdir public
     - mv htmlcov public/htmlcov
+    - mv trivy public/trivy
   artifacts:
     paths:
       - public
@@ -326,6 +328,59 @@ build_production:
       optional: true
     - job: test
 
+.deploy_check:
+  stage: Deploy-check
+  image:
+    name: docker/compose:debian-1.29.2
+  services:
+    - docker:20-dind
+  variables:
+    SECRET_KEY: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    ALLOWED_HOSTS: "127.0.0.1,backend,localhost"
+  script:
+    - >
+      docker run
+      -u ${UID}:`id -g`
+      -v /var/run/docker.sock:/var/run/docker.sock
+      -e GIT_STRATEGY=none
+      -e TRIVY_USERNAME="${CI_REGISTRY_USER}"
+      -e TRIVY_PASSWORD="${CI_REGISTRY_PASSWORD}"
+      -e TRIVY_AUTH_URL="${CI_REGISTRY}"
+      --name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
+      aquasec/trivy:latest image
+      --cache-dir /tmp/.trivycache/
+      --exit-code 0
+      --format template --template "@contrib/html.tpl"
+      --output "/tmp/report.html"
+      --no-progress
+      --security-checks vuln
+      ${CI_REGISTRY_IMAGE}:${VERSION_REF}
+    - mkdir trivy
+    - docker cp trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}:/tmp/report.html trivy/report.html
+    - >
+      docker-compose run --rm
+      --entrypoint=""
+      -e BACKEND_BUILD_TARGET=remote
+      -e DJANGO_ALLOWED_HOSTS="${ALLOWED_HOSTS}"
+      -e DJANGO_CONFIGURATION=Remote
+      -e DJANGO_SECRET_KEY="${SECRET_KEY}"
+      backend python3 -m manage check --deploy
+  after_script:
+    - docker rm trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
+  artifacts:
+    paths:
+      - trivy
+    when: always
+  cache:
+    paths:
+      - /tmp/.trivycache/
+
+deploy_check_development:
+  extends:
+    - .development
+    - .deploy_check
+  needs: ["build_development", "test"]
+
 .deploy:
   stage: Deploy
   image:
@@ -393,7 +448,7 @@ deploy_development:
   extends:
     - .development
     - .deploy
-  needs: ["build_development"]
+  needs: ["build_development", "deploy_check_development"]
 
 deploy_staging:
   extends:
