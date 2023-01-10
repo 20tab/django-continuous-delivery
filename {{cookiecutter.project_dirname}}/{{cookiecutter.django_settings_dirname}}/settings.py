@@ -410,6 +410,12 @@ class Remote(ProjectDefault):
     # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
 
     DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
-    ProjectDefault.DATABASES["default"][
-        "DISABLE_SERVER_SIDE_CURSORS"
-    ] = DISABLE_SERVER_SIDE_CURSORS
+
+    @property
+    def DATABASES(self):
+        databases = {**ProjectDefault.DATABASES}
+        databases["default"][
+            "DISABLE_SERVER_SIDE_CURSORS"
+        ] = DISABLE_SERVER_SIDE_CURSORS
+        return databases
+
