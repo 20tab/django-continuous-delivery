@@ -99,6 +99,26 @@ remote: pip_update  ## Install remote requirements and dependencies
 report:  ## Run coverage report
 	./scripts/report.sh
 
+.PHONY: scan_docker_image
+scan_docker_image:  ## Scan docker image vulnerabilities
+	docker run --rm \
+	--user=$$UID:`id -g` \
+	--volume /var/run/docker.sock:/var/run/docker.sock \
+	--volume $$PWD/.trivy:/app/.trivy \
+	--name trivy-{{ cookiecutter.project_slug }}-backend \
+	aquasec/trivy image \
+	--no-progress \
+	--cache-dir .trivycache/ \
+	--format template --template "@contrib/html.tpl" \
+	--output "/app/.trivy/report.html" \
+	--security-checks vuln \
+	--severity CRITICAL,HIGH,MEDIUM,LOW \
+	{{ cookiecutter.project_slug }}_backend:latest
+
+.PHONY: scan_terraform
+scan_terraform:  ## Scan terraform vulnerabilities
+	docker run --rm -v $$PWD:/iac aquasec/tfsec /iac/terraform -f html -O /iac/.tfsec/report.html --include-ignored --include-passed
+
 .PHONY: shellplus
 shellplus:  ## Run shell_plus
 	python3 -m manage shell_plus
