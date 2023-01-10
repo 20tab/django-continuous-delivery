@@ -327,6 +327,19 @@ class Remote(ProjectDefault):
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
 
+    # DB Transaction pooling and server-side cursors
+    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
+
+    DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
+
+    @property
+    def DATABASES(self):
+        databases = deepcopy(ProjectDefault.DATABASES)
+        databases["default"][
+            "DISABLE_SERVER_SIDE_CURSORS"
+        ] = self.DISABLE_SERVER_SIDE_CURSORS
+        return databases
+
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/
 
@@ -406,17 +419,3 @@ class Remote(ProjectDefault):
     AWS_STORAGE_BUCKET_NAME = values.Value()
 
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
-
-    # DB Transaction pooling and server-side cursors
-    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
-
-    DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
-
-    @property
-    def DATABASES(self):
-        databases = deepcopy(ProjectDefault.DATABASES)
-        databases["default"][
-            "DISABLE_SERVER_SIDE_CURSORS"
-        ] = self.DISABLE_SERVER_SIDE_CURSORS
-        return databases
-
