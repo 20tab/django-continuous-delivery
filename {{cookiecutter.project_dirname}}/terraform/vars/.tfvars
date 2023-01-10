@@ -3,6 +3,7 @@
 # django_additional_allowed_hosts=""
 # django_configuration="Remote"
 # django_default_from_email=""
+# django_disable_server_side_cursors="False"
 # django_server_email=""
 # s3_file_overwrite="False"
 # service_container_port="{{ cookiecutter.internal_service_port }}"

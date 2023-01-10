@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
 import string
+from copy import deepcopy
 from pathlib import Path
 
+import dj_database_url
 from configurations import Configuration, values
 
 
@@ -82,7 +84,9 @@ class ProjectDefault(Configuration):
     # Database
     # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 
-    DATABASES = values.DatabaseURLValue()
+    DATABASES = {
+        "default": dj_database_url.config(),
+    }
 
     # Password validation
     # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
@@ -322,6 +326,19 @@ class Remote(ProjectDefault):
     DEBUG = False
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
+
+    # DB Transaction pooling and server-side cursors
+    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
+
+    DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
+
+    @property
+    def DATABASES(self):
+        databases = deepcopy(ProjectDefault.DATABASES)
+        databases["default"][
+            "DISABLE_SERVER_SIDE_CURSORS"
+        ] = self.DISABLE_SERVER_SIDE_CURSORS
+        return databases
 
     # Email URL
     # https://django-configurations.readthedocs.io/en/stable/values/
