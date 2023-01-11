@@ -168,16 +168,18 @@ cython_debug/
 /static/
 media/
 
+# Ruff
+.ruff_cache
+
 # Others
-*.bak
 .bash_history
-.local
 .ipython
 .kolo
 *.local*
 /data/
 /manage_local.py
 /media_test
+/pacts/*.json
 report.xml
 
 # END local

@@ -26,14 +26,13 @@ createsuperuser:  ## Django createsuperuser
 
 .PHONY: dumpgroups
 dumpgroups:  ## Django dump auth.Group data
-	python3 -m manage dumpdata auth.Group --natural-foreign --natural-primary -o fixtures/auth_groups.json
+	python3 -m manage dumpdata auth.Group --natural-foreign --natural-primary --output fixtures/auth_groups.json
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
 	python3 -m black .
-	python3 -m isort .
-	python3 -m flake8
-	python3 -m mypy .
+	ruff --fix .
+	python3 -m mypy --no-site-packages .
 
 .PHONY: flush
 flush:  ## Django flush
@@ -41,7 +40,7 @@ flush:  ## Django flush
 
 .PHONY: graph_models
 graph_models:  ## Django generate graph models
-	python3 -m manage graph_models -o models.svg
+	python3 -m manage graph_models --output models.svg
 
 .PHONY: loadgroups
 loadgroups:  ## Django load auth.Group data
@@ -53,15 +52,20 @@ local: pip_update  ## Install local requirements and dependencies
 
 .PHONY: messages
 messages:  ## Django makemessages
-	python3 -m manage makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --ignore gunicorn.conf.py -l it
+	python3 -m manage makemessages --add-location file --ignore requirements --ignore htmlcov --ignore features --ignore gunicorn.conf.py --locale it
 
 .PHONY: migrate
 migrate:  ## Django migrate
 	python3 -m manage migrate --noinput
 
 .PHONY: migrations
-migrations: ## Django makemigrations
+ifeq ($(name),)
+migrations: ## Django makemigrations with optional `name="migration_name app_name"`
 	python3 -m manage makemigrations --no-header
+else
+migrations:
+	python3 -m manage makemigrations --no-header --name $(name)
+endif
 
 .PHONY: outdated
 outdated:  ## Check outdated requirements and dependencies
@@ -69,15 +73,15 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/base.txt requirements/base.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/remote.txt requirements/remote.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/base.txt requirements/base.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/remote.txt requirements/remote.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=22.0.0 pip-tools~=6.6.0 setuptools~=62.1.0 wheel~=0.37.0
+	python3 -m pip install --quiet --upgrade pip~=22.3.0 pip-tools~=6.12.0 setuptools~=65.6.0 wheel~=0.38.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports
@@ -89,7 +93,7 @@ precommit_update:  ## Update pre_commit
 
 .PHONY: pytest
 pytest:  ## Run debugging test
-	python3 -m pytest --durations 10
+	python3 -m pytest --capture=no --dc=Testing --durations 10
 
 .PHONY: remote
 remote: pip_update  ## Install remote requirements and dependencies
@@ -98,6 +102,10 @@ remote: pip_update  ## Install remote requirements and dependencies
 .PHONY: report
 report:  ## Run coverage report
 	./scripts/report.sh
+
+.PHONY: runserver
+runserver:  ## Django run
+	python3 -m manage runserver 0:8000
 
 .PHONY: shellplus
 shellplus:  ## Run shell_plus
@@ -111,28 +119,28 @@ endif
 .PHONY: simpletest
 simpletest:  ## Run debugging test
 	# You can pass more arguments as follows:
-	# make simpletest -- --keepdb --failfast --pdb --debug-sql --verbosity 2 path.to.TestClass
-	python3 -m manage test --configuration=Testing --timing $(simpletestargs)
+	# make simpletest -- --debug-sql --failfast --keepdb --pdb --verbosity 2 path.to.TestClass
+	python3 -m manage test --configuration=Testing --shuffle --timing $(simpletestargs)
 
 .PHONY: test
 test:  ## Run test
 	./scripts/test.sh
 
-CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+.PHONY: update
+update: pip precommit_update ## Run update
 
-.PHONY: verifypacts
-verifypacts:  ## Verify pact for all environments consumer tags
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:dev"
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:stage"
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="env:prod"
+CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
 .PHONY: verifybranchpacts
 verifybranchpacts:  ## Verify pact for the current branch consumer tag
-	./scripts/pact_verify.sh -v -s --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
+	./scripts/pact_verify.sh --verbose --capture=no --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
 
-.PHONY: update
-update: pip precommit_update ## Run update
+.PHONY: verifypacts
+verifypacts:  ## Verify pact for all environments consumer tags
+	./scripts/pact_verify.sh --verbose --capture=no --pact-verify-consumer-tag="branch:"$(CURRENT_BRANCH)
+	./scripts/pact_verify.sh --verbose --capture=no --pact-verify-consumer-tag="env:dev"
+	./scripts/pact_verify.sh --verbose --capture=no --pact-verify-consumer-tag="env:stage"
+	./scripts/pact_verify.sh --verbose --capture=no --pact-verify-consumer-tag="env:prod"
 
 .PHONY: help
 help:
