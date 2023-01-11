@@ -46,6 +46,13 @@ ignore_missing_imports = true
  target-version = "py311"
 
  [tool.ruff.isort]
- known-first-party = [
-     "bootstrap",
- ]
+atomic = true
+combine_as_imports = true
+default_section = "THIRDPARTY"
+known_local_folder = [
+    "pacts",
+]
+known_third_party = [
+    "bootstrap",
+]
+profile = "black"
