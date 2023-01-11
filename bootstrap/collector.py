@@ -7,8 +7,6 @@ from shutil import rmtree
 
 import click
 import validators
-from slugify import slugify
-
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
     DEPLOYMENT_TYPE_DIGITALOCEAN,
@@ -22,6 +20,7 @@ from bootstrap.constants import (
     TERRAFORM_BACKEND_CHOICES,
     TERRAFORM_BACKEND_TFC,
 )
+from slugify import slugify
 
 error = partial(click.style, fg="red")
 
@@ -137,7 +136,6 @@ def collect(
         "project_url_dev": project_url_dev,
         "project_url_stage": project_url_stage,
         "project_url_prod": project_url_prod,
-        "terraform_backend": terraform_backend,
         "sentry_dsn": sentry_dsn,
         "sentry_org": sentry_org,
         "sentry_url": sentry_url,

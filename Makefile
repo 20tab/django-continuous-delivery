@@ -3,14 +3,12 @@
 .PHONY: check
 check:  ## Check code formatting and import sorting
 	python3 -m black --check .
-	python3 -m isort --check .
-	python3 -m flake8
+	ruff .
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
 	python3 -m black .
-	python3 -m isort .
-	python3 -m flake8
+	ruff --fix .
 
 .PHONY: local
 local: pip_update  ## Install local requirements and dependencies
@@ -22,13 +20,13 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/common.txt requirements/common.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --no-header --quiet --upgrade --output-file requirements/test.txt requirements/test.in
+	python3 -m piptools compile --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=22.0.0 pip-tools~=6.6.0 setuptools~=62.1.0 wheel~=0.37.0
+	python3 -m pip install -q -U pip~=22.3.0 pip-tools~=6.12.0 setuptools~=65.6.0 wheel~=0.38.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports

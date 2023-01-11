@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 import click
-
 from bootstrap.collector import collect
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
