@@ -173,6 +173,7 @@ media/
 .bash_history
 .local
 .ipython
+.kolo
 *.local*
 /data/
 /manage_local.py

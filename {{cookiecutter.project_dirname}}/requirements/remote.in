@@ -1,5 +1,6 @@
 # pip-compile --output-file remote.txt remote.in
 -r common.in
+argon2-cffi~=21.3.0
 {% if "s3" in cookiecutter.media_storage %}django-storages[boto3]~=1.12.0
 {% endif %}gunicorn~=20.1.0
 {% if cookiecutter.use_redis == "true" %}redis~=4.1.0
