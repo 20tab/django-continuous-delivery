@@ -386,7 +386,7 @@ class Remote(ProjectDefault):
     # https://sentry.io/for/django/
 
     try:
-        import sentry_sdk
+        import sentry_sdk  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover{% if cookiecutter.use_redis == "true" %}
