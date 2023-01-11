@@ -175,6 +175,8 @@ media/
 .bash_history
 .ipython
 .kolo
+.local
+*.bak
 *.local*
 /data/
 /manage_local.py
