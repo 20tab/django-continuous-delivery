@@ -12,9 +12,6 @@ from pathlib import Path
 from time import time
 
 import click
-from cookiecutter.main import cookiecutter
-from pydantic import validate_arguments
-
 from bootstrap.constants import (
     DEV_ENV_NAME,
     DEV_ENV_SLUG,
@@ -34,6 +31,8 @@ from bootstrap.constants import (
 )
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import format_gitlab_variable, format_tfvar
+from cookiecutter.main import cookiecutter
+from pydantic import validate_arguments
 
 error = partial(click.style, fg="red")
 

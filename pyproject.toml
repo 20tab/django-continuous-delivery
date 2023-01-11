@@ -1,18 +1,6 @@
 [tool.black]
 target-version = ["py311"]
 
-[tool.isort]
-atomic = true
-combine_as_imports = true
-default_section = "THIRDPARTY"
-known_local_folder = [
-    "pacts",
-]
-known_third_party = [
-    "django",
-]
-profile = "black"
-
 [tool.mypy]
 python_version = "3.11"
 ignore_missing_imports = true
@@ -45,14 +33,8 @@ ignore_missing_imports = true
  select = ["B", "C", "D", "E", "F", "I", "W", "B9"]
  target-version = "py311"
 
- [tool.ruff.isort]
-atomic = true
-combine_as_imports = true
-default_section = "THIRDPARTY"
-known_local_folder = [
-    "pacts",
-]
-known_third_party = [
+[tool.ruff.isort]
+combine-as-imports = true
+known-third-party = [
     "bootstrap",
 ]
-profile = "black"
