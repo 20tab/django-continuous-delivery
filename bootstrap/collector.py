@@ -137,7 +137,6 @@ def collect(
         "project_url_dev": project_url_dev,
         "project_url_stage": project_url_stage,
         "project_url_prod": project_url_prod,
-        "terraform_backend": terraform_backend,
         "sentry_dsn": sentry_dsn,
         "sentry_org": sentry_org,
         "sentry_url": sentry_url,

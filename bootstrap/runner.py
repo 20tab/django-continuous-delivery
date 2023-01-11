@@ -227,7 +227,7 @@ class Runner:
         """Collect the Vault secrets for the given environment."""
         # Sentry vars are used by the GitLab CI/CD
         self.sentry_dsn and self.register_vault_environment_secret(
-            env_name, f"{self.service_slug}/sentry", dict(sentry_dsn=self.sentry_dsn)
+            env_name, f"{self.service_slug}/sentry", {"sentry_dsn": self.sentry_dsn}
         )
 
     def collect_vault_secrets(self):
@@ -298,35 +298,37 @@ class Runner:
     def init_terraform_cloud(self):
         """Initialize the Terraform Cloud resources."""
         click.echo(info("...creating the Terraform Cloud resources"))
-        env = dict(
-            TF_VAR_admin_email=self.terraform_cloud_admin_email,
-            TF_VAR_create_organization=self.terraform_cloud_organization_create
+        env = {
+            "TF_VAR_admin_email": self.terraform_cloud_admin_email,
+            "TF_VAR_create_organization": self.terraform_cloud_organization_create
             and "true"
             or "false",
-            TF_VAR_environments=json.dumps(list(map(itemgetter("slug"), self.envs))),
-            TF_VAR_hostname=self.terraform_cloud_hostname,
-            TF_VAR_organization_name=self.terraform_cloud_organization,
-            TF_VAR_project_name=self.project_name,
-            TF_VAR_project_slug=self.project_slug,
-            TF_VAR_service_slug=self.service_slug,
-            TF_VAR_terraform_cloud_token=self.terraform_cloud_token,
-        )
+            "TF_VAR_environments": json.dumps(list(map(itemgetter("slug"), self.envs))),
+            "TF_VAR_hostname": self.terraform_cloud_hostname,
+            "TF_VAR_organization_name": self.terraform_cloud_organization,
+            "TF_VAR_project_name": self.project_name,
+            "TF_VAR_project_slug": self.project_slug,
+            "TF_VAR_service_slug": self.service_slug,
+            "TF_VAR_terraform_cloud_token": self.terraform_cloud_token,
+        }
         self.run_terraform("terraform-cloud", env)
 
     def init_gitlab(self):
         """Initialize the GitLab resources."""
         click.echo(info("...creating the GitLab resources"))
-        env = dict(
-            TF_VAR_gitlab_token=self.gitlab_private_token,
-            TF_VAR_gitlab_url=self.gitlab_url,
-            TF_VAR_group_path=self.gitlab_group_path,
-            TF_VAR_group_variables=self.render_gitlab_variables_to_string("group"),
-            TF_VAR_project_name=self.project_name,
-            TF_VAR_project_slug=self.project_slug,
-            TF_VAR_project_variables=self.render_gitlab_variables_to_string("project"),
-            TF_VAR_service_dir=self.service_dir,
-            TF_VAR_service_slug=self.service_slug,
-        )
+        env = {
+            "TF_VAR_gitlab_token": self.gitlab_private_token,
+            "TF_VAR_gitlab_url": self.gitlab_url,
+            "TF_VAR_group_path": self.gitlab_group_path,
+            "TF_VAR_group_variables": self.render_gitlab_variables_to_string("group"),
+            "TF_VAR_project_name": self.project_name,
+            "TF_VAR_project_slug": self.project_slug,
+            "TF_VAR_project_variables": self.render_gitlab_variables_to_string(
+                "project"
+            ),
+            "TF_VAR_service_dir": self.service_dir,
+            "TF_VAR_service_slug": self.service_slug,
+        }
         self.gitlab_url != GITLAB_URL_DEFAULT and env.update(
             GITLAB_BASE_URL=f"{self.gitlab_url}/api/v4/"
         )
@@ -336,12 +338,12 @@ class Runner:
         """Initialize the Vault resources."""
         click.echo(info("...creating the Vault resources with Terraform"))
         self.collect_vault_secrets()
-        env = dict(
-            TF_VAR_project_slug=self.project_slug,
-            TF_VAR_secrets=json.dumps(self.vault_secrets),
-            TF_VAR_vault_address=self.vault_url,
-            TF_VAR_vault_token=self.vault_token,
-        )
+        env = {
+            "TF_VAR_project_slug": self.project_slug,
+            "TF_VAR_secrets": json.dumps(self.vault_secrets),
+            "TF_VAR_vault_address": self.vault_url,
+            "TF_VAR_vault_token": self.vault_token,
+        }
         self.run_terraform("vault", env)
 
     def get_terraform_module_params(self, module_name, env):
