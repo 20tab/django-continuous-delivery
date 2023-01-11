@@ -3,7 +3,6 @@
 bandit~=1.7.0
 behave-django~=1.4.0
 black~=22.12.0
-checkov~=2.2.0
 coverage[toml]~=7.0.0
 mypy~=0.991
 pactman~=2.30.0

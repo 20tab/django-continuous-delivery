@@ -39,7 +39,6 @@ extend-exclude = [
     ".pytest_cache",
     ".vscode*",
     "*/migrations/*",
-    "*/tests/data/*",
 ]
 extend-ignore = [
     "D203",

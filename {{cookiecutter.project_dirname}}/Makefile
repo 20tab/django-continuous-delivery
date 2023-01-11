@@ -31,9 +31,8 @@ dumpgroups:  ## Django dump auth.Group data
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
 	python3 -m black .
-	python3 -m isort .
-	python3 -m flake8
-	python3 -m mypy .
+	ruff --fix .
+	python3 -m mypy --no-site-packages .
 
 .PHONY: flush
 flush:  ## Django flush
@@ -77,7 +76,7 @@ pip: pip_update  ## Compile requirements
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=22.0.0 pip-tools~=6.6.0 setuptools~=62.1.0 wheel~=0.37.0
+	python3 -m pip install --quiet --upgrade pip~=22.3.0 pip-tools~=6.12.0 setuptools~=65.6.0 wheel~=0.38.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports

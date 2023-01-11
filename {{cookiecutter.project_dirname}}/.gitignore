@@ -174,10 +174,7 @@ media/
 # Others
 .bash_history
 .ipython
-.kolo
 .local
-.tfscan
-.trivy
 *.bak
 *.local*
 /data/
