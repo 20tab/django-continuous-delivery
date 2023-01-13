@@ -1,25 +1,11 @@
-"""Project bootstrap tests."""
+"""Bootstrap collector tests."""
 
 from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from unittest import TestCase, mock
 
-from bootstrap.collector import (
-    clean_deployment_type,
-    clean_environment_distribution,
-    clean_gitlab_data,
-    clean_media_storage,
-    clean_project_dirname,
-    clean_project_slug,
-    clean_sentry_dsn,
-    clean_sentry_org,
-    clean_service_dir,
-    clean_service_slug,
-    clean_terraform_backend,
-    clean_use_redis,
-    clean_vault_data,
-)
+from bootstrap.collector import Collector
 
 
 @contextmanager
@@ -45,16 +31,16 @@ class TestBootstrapCollector(TestCase):
         with input("non-existing", ""):
             self.assertEqual(clean_deployment_type(None), "digitalocean-k8s")
 
-    def test_clean_environment_distribution(self):
+    def test_clean_environments_distribution(self):
         """Test cleaning the environment distribution."""
-        self.assertEqual(clean_environment_distribution(None, "other-k8s"), "1")
+        self.assertEqual(clean_environments_distribution(None, "other-k8s"), "1")
         with input("1", ""):
             self.assertEqual(
-                clean_environment_distribution(None, "digitalocean-k8s"), "1"
+                clean_environments_distribution(None, "digitalocean-k8s"), "1"
             )
         with input("999", "3"):
             self.assertEqual(
-                clean_environment_distribution(None, "digitalocean-k8s"), "3"
+                clean_environments_distribution(None, "digitalocean-k8s"), "3"
             )
 
     def test_clean_gitlab_data(self):

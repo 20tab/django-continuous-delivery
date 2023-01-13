@@ -19,7 +19,7 @@
   ],
   "use_redis": "false",
   "use_vault": "false",
-  "environment_distribution": "1",
+  "environments_distribution": "1",
   "resources": {
     "stacks": [
       [

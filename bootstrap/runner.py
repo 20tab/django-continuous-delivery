@@ -56,7 +56,7 @@ class Runner:
     service_slug: str
     internal_service_port: int
     deployment_type: str
-    environment_distribution: str
+    environments_distribution: str
     project_url_dev: str = ""
     project_url_stage: str = ""
     project_url_prod: str = ""
@@ -74,8 +74,8 @@ class Runner:
     media_storage: str
     use_redis: bool = False
     gitlab_url: str | None = None
-    gitlab_group_path: str | None = None
-    gitlab_private_token: str | None = None
+    gitlab_namespace_path: str | None = None
+    gitlab_token: str | None = None
     uid: int | None = None
     gid: int | None = None
     terraform_dir: Path | None = None
@@ -102,7 +102,7 @@ class Runner:
 
     def set_stacks(self):
         """Set the stacks."""
-        self.stacks = STACKS_CHOICES[self.environment_distribution]
+        self.stacks = STACKS_CHOICES[self.environments_distribution]
 
     def set_envs(self):
         """Set the envs."""
@@ -112,7 +112,7 @@ class Runner:
                 "name": DEV_ENV_NAME,
                 "slug": DEV_ENV_SLUG,
                 "stack_slug": DEV_ENV_STACK_CHOICES.get(
-                    self.environment_distribution, DEV_STACK_SLUG
+                    self.environments_distribution, DEV_STACK_SLUG
                 ),
                 "url": self.project_url_dev,
             },
@@ -121,7 +121,7 @@ class Runner:
                 "name": STAGE_ENV_NAME,
                 "slug": STAGE_ENV_SLUG,
                 "stack_slug": STAGE_ENV_STACK_CHOICES.get(
-                    self.environment_distribution, STAGE_STACK_SLUG
+                    self.environments_distribution, STAGE_STACK_SLUG
                 ),
                 "url": self.project_url_stage,
             },
@@ -130,7 +130,7 @@ class Runner:
                 "name": PROD_ENV_NAME,
                 "slug": PROD_ENV_SLUG,
                 "stack_slug": PROD_ENV_STACK_CHOICES.get(
-                    self.environment_distribution, MAIN_STACK_SLUG
+                    self.environments_distribution, MAIN_STACK_SLUG
                 ),
                 "url": self.project_url_prod,
             },
@@ -277,7 +277,17 @@ class Runner:
         """Compile the requirements files."""
         click.echo(info("...compiling the requirements files"))
         requirements_path = self.service_dir / "requirements"
-        PIP_COMPILE = ["pip-compile", "-q", "-U", "-o"]
+        PIP_COMPILE = [
+            "python3",
+            "-m",
+            "piptools",
+            "compile",
+            "--no-header",
+            "--quiet",
+            "--resolver=backtracking",
+            "--upgrade",
+            "--output-file",
+        ]
         for in_file in requirements_path.glob("*.in"):
             output_filename = f"{in_file.stem}.txt"
             output_file = requirements_path / output_filename
@@ -316,10 +326,10 @@ class Runner:
         """Initialize the GitLab resources."""
         click.echo(info("...creating the GitLab resources"))
         env = {
-            "TF_VAR_gitlab_token": self.gitlab_private_token,
+            "TF_VAR_gitlab_token": self.gitlab_token,
             "TF_VAR_gitlab_url": self.gitlab_url,
-            "TF_VAR_group_path": self.gitlab_group_path,
             "TF_VAR_group_variables": self.render_gitlab_variables_to_string("group"),
+            "TF_VAR_namespace_path": self.gitlab_namespace_path,
             "TF_VAR_project_name": self.project_name,
             "TF_VAR_project_slug": self.project_slug,
             "TF_VAR_project_variables": self.render_gitlab_variables_to_string(
@@ -512,7 +522,7 @@ class Runner:
         self.media_storage == "local" and self.create_media_directory()
         if self.terraform_backend == TERRAFORM_BACKEND_TFC:
             self.init_terraform_cloud()
-        if self.gitlab_group_path:
+        if self.gitlab_namespace_path:
             self.init_gitlab()
         if self.vault_url:
             self.init_vault()
