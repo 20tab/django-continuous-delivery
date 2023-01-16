@@ -52,3 +52,10 @@ update: pip precommit_update ## Run update
 help:
 	@echo "[Help] Makefile list commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: test # Run full test and coverage
+test:
+	python3 -m coverage run -m unittest
+	python3 -m coverage combine
+	python3 -m coverage html
+	python3 -m coverage report

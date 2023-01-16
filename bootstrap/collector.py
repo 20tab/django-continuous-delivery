@@ -38,7 +38,7 @@ class Collector:
     """The bootstrap CLI options collector."""
 
     output_dir: Path = Path(".")
-    project_name: str
+    project_name: str | None = None
     project_slug: str | None = None
     project_dirname: str | None = None
     service_slug: str | None = None
