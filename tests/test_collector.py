@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import TestCase, mock
 
 from bootstrap.collector import Collector
-from tests.test_utils import mock_input
+from tests.utils import mock_input
 
 
 class TestBootstrapCollector(TestCase):
