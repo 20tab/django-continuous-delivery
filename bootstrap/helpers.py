@@ -77,10 +77,9 @@ def validate_or_prompt_path(message, value=None, default=None, required=True):
     if (
         not required
         and value == ""
-        or re.match(r"^(?:[\w_\-]+)(?:\/[\w_\-]+)*\/?$", value)
+        or re.match(r"^(?:/?[\w_\-]+)(?:\/[\w_\-]+)*\/?$", value)
     ):
-        return value.rstrip("/")
-
+        return value
     click.echo(
         error(
             "Please type a valid slash-separated path containing letters, digits, "
