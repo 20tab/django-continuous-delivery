@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
 import json
