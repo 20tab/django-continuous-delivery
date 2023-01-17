@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from shutil import rmtree
 
-from bootstrap.runner import Runner
 import click
 from pydantic import validate_arguments
 from slugify import slugify
@@ -30,6 +29,7 @@ from bootstrap.helpers import (
     validate_or_prompt_url,
     warning,
 )
+from bootstrap.runner import Runner
 
 
 @validate_arguments
