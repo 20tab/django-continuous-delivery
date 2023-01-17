@@ -49,40 +49,6 @@ class TestBootstrapCollector(TestCase):
             collector.set_project_dirname()
         self.assertEqual(collector.project_dirname, "service-slug")
 
-    # def test_service_dir_new(self):
-    #     """Test collecting the service directory, and the dir does not exist yet."""
-    #     MockedPath = mock.MagicMock(spec=Path)
-    #     output_dir = MockedPath("mocked-output-dir")
-    #     output_dir.is_absolute.return_value = True
-    #     service_dir = MockedPath("mocked-output-dir/my-project")
-    #     service_dir.is_dir.return_value = False
-    #     output_dir.__truediv__.return_value = service_dir
-    #     collector = Collector(project_name="project_name", project_slug="my-project")
-    #     self.assertIsNone(collector._service_dir)
-    #     collector.output_dir = output_dir
-    #     collector.set_project_dirname()
-    #     collector.set_service_dir()
-    #     output_dir.__truediv__.assert_called_once_with("myproject")
-    #     self.assertEqual(collector._service_dir, service_dir)
-
-    # def test_service_dir_existing(self):
-    #     """Test collecting the service directory, and the dir already exists."""
-    #     MockedPath = mock.MagicMock(spec=Path)
-    #     output_dir = MockedPath("mocked-output-dir")
-    #     output_dir.is_absolute.return_value = True
-    #     service_dir = MockedPath("mocked-output-dir/my-project")
-    #     service_dir.is_dir.return_value = True
-    #     output_dir.__truediv__.return_value = service_dir
-    #     collector = Collector(project_name="project_name", project_slug="my-project")
-    #     self.assertIsNone(collector._service_dir)
-    #     collector.output_dir = output_dir
-    #     collector.set_project_dirname()
-    #     with mock.patch("bootstrap.collector.rmtree") as mocked_rmtree, mock_input("y"):
-    #         collector.set_service_dir()
-    #     output_dir.__truediv__.assert_called_once_with("myproject")
-    #     mocked_rmtree.assert_called_once_with(service_dir)
-    #     self.assertEqual(collector._service_dir, service_dir)
-
     def test_use_redis_from_input(self):
         """Test setting the `use_redis` flag from user input."""
         collector = Collector(
