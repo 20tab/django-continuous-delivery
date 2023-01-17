@@ -9,7 +9,8 @@ services:
       target: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_BUILD_TARGET:-remote}
     image: ${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_NAME:-{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}}:${{ "{" }}{{ cookiecutter.service_slug|upper }}_IMAGE_TAG:-latest}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
       - CACHE_URL
       - DATABASE_URL=${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/{{ cookiecutter.project_slug }}}
@@ -38,6 +39,11 @@ services:
       - POSTGRES_DB={{ cookiecutter.project_slug }}
       - POSTGRES_INITDB_ARGS=--no-sync
       - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
     image: postgres:14-bullseye
     volumes:
       - pg_data:/var/lib/postgresql/data
