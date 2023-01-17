@@ -5,7 +5,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from shutil import rmtree
 
+from bootstrap.runner import Runner
 import click
+from pydantic import validate_arguments
+from slugify import slugify
+
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
     DEPLOYMENT_TYPE_DIGITALOCEAN,
@@ -27,9 +31,6 @@ from bootstrap.helpers import (
     validate_or_prompt_url,
     warning,
 )
-from bootstrap.runner import Runner
-from pydantic import validate_arguments
-from slugify import slugify
 
 
 @validate_arguments
