@@ -132,18 +132,18 @@ update: pip precommit_update ## Run update
 .PHONY: trivy
 trivy:  ## Scan docker image vulnerabilities with trivy
 	docker run --rm \
-	--user=$$UID:`id -g` \
-	--volume /var/run/docker.sock:/var/run/docker.sock \
-	--volume $$PWD/.trivy:/app/.trivy \
+	--entrypoint="" \
+	--env CUSTOM_GID=`id -g` \
+	--env CUSTOM_UID=`id -u` \
+	--env REPORT_NAME=report \
+	--env TARGET_IMAGE={{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}:latest \
+	--env TRIVY_CACHE_DIR=.trivycache/ \
+	--env TRIVY_NO_PROGRESS=true \
 	--name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }} \
-	aquasec/trivy image \
-	--no-progress \
-	--cache-dir .trivycache/ \
-	--format template --template "@contrib/html.tpl" \
-	--output "/app/.trivy/report.html" \
-	--security-checks vuln \
-	--severity CRITICAL,HIGH,MEDIUM,LOW \
-	{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}:latest
+	--volume /var/run/docker.sock:/var/run/docker.sock \
+	--volume ${PWD}/.trivy:/app/.trivy \
+	--volume ${PWD}/scripts/trivy.sh:/app/trivy.sh \
+	aquasec/trivy /app/trivy.sh
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 

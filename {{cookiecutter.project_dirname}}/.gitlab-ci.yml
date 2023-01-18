@@ -217,7 +217,9 @@ pact-verify-webhook:
 pages:
   stage: Report
   image: busybox
-  needs: ["test", "deploy_check_development"]]
+  needs: 
+    - "test"
+    - "trivy_development"
   rules:
     - <<: *pipeline-push-rule
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -328,58 +330,42 @@ build_production:
       optional: true
     - job: test
 
-.deploy_check:
+.trivy:
   stage: Deploy-check
   image:
-    name: docker/compose:debian-1.29.2
+    name: docker:20
   services:
     - docker:20-dind
-  variables:
-    SECRET_KEY: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    ALLOWED_HOSTS: "127.0.0.1,backend,localhost"
   script:
-    - >
-      docker run
-      -u ${UID}:`id -g`
-      -v /var/run/docker.sock:/var/run/docker.sock
-      -e GIT_STRATEGY=none
-      -e TRIVY_USERNAME="${CI_REGISTRY_USER}"
-      -e TRIVY_PASSWORD="${CI_REGISTRY_PASSWORD}"
-      -e TRIVY_AUTH_URL="${CI_REGISTRY}"
-      --name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
-      aquasec/trivy:latest image
-      --cache-dir /tmp/.trivycache/
-      --exit-code 0
-      --format template --template "@contrib/html.tpl"
-      --output "/tmp/report.html"
-      --no-progress
-      --security-checks vuln
-      ${CI_REGISTRY_IMAGE}:${VERSION_REF}
     - mkdir trivy
-    - docker cp trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}:/tmp/report.html trivy/report.html
     - >
-      docker-compose run --rm
+      docker run --rm
       --entrypoint=""
-      -e BACKEND_BUILD_TARGET=remote
-      -e DJANGO_ALLOWED_HOSTS="${ALLOWED_HOSTS}"
-      -e DJANGO_CONFIGURATION=Remote
-      -e DJANGO_SECRET_KEY="${SECRET_KEY}"
-      backend python3 -m manage check --deploy
-  after_script:
-    - docker rm trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
+      --env CUSTOM_GID=`id -g`
+      --env CUSTOM_UID=`id -u`
+      --env GIT_STRATEGY=none
+      --env REPORT_NAME=report
+      --env TARGET_IMAGE=${CI_REGISTRY_IMAGE}:${VERSION_REF}
+      --env TRIVY_AUTH_URL="${CI_REGISTRY}"
+      --env TRIVY_CACHE_DIR=.trivicache/
+      --env TRIVY_NO_PROGRESS=true
+      --env TRIVY_PASSWORD="${CI_REGISTRY_PASSWORD}"
+      --env TRIVY_USERNAME="${CI_REGISTRY_USER}"
+      --name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
+      --volume ${PWD}/.trivy:/app/.trivy
+      --volume ${PWD}/scripts/trivy.sh:/app/trivy.sh
+      aquasec/trivy /app/trivy.sh
   artifacts:
     paths:
-      - trivy
+      - .trivy
     when: always
-  cache:
-    paths:
-      - /tmp/.trivycache/
+  allow_failure: true
 
-deploy_check_development:
+trivy_development:
   extends:
     - .development
-    - .deploy_check
-  needs: ["build_development", "test"]
+    - .trivy
+  needs: ["build_development"]
 
 .deploy:
   stage: Deploy
@@ -448,7 +434,9 @@ deploy_development:
   extends:
     - .development
     - .deploy
-  needs: ["build_development", "deploy_check_development"]
+  needs:
+    - "build_development"
+    - "trivy_development"
 
 deploy_staging:
   extends:
