@@ -226,7 +226,7 @@ pages:
   script:
     - mkdir public
     - mv htmlcov public/htmlcov
-    - mv trivy public/trivy
+    - mv .trivy public/trivy
   artifacts:
     paths:
       - public
