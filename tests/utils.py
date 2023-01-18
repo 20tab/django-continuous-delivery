@@ -1,6 +1,5 @@
 """Test utils for the project."""
 
-
 from contextlib import contextmanager
 from io import StringIO
 from unittest import mock

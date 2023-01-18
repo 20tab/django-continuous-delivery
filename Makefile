@@ -20,13 +20,13 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/common.txt requirements/common.in
-	python3 -m piptools compile --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/test.txt requirements/test.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install -q -U pip~=22.3.0 pip-tools~=6.12.0 setuptools~=65.6.0 wheel~=0.38.0
+	python3 -m pip install -q -U pip~=22.3.0 pip-tools~=6.12.0 setuptools~=66.0.0 wheel~=0.38.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports
@@ -45,6 +45,12 @@ endif
 simpletest:
 	python3 -m unittest $(simpletestargs)
 
+.PHONY: test # Run full test and coverage
+test:
+	python3 -m coverage run -m unittest
+	python3 -m coverage html
+	python3 -m coverage report
+
 .PHONY: update
 update: pip precommit_update ## Run update
 
@@ -52,10 +58,3 @@ update: pip precommit_update ## Run update
 help:
 	@echo "[Help] Makefile list commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
-.PHONY: test # Run full test and coverage
-test:
-	python3 -m coverage run -m unittest
-	python3 -m coverage combine
-	python3 -m coverage html
-	python3 -m coverage report

@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
-from dataclasses import asdict
 from pathlib import Path
 
 import click
-
 from bootstrap.collector import Collector
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
@@ -16,7 +14,6 @@ from bootstrap.constants import (
 )
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import slugify_option
-from bootstrap.runner import Runner
 
 
 @click.command()

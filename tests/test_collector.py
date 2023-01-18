@@ -2,10 +2,11 @@
 
 import os
 from pathlib import Path
-from unittest import TestCase, mock
 from shutil import rmtree
+from unittest import TestCase, mock
 
 from bootstrap.collector import Collector
+
 from tests.utils import mock_input
 
 

@@ -1,10 +1,6 @@
 """Bootstrap helpers tests."""
-import json
-import os
-from pathlib import Path
-from time import time
-from unittest import TestCase, mock
 
+from unittest import TestCase
 
 from bootstrap.helpers import (
     format_gitlab_variable,
@@ -15,6 +11,7 @@ from bootstrap.helpers import (
     validate_or_prompt_secret,
     validate_or_prompt_url,
 )
+
 from tests.utils import mock_input
 
 
