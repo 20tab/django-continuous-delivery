@@ -126,9 +126,6 @@ simpletest:  ## Run debugging test
 test:  ## Run test
 	./scripts/test.sh
 
-.PHONY: update
-update: pip precommit_update ## Run update
-
 .PHONY: trivy
 trivy:  ## Scan docker image vulnerabilities with trivy
 	docker run --rm \
@@ -145,7 +142,8 @@ trivy:  ## Scan docker image vulnerabilities with trivy
 	--volume ${PWD}/scripts/trivy.sh:/app/trivy.sh \
 	aquasec/trivy /app/trivy.sh
 
-CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+.PHONY: update
+update: pip precommit_update ## Run update
 
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
