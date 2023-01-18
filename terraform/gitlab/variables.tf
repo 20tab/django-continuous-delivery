@@ -9,15 +9,15 @@ variable "gitlab_url" {
   type        = string
 }
 
-variable "group_path" {
-  description = "The GitLab group full path."
-  type        = string
-}
-
 variable "group_variables" {
   description = "A map of GitLab group variables to create."
   type        = map(map(any))
   default     = {}
+}
+
+variable "namespace_path" {
+  description = "The GitLab namespace path."
+  type        = string
 }
 
 variable "project_name" {

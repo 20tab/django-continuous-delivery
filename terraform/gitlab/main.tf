@@ -40,7 +40,7 @@ data "http" "user_info" {
 /* Group */
 
 data "gitlab_group" "main" {
-  full_path = var.group_path
+  full_path = var.namespace_path
 }
 
 data "gitlab_group" "main_parent" {

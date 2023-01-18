@@ -1,6 +1,22 @@
 [tool.black]
 target-version = ["py311"]
 
+[tool.coverage.html]
+title = "Talos - Coverage"
+show_contexts = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.coverage.run]
+branch = true
+dynamic_context = "test_function"
+omit = [
+    ".venv/*",
+    "venv/*",
+]
+source = ["."]
+
 [tool.mypy]
 python_version = "3.11"
 ignore_missing_imports = true

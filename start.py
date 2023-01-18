@@ -1,23 +1,19 @@
 #!/usr/bin/env python
 """Initialize a web project Django service based on a template."""
 
-import os
 from pathlib import Path
 
 import click
-from bootstrap.collector import collect
+from bootstrap.collector import Collector
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,
-    ENVIRONMENT_DISTRIBUTION_CHOICES,
+    ENVIRONMENTS_DISTRIBUTION_CHOICES,
     GITLAB_TOKEN_ENV_VAR,
     MEDIA_STORAGE_CHOICES,
     VAULT_TOKEN_ENV_VAR,
 )
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import slugify_option
-from bootstrap.runner import Runner
-
-OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 
 
 @click.command()
@@ -25,7 +21,8 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option("--gid", type=int)
 @click.option(
     "--output-dir",
-    default=OUTPUT_DIR,
+    default=".",
+    envvar="OUTPUT_BASE_DIR",
     type=click.Path(
         exists=True, path_type=Path, file_okay=False, readable=True, writable=True
     ),
@@ -52,7 +49,7 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 @click.option("--vault-token", envvar=VAULT_TOKEN_ENV_VAR)
 @click.option("--vault-url")
 @click.option(
-    "--environment-distribution", type=click.Choice(ENVIRONMENT_DISTRIBUTION_CHOICES)
+    "--environments-distribution", type=click.Choice(ENVIRONMENTS_DISTRIBUTION_CHOICES)
 )
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
@@ -66,15 +63,17 @@ OUTPUT_DIR = os.getenv("OUTPUT_BASE_DIR") or "."
 )
 @click.option("--use-redis/--no-redis", is_flag=True, default=None)
 @click.option("--gitlab-url")
-@click.option("--gitlab-private-token", envvar=GITLAB_TOKEN_ENV_VAR)
-@click.option("--gitlab-group-path")
+@click.option("--gitlab-token", envvar=GITLAB_TOKEN_ENV_VAR)
+@click.option("--gitlab-namespace-path")
 @click.option("--terraform-dir")
 @click.option("--logs-dir")
 @click.option("--quiet", is_flag=True)
 def main(**options):
     """Run the setup."""
     try:
-        Runner(**collect(**options)).run()
+        collector = Collector(**options)
+        collector.collect()
+        collector.launch_runner()
     except BootstrapError as e:
         raise click.Abort() from e
 

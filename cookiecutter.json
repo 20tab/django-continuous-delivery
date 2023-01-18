@@ -5,21 +5,13 @@
   "project_dirname": "backend",
   "django_settings_dirname": "{{ cookiecutter.project_slug | slugify(separator='') }}",
   "internal_service_port": "8000",
-  "deployment_type": [
-    "digitalocean-k8s",
-    "other-k8s"
-  ],
+  "deployment_type": ["digitalocean-k8s", "other-k8s"],
   "terraform_backend": "gitlab",
   "terraform_cloud_organization": "",
-  "media_storage": [
-    "digitalocean-s3",
-    "other-s3",
-    "local",
-    "none"
-  ],
+  "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "false",
   "use_vault": "false",
-  "environment_distribution": "1",
+  "environments_distribution": "1",
   "resources": {
     "stacks": [
       [
@@ -48,7 +40,5 @@
     ]
   },
   "tfvars": {},
-  "_extensions": [
-    "cookiecutter.extensions.SlugifyExtension"
-  ]
+  "_extensions": ["cookiecutter.extensions.SlugifyExtension"]
 }
