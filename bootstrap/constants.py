@@ -1,7 +1,5 @@
 """Web project initialization CLI constants."""
 
-from typing import Dict
-
 # Stacks
 
 # BEWARE: stack names must be suitable for inclusion in Vault paths
@@ -39,7 +37,7 @@ DEV_ENV_NAME = "development"
 
 DEV_ENV_SLUG = "dev"
 
-DEV_ENV_STACK_CHOICES: Dict[str, str] = {
+DEV_ENV_STACK_CHOICES: dict[str, str] = {
     "1": MAIN_STACK_SLUG,
 }
 
@@ -47,7 +45,7 @@ STAGE_ENV_NAME = "staging"
 
 STAGE_ENV_SLUG = "stage"
 
-STAGE_ENV_STACK_CHOICES: Dict[str, str] = {
+STAGE_ENV_STACK_CHOICES: dict[str, str] = {
     "1": MAIN_STACK_SLUG,
     "2": DEV_STACK_SLUG,
 }
@@ -56,7 +54,7 @@ PROD_ENV_NAME = "production"
 
 PROD_ENV_SLUG = "prod"
 
-PROD_ENV_STACK_CHOICES: Dict[str, str] = {}
+PROD_ENV_STACK_CHOICES: dict[str, str] = {}
 
 # Env vars
 
@@ -74,11 +72,11 @@ DEPLOYMENT_TYPE_CHOICES = [DEPLOYMENT_TYPE_DIGITALOCEAN, DEPLOYMENT_TYPE_OTHER]
 
 # Environments distribution
 
-ENVIRONMENT_DISTRIBUTION_DEFAULT = "1"
+ENVIRONMENTS_DISTRIBUTION_DEFAULT = "1"
 
-ENVIRONMENT_DISTRIBUTION_CHOICES = [ENVIRONMENT_DISTRIBUTION_DEFAULT, "2", "3"]
+ENVIRONMENTS_DISTRIBUTION_CHOICES = [ENVIRONMENTS_DISTRIBUTION_DEFAULT, "2", "3"]
 
-ENVIRONMENT_DISTRIBUTION_PROMPT = """Choose the environments distribution:
+ENVIRONMENTS_DISTRIBUTION_PROMPT = """Choose the environments distribution:
   1 - All environments share the same stack (Default)
   2 - Dev and Stage environments share the same stack, Prod has its own
   3 - Each environment has its own stack

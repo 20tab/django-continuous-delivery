@@ -90,10 +90,10 @@ class ProjectDefault(Configuration):
 
     # Password validation
     # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
-    # fmt: off
+
     AUTH_PASSWORD_VALIDATORS = [
         {
-            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
         },
         {
             "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -105,7 +105,7 @@ class ProjectDefault(Configuration):
             "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
         },
     ]
-    # fmt: on
+
     # Internationalization
     # https://docs.djangoproject.com/en/stable/topics/i18n/
 
@@ -113,14 +113,21 @@ class ProjectDefault(Configuration):
 
     TIME_ZONE = "UTC"
 
+    USE_I18N = True
+
     USE_TZ = True
 
     # Static files (CSS, JavaScript, Images)
     # https://docs.djangoproject.com/en/stable/howto/static-files/
 
-    STATIC_URL = "/static/"
+    STATIC_URL = "static/"
 
     STATIC_ROOT = BASE_DIR / "static"
+
+    # Default primary key field type
+    # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
+
+    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
     # Stored files
     # https://docs.djangoproject.com/en/stable/topics/files/{% if cookiecutter.media_storage == "local" %}  # noqa
@@ -170,15 +177,12 @@ class ProjectDefault(Configuration):
 
     X_FRAME_OPTIONS = "SAMEORIGIN"  # Default: 'SAMEORIGIN'
 
-    # Default primary key field type
-    # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
-
-    DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
     # Session auth
     # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
 
     SESSION_COOKIE_DOMAIN = values.Value()
+
+    SESSION_COOKIE_SECURE = True
 
     # Secure Proxy SSL Header
     # https://docs.djangoproject.com/en/stable/ref/settings/#secure-proxy-ssl-header
@@ -186,7 +190,7 @@ class ProjectDefault(Configuration):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
     # CSRF Trusted Origins
-    # https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-trusted-origins
+    # https://docs.djangoproject.com/en/stable/ref/settings/#csrf-trusted-origins
 
     CSRF_TRUSTED_ORIGINS = values.ListValue([])
 
@@ -200,11 +204,16 @@ class Local(ProjectDefault):
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
 
+    # Kolo
+    # https://github.com/kolofordjango/kolo
+
+    MIDDLEWARE.append("kolo.middleware.KoloMiddleware")
+
     # Django Debug Toolbar
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
 
     try:
-        import debug_toolbar  # noqa
+        import debug_toolbar  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -217,7 +226,7 @@ class Local(ProjectDefault):
     # https://django-extensions.readthedocs.io/en/stable/graph_models.html
 
     try:
-        import django_extensions  # noqa
+        import django_extensions  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -230,11 +239,7 @@ class Local(ProjectDefault):
             "disable_abstract_fields": False,
             "disable_fields": False,
             "exclude_columns": [
-                "date_joined",
-                "is_active",
-                "is_staff",
-                "is_superuser",
-                "last_login",
+                "id",
             ],
             "exclude_models": ",".join(
                 (
@@ -242,9 +247,7 @@ class Local(ProjectDefault):
                     "AbstractBaseUser",
                     "AbstractUser",
                     "ContentType",
-                    "Group",
                     "LogEntry",
-                    "Permission",
                     "PermissionsMixin",
                     "Session",
                     "UserGroup",
@@ -252,12 +255,12 @@ class Local(ProjectDefault):
             ),
             "group_models": True,
             "hide_edge_labels": True,
-            "inheritance": False,
-            "language": "it",
+            "inheritance": True,
+            "language": "en",
             "layout": "dot",
             "relations_as_fields": True,
             "theme": "django2018",
-            "verbose_names": True,
+            "verbose_names": False,
         }
 
 
@@ -301,7 +304,7 @@ class Testing(ProjectDefault):
     # https://behave-django.readthedocs.io/en/latest/installation.html
 
     try:
-        import behave_django  # noqa
+        import behave_django  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -334,6 +337,7 @@ class Remote(ProjectDefault):
 
     @property
     def DATABASES(self):
+        """Return the databases."""
         databases = deepcopy(ProjectDefault.DATABASES)
         databases["default"][
             "DISABLE_SERVER_SIDE_CURSORS"
@@ -345,6 +349,17 @@ class Remote(ProjectDefault):
 
     EMAIL = values.EmailURLValue()
 
+    # Argon2 is the winner of the 2015 Password Hashing Competition
+    # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
+
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.Argon2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+        "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+        "django.contrib.auth.hashers.ScryptPasswordHasher",
+    ]
+
     # Security
     # https://docs.djangoproject.com/en/stable/topics/security/
 
@@ -354,13 +369,11 @@ class Remote(ProjectDefault):
 
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
-    SECURE_HSTS_SECONDS = 60
-
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 
-    SECURE_SSL_REDIRECT = False
-
     SECURE_HSTS_PRELOAD = True
+
+    SECURE_HSTS_SECONDS = 3_600
 
     X_FRAME_OPTIONS = "DENY"
 
@@ -369,16 +382,11 @@ class Remote(ProjectDefault):
 
     CONN_MAX_AGE = None
 
-    # Session auth
-    # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
-
-    SESSION_COOKIE_SECURE = True
-
     # WhiteNoise
     # http://whitenoise.evans.io/en/stable/django.html
 
     try:
-        import whitenoise  # noqa
+        import whitenoise  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -389,7 +397,7 @@ class Remote(ProjectDefault):
     # https://sentry.io/for/django/
 
     try:
-        import sentry_sdk  # noqa
+        import sentry_sdk  # noqa: F401
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover{% if cookiecutter.use_redis == "true" %}
