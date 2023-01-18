@@ -12,6 +12,7 @@ from bootstrap.helpers import (
     slugify_option,
     validate_or_prompt_domain,
     validate_or_prompt_path,
+    validate_or_prompt_secret,
     validate_or_prompt_url,
 )
 from tests.utils import mock_input
@@ -149,3 +150,27 @@ class ValidatePromptPath(TestCase):
         """Test validation with no starting value."""
         with mock_input("app"):
             self.assertEqual(validate_or_prompt_path("message", None), "app")
+
+
+class ValidatePromptSecret(TestCase):
+    """Test the 'validate_or_prompt_secret' function."""
+
+    def test_validate_good(self):
+        """Test validation of a good secret."""
+        self.assertEqual(
+            validate_or_prompt_secret("message", "P4ssWord!"),
+            "P4ssWord!",
+        )
+
+    def test_validate_bad(self):
+        """Test validation of a bad secret."""
+        with mock_input({"hidden": "P4ssWord!"}):
+            self.assertEqual(
+                validate_or_prompt_secret("message", "pw"),
+                "P4ssWord!",
+            )
+
+    def test_validate_no_value(self):
+        """Test validation with no starting value."""
+        with mock_input({"hidden": "P4ssWord!"}):
+            self.assertEqual(validate_or_prompt_secret("message", None), "P4ssWord!")
