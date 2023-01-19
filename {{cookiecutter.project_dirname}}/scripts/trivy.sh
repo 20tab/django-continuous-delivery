@@ -15,6 +15,7 @@ time trivy image \
     --exit-code 0 \
     --security-checks vuln \
     ${TARGET_IMAGE}
+chown -R ${CUSTOM_UID}:${CUSTOM_GID} /app/.trivy
 trivy image \
     --exit-code 1 \
     --security-checks vuln \
