@@ -375,10 +375,10 @@ trivy_development:
     - >
       docker run --rm
       --entrypoint=""
+      --env-file .env_template
       --env BACKEND_BUILD_TARGET=remote
       --env DJANGO_CONFIGURATION=Remote
       --env PYTHONDEVMODE=0
-      --env-file .env_template
       ${CI_REGISTRY_IMAGE}/${CI_PROJECT_PATH}:${VERSION_REF}
       python3 -m manage check --deploy
   after_script:
