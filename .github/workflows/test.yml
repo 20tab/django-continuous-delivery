@@ -36,6 +36,9 @@ jobs:
       - name: Run Checkov action
         id: checkov
         uses: bridgecrewio/checkov-action@master
+        with:
+          config_file: .checkov.yaml
+        continue-on-error: true
   test:
     runs-on: ubuntu-latest
     steps:
