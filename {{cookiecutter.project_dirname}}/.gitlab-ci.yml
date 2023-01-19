@@ -345,7 +345,7 @@ build_production:
       --env CUSTOM_UID=`id -u`
       --env GIT_STRATEGY=none
       --env REPORT_NAME=report
-      --env TARGET_IMAGE=${CI_REGISTRY_IMAGE}:${VERSION_REF}
+      --env TARGET_IMAGE=${CI_REGISTRY_IMAGE}/${CI_PROJECT_PATH}:${VERSION_REF}
       --env TRIVY_AUTH_URL="${CI_REGISTRY}"
       --env TRIVY_CACHE_DIR=.trivicache/
       --env TRIVY_NO_PROGRESS=true
