@@ -352,7 +352,7 @@ build_production:
       --volume ${PWD}/scripts/trivy.sh:/app/trivy.sh
       aquasec/trivy /app/trivy.sh
   after_script:
-    - docker cp trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}:/tmp/${REPORT_NAME}.html trivy/report.html || true
+    - docker cp trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}:/tmp/report.html trivy/report.html || true
     - docker rm trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
   artifacts:
     paths:
