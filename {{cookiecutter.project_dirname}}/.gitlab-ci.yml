@@ -226,7 +226,7 @@ pages:
   script:
     - mkdir public
     - mv htmlcov public/htmlcov
-    - mv .trivy public/trivy
+    - mv trivy public/trivy
   artifacts:
     paths:
       - public
@@ -339,12 +339,9 @@ build_production:
   script:
     - mkdir trivy
     - >
-      docker run --rm
+      docker run
       --entrypoint=""
-      --env CUSTOM_GID=`id -g`
-      --env CUSTOM_UID=`id -u`
       --env GIT_STRATEGY=none
-      --env REPORT_NAME=report
       --env TARGET_IMAGE=${CI_REGISTRY_IMAGE}/${CI_PROJECT_PATH}:${VERSION_REF}
       --env TRIVY_AUTH_URL="${CI_REGISTRY}"
       --env TRIVY_CACHE_DIR=.trivicache/
@@ -352,12 +349,14 @@ build_production:
       --env TRIVY_PASSWORD="${CI_REGISTRY_PASSWORD}"
       --env TRIVY_USERNAME="${CI_REGISTRY_USER}"
       --name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
-      --volume ${PWD}/.trivy:/app/.trivy
       --volume ${PWD}/scripts/trivy.sh:/app/trivy.sh
       aquasec/trivy /app/trivy.sh
+  after_script:
+    - docker cp trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}:/tmp/${REPORT_NAME}.html trivy/report.html || true
+    - docker rm trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
   artifacts:
     paths:
-      - .trivy
+      - trivy
     when: always
   allow_failure: true
 
