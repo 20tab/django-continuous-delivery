@@ -339,7 +339,7 @@ build_production:
   script:
     - mkdir trivy
     - >
-      docker run
+      docker run --rm
       --entrypoint=""
       --env GIT_STRATEGY=none
       --env TARGET_IMAGE=${CI_REGISTRY_IMAGE}/${CI_PROJECT_PATH}:${VERSION_REF}
@@ -348,12 +348,9 @@ build_production:
       --env TRIVY_NO_PROGRESS=true
       --env TRIVY_PASSWORD="${CI_REGISTRY_PASSWORD}"
       --env TRIVY_USERNAME="${CI_REGISTRY_USER}"
-      --name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
+      --volume ${PWD}/trivy:/trivy
       --volume ${PWD}/scripts/trivy.sh:/app/trivy.sh
       aquasec/trivy /app/trivy.sh
-  after_script:
-    - docker cp trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}:/tmp/report.html trivy/report.html || true
-    - docker rm trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}-${CI_JOB_ID}
   artifacts:
     paths:
       - trivy
@@ -364,6 +361,33 @@ trivy_development:
   extends:
     - .development
     - .trivy
+  needs: ["build_development"]
+
+.django_check_deploy:
+  stage: Deploy-check
+  image:
+    name: docker:20
+  services:
+    - docker:20-dind
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+  script:
+    - >
+      docker run --rm
+      --entrypoint=""
+      --env BACKEND_BUILD_TARGET=remote
+      --env DJANGO_CONFIGURATION=Remote
+      --env PYTHONDEVMODE=0
+      --env-file .env_template
+      ${CI_REGISTRY_IMAGE}/${CI_PROJECT_PATH}:${VERSION_REF}
+      python3 -m manage check --deploy
+  after_script:
+    - docker logout $CI_REGISTRY
+
+django_check_deploy_development:
+  extends:
+    - .development
+    - .django_check_deploy
   needs: ["build_development"]
 
 .deploy:
@@ -436,6 +460,7 @@ deploy_development:
   needs:
     - "build_development"
     - "trivy_development"
+    - "django_check_deploy_development"
 
 deploy_staging:
   extends:
