@@ -344,7 +344,7 @@ build_production:
       --env GIT_STRATEGY=none
       --env TARGET_IMAGE=${CI_REGISTRY_IMAGE}/${CI_PROJECT_PATH}:${VERSION_REF}
       --env TRIVY_AUTH_URL="${CI_REGISTRY}"
-      --env TRIVY_CACHE_DIR=.trivycache/
+      --env TRIVY_CACHE_DIR=/tmp/.trivycache/
       --env TRIVY_NO_PROGRESS=true
       --env TRIVY_PASSWORD="${CI_REGISTRY_PASSWORD}"
       --env TRIVY_USERNAME="${CI_REGISTRY_USER}"
