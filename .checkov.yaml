@@ -1,0 +1,7 @@
+directory: .
+download-external-modules: false
+evaluate-variables: true
+output: [cli, junitxml]
+output-file-path: .
+quiet: true
+skip-framework: [gitlab_ci, kubernetes, sca_image, sca_package, terraform_plan]

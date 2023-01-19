@@ -146,7 +146,24 @@ test:
     expire_in: 1 day
     paths:
       - htmlcov
-    when: always
+
+configuration_test:
+  stage: Test
+  image: docker:20
+  services:
+    - docker:20-dind
+  script:
+    - >
+      docker run
+      --rm
+      --volume ${PWD}:/app
+      --workdir /app
+      bridgecrew/checkov:2.2.281
+  artifacts:
+    reports:
+      junit:
+        - results_junitxml.xml
+  allow_failure: true
 
 pact-verify-test:
   stage: Pact-verify
@@ -228,8 +245,7 @@ pages:
       - public
 
 .pact:
-  image:
-    name: docker:20
+  image: docker:20
   services:
     - docker:20-dind
   script:
@@ -328,8 +344,7 @@ build_production:
 
 .deploy:
   stage: Deploy
-  image:
-    name: docker:20
+  image: docker:20
   services:
     - docker:20-dind
   variables:
