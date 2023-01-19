@@ -126,22 +126,6 @@ simpletest:  ## Run debugging test
 test:  ## Run test
 	./scripts/test.sh
 
-.PHONY: trivy
-trivy:  ## Scan docker image vulnerabilities with trivy
-	docker run --rm \
-	--entrypoint="" \
-	--env CUSTOM_GID=`id -g` \
-	--env CUSTOM_UID=`id -u` \
-	--env REPORT_NAME=report \
-	--env TARGET_IMAGE={{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}:latest \
-	--env TRIVY_CACHE_DIR=.trivycache/ \
-	--env TRIVY_NO_PROGRESS=true \
-	--name trivy-{{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }} \
-	--volume /var/run/docker.sock:/var/run/docker.sock \
-	--volume ${PWD}/.trivy:/app/.trivy \
-	--volume ${PWD}/scripts/trivy.sh:/app/trivy.sh \
-	aquasec/trivy /app/trivy.sh
-
 .PHONY: update
 update: pip precommit_update ## Run update
 

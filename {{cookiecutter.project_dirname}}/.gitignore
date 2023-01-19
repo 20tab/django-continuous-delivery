@@ -176,7 +176,6 @@ media/
 .ipython
 .kolo
 .local
-.trivy
 *.bak
 *.local*
 /data/
