@@ -7,11 +7,11 @@ git config --global --add safe.directory ${PROJECT_DIR}
 if [ "${VAULT_ADDR}" != "" ]; then
   apk add curl jq
 
-  export VAULT_TOKEN=`curl --silent --request POST --data "role=${VAULT_ROLE}" --data "jwt=${CI_JOB_JWT_V2}" ${VAULT_ADDR%/}/v1/auth/gitlab-jwt/login | jq -r .auth.client_token`
+  export "VAULT_TOKEN"="$(curl --silent --request POST --data role=${VAULT_ROLE} --data jwt=${CI_JOB_JWT_V2} ${VAULT_ADDR%/}/v1/auth/gitlab-jwt/login | jq -r .auth.client_token)"
 
-  export SENTRY_AUTH_TOKEN=`curl --silent --header "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR%/}/v1/${PROJECT_SLUG}/envs/${ENV_NAME}/sentry | jq -r .data.sentry_auth_token`
+  export "SENTRY_AUTH_TOKEN"="$(curl --silent --header \"X-Vault-Token: ${VAULT_TOKEN}\" ${VAULT_ADDR%/}/v1/${PROJECT_SLUG}/envs/${ENV_NAME}/sentry | jq -r .data.sentry_auth_token)"
 
-  export SENTRY_DSN=`curl --silent --header "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR%/}/v1/${PROJECT_SLUG}/envs/${ENV_NAME}/${SERVICE_SLUG}/sentry | jq -r .data.sentry_dsn`
+  export "SENTRY_DSN"="$(curl --silent --header \"X-Vault-Token: ${VAULT_TOKEN}\" ${VAULT_ADDR%/}/v1/${PROJECT_SLUG}/envs/${ENV_NAME}/${SERVICE_SLUG}/sentry | jq -r .data.sentry_dsn)"
 fi
 
 case "${1}" in

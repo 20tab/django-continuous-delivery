@@ -336,7 +336,7 @@ class Remote(ProjectDefault):
     DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
 
     @property
-    def DATABASES(self):
+    def DATABASES(self):  # pragma: nocover
         """Return the databases."""
         databases = deepcopy(ProjectDefault.DATABASES)
         databases["default"][

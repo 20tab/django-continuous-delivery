@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-if [ "${DEBUG_OUTPUT}" == "true" ]; then
+if [ "${DEBUG_OUTPUT}" = "true" ]; then
     set -x
 fi
 
@@ -22,7 +22,7 @@ export TF_IN_AUTOMATION=true
 
 init() {
   cd ${TF_ROOT}
-  if [ "${TERRAFORM_BACKEND}" == "terraform-cloud" ]; then
+  if [ "${TERRAFORM_BACKEND}" = "terraform-cloud" ]; then
     terraform init "${@}" -input=false
   else
     terraform init "${@}" -input=false -reconfigure
