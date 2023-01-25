@@ -131,13 +131,13 @@ resource "kubernetes_deployment_v1" "main" {
           image = var.service_container_image
           name  = var.service_slug
           resources {
-            requests {
-              memory = var.service_requests_memory
-              cpu = var.service_requests_cpu
-            }
-            limits {
-              memory = var.service_limits_memory
+            limits = {
               cpu = var.service_limits_cpu
+              memory = var.service_limits_memory
+            }
+            requests = {
+              cpu = var.service_requests_cpu
+              memory = var.service_requests_memory
             }
           }
           port {

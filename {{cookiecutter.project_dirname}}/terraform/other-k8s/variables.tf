@@ -159,10 +159,30 @@ variable "service_container_port" {
   default     = ""
 }
 
+variable "service_limits_cpu" {
+  description = "The service limits cpu value."
+  type        = string
+}
+
+variable "service_limits_memory" {
+  description = "The service limits memory value."
+  type        = string
+}
+
 variable "service_replicas" {
   description = "The desired numbers of replicas to deploy."
   type        = number
   default     = 1
+}
+
+variable "service_requests_cpu" {
+  description = "The service requests cpu value."
+  type        = string
+}
+
+variable "service_requests_memory" {
+  description = "The service requests memory value."
+  type        = string
 }
 
 variable "service_slug" {

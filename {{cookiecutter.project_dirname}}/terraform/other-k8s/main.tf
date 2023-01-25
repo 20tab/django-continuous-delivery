@@ -88,10 +88,14 @@ module "deployment" {
   project_slug = var.project_slug
   project_url  = var.project_url
 
-  service_slug            = var.service_slug
   service_container_image = var.service_container_image
   service_container_port  = var.service_container_port
+  service_limits_cpu      = var.service_limits_cpu
+  service_limits_memory   = var.service_limits_memory
   service_replicas        = var.service_replicas
+  service_requests_cpu    = var.service_requests_cpu
+  service_requests_memory = var.service_requests_memory
+  service_slug            = var.service_slug
 
   media_storage = var.media_storage
 
