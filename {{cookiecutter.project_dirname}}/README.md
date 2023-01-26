@@ -127,3 +127,16 @@ Depending on the CI tool, you might need to configure Django environment variabl
 ### GitLab CI
 
 The configuration file `.gitlab-ci.yml` should work as it is, needing no further customization.
+
+### The Kubernetes resource limits
+
+The Kubernetes deployment service limits should be adapted to the expected load of the other services and to the size of the available nodes.
+By default, the `s-1vcpu-1gb-amd` DigitalOcean droplet is used (https://slugs.do-api.dev/), which allocates 900.00m of CPU capacity and 1.54Gi of memory capacity.
+The following default values are calculated assuming 2 deployments and 2 stacks on a single node.
+
+| tfvars name             | default value |
+| ----------------------- | ------------- |
+| service_limits_cpu      | 225m          |
+| service_limits_memory   | 256Mi         |
+| service_requests_cpu    | 25m           |
+| service_requests_memory | 115Mi         |
