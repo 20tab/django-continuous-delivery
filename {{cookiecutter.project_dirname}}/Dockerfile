@@ -1,6 +1,5 @@
 FROM python:3.11-slim-bullseye AS base
 
-HEALTHCHECK NONE
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="base"
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USER=appuser
@@ -11,19 +10,18 @@ RUN chown $APPUSER:$APPUSER $WORKDIR
 ENV PATH="/home/${APPUSER}/.local/bin:${PATH}"
 ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.11/site-packages
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        curl \
+    && apt-get install --assume-yes --no-install-recommends \
         libpq5 \
     && rm -rf /var/lib/apt/lists/*
 COPY --chown=$APPUSER ./requirements/base.txt requirements/base.txt
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+    && apt-get install --assume-yes --no-install-recommends \
         gcc \
         libc6-dev \
         libpq-dev \
     && su $APPUSER -c "python3 -m pip install --user --no-cache-dir -r requirements/base.txt" \
     && find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true \
-    && apt-get purge -y --auto-remove \
+    && apt-get purge --assume-yes --auto-remove \
         gcc \
         libc6-dev \
         libpq-dev \
@@ -34,7 +32,6 @@ RUN su $APPUSER -c "python3 -m pip install --user --no-cache-dir -r requirements
 
 FROM base AS test
 
-HEALTHCHECK NONE
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="test"
 ENV DJANGO_CONFIGURATION=Testing
 USER $APPUSER
@@ -45,7 +42,6 @@ CMD ./scripts/test.sh
 
 FROM base AS remote
 
-HEALTHCHECK NONE
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="remote"
 ENV DJANGO_CONFIGURATION=Remote INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 USER $APPUSER
@@ -60,12 +56,11 @@ CMD ["python3", "-m", "gunicorn", "{{ cookiecutter.django_settings_dirname }}.as
 
 FROM base AS local
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=5 \
-    CMD curl --fail http://localhost:8000/ || exit 0
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="local"
 ENV DJANGO_CONFIGURATION=Local INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+    && apt-get install --assume-yes --no-install-recommends \
+        gcc \
         gettext \
         git \
         graphviz \

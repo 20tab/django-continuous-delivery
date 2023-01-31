@@ -1,3 +1,6 @@
+[tool.bandit]
+exclude_dirs = [".venv", "tests", "features"]
+
 [tool.black]
 target-version = ["py311"]
 
