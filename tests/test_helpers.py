@@ -11,7 +11,6 @@ from bootstrap.helpers import (
     validate_or_prompt_secret,
     validate_or_prompt_url,
 )
-
 from tests.utils import mock_input
 
 

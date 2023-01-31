@@ -22,10 +22,11 @@ git clone git@github.com:20tab/django-continuous-delivery.git talos-django
 ```
 
 Then, install the following requirements
-| Requirements | Instructions |
-|--|--|
-|🌎 Terraform | [Install Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli) |
-|🐍 Python Dependencies | `pip install -r talos-django/requirements/common.txt` |
+
+| Requirements           | Instructions                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| 🌎 Terraform           | [Install Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli) |
+| 🐍 Python Dependencies | `pip install -r talos-django/requirements/common.txt`                        |
 
 ## 🔑 Credentials
 
@@ -171,11 +172,12 @@ Disabled args
 #### Environment distribution
 
 Choose the environments distribution:
-Value | Description | Argument
-------------- | ------------- | -------------
-1 | All environments share the same stack (Default) | `--environment-distribution=1`
-2 | Dev and Stage environments share the same stack, Prod has its own | `--environment-distribution=2`
-3 | Each environment has its own stack | `--environment-distribution=3`
+
+| Value | Description                                                       | Argument                       |
+| ----- | ----------------------------------------------------------------- | ------------------------------ |
+| 1     | All environments share the same stack (Default)                   | `--environment-distribution=1` |
+| 2     | Dev and Stage environments share the same stack, Prod has its own | `--environment-distribution=2` |
+| 3     | Each environment has its own stack                                | `--environment-distribution=3` |
 
 #### Project Domain
 

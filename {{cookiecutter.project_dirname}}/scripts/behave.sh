@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-python3 -m manage behave --configuration=Testing --noinput --simple "$@"
+python3 -m manage behave --configuration=Testing --format=progress --noinput --simple

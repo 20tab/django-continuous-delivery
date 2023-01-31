@@ -204,11 +204,6 @@ class Local(ProjectDefault):
 
     MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
 
-    # Kolo
-    # https://github.com/kolofordjango/kolo
-
-    MIDDLEWARE.append("kolo.middleware.KoloMiddleware")
-
     # Django Debug Toolbar
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
 
@@ -336,7 +331,7 @@ class Remote(ProjectDefault):
     DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
 
     @property
-    def DATABASES(self):  # pragma: nocover
+    def DATABASES(self):  # pragma: no cover
         """Return the databases."""
         databases = deepcopy(ProjectDefault.DATABASES)
         databases["default"][

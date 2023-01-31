@@ -25,4 +25,4 @@ worker_class = "{{ cookiecutter.django_settings_dirname }}.workers.UvicornDjango
 # Temporary Directory
 # https://docs.gunicorn.org/en/stable/settings.html#worker-tmp-dir
 
-worker_tmp_dir = "/dev/shm"  # nosec
+worker_tmp_dir = "/dev/shm"  # nosec B108

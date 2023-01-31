@@ -4,6 +4,7 @@
 from pathlib import Path
 
 import click
+
 from bootstrap.collector import Collector
 from bootstrap.constants import (
     DEPLOYMENT_TYPE_CHOICES,

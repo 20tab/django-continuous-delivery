@@ -1,11 +1,14 @@
+[tool.bandit]
+exclude_dirs = [".venv", "tests", "features"]
+
 [tool.black]
 target-version = ["py311"]
 
 [tool.coverage.html]
-title = "Talos - Coverage"
-show_contexts = true
+title = "Django Continuous Delivery - Coverage"
 
 [tool.coverage.report]
+fail_under = 79
 show_missing = true
 
 [tool.coverage.run]
@@ -18,15 +21,15 @@ omit = [
 source = ["."]
 
 [tool.mypy]
-python_version = "3.11"
 ignore_missing_imports = true
+python_version = "3.11"
 
 [tool.ruff]
- extend-exclude = [
-     "__pycache__",
-     ".vscode*",
- ]
- extend-ignore = [
+extend-exclude = [
+    "__pycache__",
+    ".vscode*",
+]
+extend-ignore = [
     "D203",
     "D212",
     "D213",
@@ -44,13 +47,11 @@ ignore_missing_imports = true
     "D415",
     "D416",
     "D417",
-    "E501",
- ]
- select = ["B", "C", "D", "E", "F", "I", "W", "B9"]
- target-version = "py311"
+]
+select = ["A", "B", "C", "D", "E", "F", "I", "W", "B9"]
+target-version = "py311"
 
 [tool.ruff.isort]
-combine-as-imports = true
-known-third-party = [
+known-first-party = [
     "bootstrap",
 ]
