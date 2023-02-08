@@ -3,4 +3,4 @@
 set -euo pipefail
 
 python3 -m manage migrate --noinput
-exec "$@"
+exec "${@}"
