@@ -171,7 +171,7 @@ pact-verify-test:
     - >
       PACT_BROKER_AUTH_URL=$(wget --quiet --header="X-Vault-Token: ${vault_token}"
       "${VAULT_ADDR%/}"/v1/"${PROJECT_SLUG}"/pact -O - |
-      sed -n 's/^.*"pact_broker_auth_url":"\([^"]*\)".*$/\1/p')
+      sed -n 's/^.*"pact_broker_auth_url":"\([^"]*\)".*$/\1/p'){% endif %}
     - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"
   script:
     - >
