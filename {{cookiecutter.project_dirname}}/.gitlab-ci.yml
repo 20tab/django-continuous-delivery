@@ -175,7 +175,7 @@ pact-verify-test:
     - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"
   script:
     - >
-      if [ "${CI_COMMIT_BRANCH}" ]; 
+      if [ "${CI_COMMIT_BRANCH}" ];
       then PACT_CONSUMER_TAG="branch:${CI_COMMIT_BRANCH}";
       else PACT_CONSUMER_TAG="tag:${CI_COMMIT_TAG}";
       fi
