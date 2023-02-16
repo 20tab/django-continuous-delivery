@@ -1,6 +1,3 @@
-[tool.bandit]
-exclude_dirs = [".venv", "tests", "features"]
-
 [tool.black]
 target-version = ["py311"]
 
@@ -23,6 +20,9 @@ source = ["."]
 [tool.mypy]
 ignore_missing_imports = true
 python_version = "3.11"
+
+[tool.bandit]
+exclude_dirs = [".venv", "tests", "features"]
 
 [tool.ruff]
 extend-exclude = [
