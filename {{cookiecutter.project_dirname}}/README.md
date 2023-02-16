@@ -136,7 +136,7 @@ The following default values are calculated assuming 2 deployments and 2 stacks 
 
 | tfvars name             | default value |
 | ----------------------- | ------------- |
-| service_limits_cpu      | 225m          |
-| service_limits_memory   | 256Mi         |
+| service_limits_cpu      | 550m          |
+| service_limits_memory   | 512Mi         |
 | service_requests_cpu    | 25m           |
 | service_requests_memory | 115Mi         |
