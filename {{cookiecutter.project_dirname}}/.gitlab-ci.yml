@@ -259,7 +259,7 @@ pages:
       export PACT_CMD="can-i-deploy
       --pacticipant ${PACT_PROVIDER_NAME}
       --version ${VERSION_REF}
-      --to \"env:${ENV_SLUG}\""
+      --to env:${ENV_SLUG}"
 
 can-i-deploy_development:
   extends:
@@ -456,7 +456,7 @@ rollback_production:
       export PACT_CMD="create-version-tag
       --pacticipant ${PACT_PROVIDER_NAME}
       --version ${VERSION_REF}
-      --tag \"env:${ENV_SLUG}\""
+      --tag env:${ENV_SLUG}"
 
 create-version-tag_development:
   extends:
