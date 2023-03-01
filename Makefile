@@ -3,12 +3,12 @@
 .PHONY: check
 check:  ## Check code formatting and import sorting
 	python3 -m black --check .
-	ruff .
+	python3 -m ruff check .
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
 	python3 -m black .
-	ruff --fix .
+	python3 -m ruff --fix .
 
 .PHONY: local
 local: pip_update  ## Install local requirements and dependencies
