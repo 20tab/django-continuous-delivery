@@ -75,7 +75,3 @@ repos:
       - id: shellcheck
         args: ["--external-sources"]
         exclude: "(^scripts/ci_.*$|^scripts/deploy/vault.sh|^scripts/deploy/terraform.sh$)"
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: "v1.77.1"
-    hooks:
-      - id: terraform_fmt
