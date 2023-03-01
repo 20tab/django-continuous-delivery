@@ -82,5 +82,5 @@ module "deployment" {
   extra_config_values = var.extra_config_values
   extra_secret_values = var.extra_secret_values
 
-  additional_secrets = var.use_redis ? ["database-url", "cache-url"] : ["database-url"]
+  additional_secrets = var.use_redis ? ["database-url", "redis-url"] : ["database-url"]
 }

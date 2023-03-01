@@ -169,6 +169,10 @@ resource "kubernetes_deployment_v1" "main" {
               }
             }
           }
+          env {
+            name  = "CACHE_URL"
+            value = "$(REDIS_URL)?key_prefix=${var.environment_slug}"
+          }
         }
       }
     }
