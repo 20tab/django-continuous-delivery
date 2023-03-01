@@ -26,7 +26,7 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.247
+    rev: v0.0.253
     hooks:
       - id: ruff
         exclude: ^\{\{cookiecutter\.project_dirname\}\}.*$
@@ -37,7 +37,7 @@ repos:
     hooks:
       - id: black
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "0.9.1"
+    rev: "0.9.2"
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/pre-commit/mirrors-prettier
@@ -46,7 +46,7 @@ repos:
       - id: prettier
         exclude: ^\{\{cookiecutter\.project_dirname\}\}.*$
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.0.0"
+    rev: "v1.0.1"
     hooks:
       - id: mypy
         args: ["--no-site-packages"]
