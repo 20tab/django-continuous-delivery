@@ -1,8 +1,9 @@
-[tool.bandit]
-exclude_dirs = [".venv", "tests", "features"]
-
 [tool.black]
 target-version = ["py311"]
+
+[tool.pytest.ini_options]
+DJANGO_CONFIGURATION = "Testing"
+DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"
 
 [tool.coverage.html]
 title = "{{cookiecutter.project_name}} - Coverage"
@@ -32,9 +33,8 @@ source = ["."]
 ignore_missing_imports = true
 python_version = "3.11"
 
-[tool.pytest.ini_options]
-DJANGO_CONFIGURATION = "Testing"
-DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"
+[tool.bandit]
+exclude_dirs = [".venv", "tests", "features"]
 
 [tool.ruff]
 extend-exclude = [

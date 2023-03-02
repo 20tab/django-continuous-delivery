@@ -1,10 +1,9 @@
-# pip-compile --output-file test.txt test.in
 -r common.in
 bandit[toml]~=1.7.0
 behave-django~=1.4.0
-black~=22.12.0
+black~=23.1.0
 coverage[toml]~=7.1.0
-mypy~=0.991
+mypy~=1.0.0
 pactman~=2.30.0
 pip-audit~=2.4.0
 pytest-django~=4.5.0
