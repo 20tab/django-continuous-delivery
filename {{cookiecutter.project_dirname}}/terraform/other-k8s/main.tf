@@ -25,14 +25,6 @@ provider "kubernetes" {
   cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca_certificate)
 }
 
-/* Providers */
-
-provider "kubernetes" {
-  host                   = var.kubernetes_host
-  token                  = var.kubernetes_token
-  cluster_ca_certificate = base64decode(var.kubernetes_cluster_ca_certificate)
-}
-
 /* Volumes */
 
 resource "kubernetes_persistent_volume_v1" "media" {
