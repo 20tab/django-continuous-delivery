@@ -149,7 +149,7 @@ variable "service_container_image" {
 variable "service_container_port" {
   description = "The service container port."
   type        = string
-  default     = ""
+  default     = "{{ cookiecutter.internal_service_port }}"
 }
 
 variable "service_limits_cpu" {
