@@ -132,11 +132,11 @@ resource "kubernetes_deployment_v1" "main" {
           name  = var.service_slug
           resources {
             limits = {
-              cpu = var.service_limits_cpu
+              cpu    = var.service_limits_cpu
               memory = var.service_limits_memory
             }
             requests = {
-              cpu = var.service_requests_cpu
+              cpu    = var.service_requests_cpu
               memory = var.service_requests_memory
             }
           }
@@ -171,7 +171,7 @@ resource "kubernetes_deployment_v1" "main" {
           }
           env {
             name  = "CACHE_URL"
-            value = "$(REDIS_URL)?key_prefix=${var.environment_slug}"
+            value = coalesce(var.cache_url, "$(REDIS_URL)?key_prefix=${var.environment_slug}")
           }
         }
       }
