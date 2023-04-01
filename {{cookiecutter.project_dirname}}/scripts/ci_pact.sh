@@ -1,4 +1,6 @@
-#!/bin/sh -e
+#!/usr/bin/env sh
+
+set -e
 
 if [ "${VAULT_ADDR}" != "" ]; then
   apk update && apk add curl jq
