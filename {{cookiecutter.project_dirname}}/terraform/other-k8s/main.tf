@@ -93,6 +93,7 @@ module "deployment" {
 
   media_persistent_volume_claim_name = var.media_storage == "local" ? kubernetes_persistent_volume_claim_v1.media[0].metadata[0].name : ""
 
+  cache_url                       = var.cache_url
   django_admins                   = var.django_admins
   django_additional_allowed_hosts = var.django_additional_allowed_hosts
   django_default_from_email       = var.django_default_from_email
@@ -110,5 +111,5 @@ module "deployment" {
   extra_config_values = var.extra_config_values
   extra_secret_values = var.extra_secret_values
 
-  additional_secrets = var.use_redis ? ["database-url", "cache-url"] : ["database-url"]
+  additional_secrets = var.use_redis ? ["database-url", "redis-url"] : ["database-url"]
 }
