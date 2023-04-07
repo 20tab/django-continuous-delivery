@@ -3,6 +3,6 @@ argon2-cffi~=21.3.0
 {% if "s3" in cookiecutter.media_storage %}django-storages[boto3]~=1.13.0
 {% endif %}gunicorn~=20.1.0
 {% if cookiecutter.use_redis == "true" %}redis~=4.5.0
-{% endif %}sentry-sdk~=1.15.0
-uvicorn[standard]~=0.20.0
-whitenoise[brotli]~=6.3.0
+{% endif %}sentry-sdk~=1.19.0
+uvicorn[standard]~=0.21.0
+whitenoise[brotli]~=6.4.0
