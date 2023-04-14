@@ -26,7 +26,7 @@ pip: pip_update  ## Compile requirements
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
-	python3 -m pip install --quiet --upgrade pip~=23.0.0 pip-tools~=6.12.0 setuptools~=67.4.0 wheel~=0.38.0
+	python3 -m pip install --quiet --upgrade pip~=23.0.0 pip-tools~=6.12.0 setuptools~=67.6.0 wheel~=0.40.0
 
 .PHONY: precommit
 precommit:  ## Fix code formatting, linting and sorting imports
@@ -41,12 +41,12 @@ ifeq (simpletest,$(firstword $(MAKECMDGOALS)))
   $(eval $(simpletestargs):;@true)
 endif
 
-.PHONY: simpletest # Run debug tests
-simpletest:
+.PHONY: simpletest
+simpletest:  ## Run debug tests
 	python3 -m unittest $(simpletestargs)
 
-.PHONY: test # Run full test and coverage
-test:
+.PHONY: test
+test:  ## Run full test and coverage
 	python3 -m coverage run -m unittest
 	python3 -m coverage html
 	python3 -m coverage report
