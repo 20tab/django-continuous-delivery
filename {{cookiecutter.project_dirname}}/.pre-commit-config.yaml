@@ -69,6 +69,16 @@ repos:
     hooks:
       - id: pip-audit
         args: ["--require-hashes", "--requirement", "requirements/remote.txt"]
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: "v1.77.2"
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+        args:
+          - --tf-init-args=-backend=false
+          - --tf-init-args=-lock=false
+          - --tf-init-args=-upgrade
+          - --hook-config=--retry-once-with-cleanup=true
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.2
     hooks:
