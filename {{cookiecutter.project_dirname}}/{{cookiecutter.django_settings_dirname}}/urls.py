@@ -18,18 +18,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.static import serve
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
+
+from .views import HealthView
 
 admin.site.site_header = admin.site.site_title = "{{ cookiecutter.project_name }}"
-
-
-@api_view()
-@permission_classes([])
-def get_healthcheck(request):
-    """Send a health check response."""
-    return Response({"status": "ok"})
-
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -38,7 +30,7 @@ urlpatterns = [
         include(
             (
                 [
-                    path("health/", get_healthcheck, name="health-check"),
+                    path("health/", HealthView.as_view(), name="health-check"),
                 ],
                 "api",
             )
