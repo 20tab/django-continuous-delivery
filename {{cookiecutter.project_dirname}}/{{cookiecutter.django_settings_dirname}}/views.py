@@ -1,14 +1,14 @@
 """The main app views."""
 
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.http import JsonResponse
+from django.views.generic import View
 
 
-class HealthView(APIView):
+class HealthView(View):
     """The health endpoint view."""
 
-    permission_classes = ()
+    http_method_names = ("get", "options")
 
-    def get(self, request):
-        """Return the health status."""
-        return Response({"status": "ok"})
+    def get(self, request, *args, **kwargs):
+        """Return health endpoint response."""
+        return JsonResponse({"status": "ok"})

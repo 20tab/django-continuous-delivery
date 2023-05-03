@@ -25,17 +25,7 @@ admin.site.site_header = admin.site.site_title = "{{ cookiecutter.project_name }
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path(
-        "api/",
-        include(
-            (
-                [
-                    path("health/", HealthView.as_view(), name="health-check"),
-                ],
-                "api",
-            )
-        ),
-    ),
+    path("backend/health/", HealthView.as_view(), name="health-check"),
 ]
 
 if settings.DEBUG:  # pragma: no cover
