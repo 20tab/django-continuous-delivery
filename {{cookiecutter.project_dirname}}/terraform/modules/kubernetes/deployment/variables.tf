@@ -4,13 +4,6 @@ variable "additional_secrets" {
   default     = []
 }
 
-variable "cache_url" {
-  type        = string
-  description = "A Django cache URL override."
-  default     = ""
-  sensitive   = true
-}
-
 variable "django_additional_allowed_hosts" {
   type        = string
   description = "Additional entries of the DJANGO_ALLOWED_HOSTS environment variable ('127.0.0.1', 'localhost', the service slug and the project host are included by default)."

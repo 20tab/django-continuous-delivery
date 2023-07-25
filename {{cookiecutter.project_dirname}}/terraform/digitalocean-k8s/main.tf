@@ -65,7 +65,6 @@ module "deployment" {
 
   media_storage = var.media_storage
 
-  cache_url                       = var.cache_url
   django_admins                   = var.django_admins
   django_additional_allowed_hosts = var.django_additional_allowed_hosts
   django_default_from_email       = var.django_default_from_email

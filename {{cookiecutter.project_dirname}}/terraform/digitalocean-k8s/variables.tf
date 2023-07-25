@@ -1,10 +1,3 @@
-variable "cache_url" {
-  type        = string
-  description = "A Django cache URL override."
-  default     = ""
-  sensitive   = true
-}
-
 variable "digitalocean_token" {
   description = "The Digital Ocean access token."
   type        = string
