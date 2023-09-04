@@ -1,7 +1,8 @@
-variable "additional_secrets" {
-  type        = list(any)
-  description = "Additional Kubernetes Secret names to link to the Deployment."
-  default     = []
+variable "cache_url" {
+  type        = string
+  description = "A Django cache URL override."
+  default     = ""
+  sensitive   = true
 }
 
 variable "django_additional_allowed_hosts" {
@@ -181,6 +182,12 @@ variable "service_requests_memory" {
 variable "service_slug" {
   description = "The service slug."
   type        = string
+}
+
+variable "use_redis" {
+  description = "Tell if a Redis service is used."
+  type        = bool
+  default     = false
 }
 
 variable "web_concurrency" {

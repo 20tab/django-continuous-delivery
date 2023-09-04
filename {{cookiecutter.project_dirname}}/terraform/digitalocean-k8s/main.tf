@@ -65,8 +65,9 @@ module "deployment" {
 
   media_storage = var.media_storage
 
-  django_admins                   = var.django_admins
+  cache_url                       = var.cache_url
   django_additional_allowed_hosts = var.django_additional_allowed_hosts
+  django_admins                   = var.django_admins
   django_default_from_email       = var.django_default_from_email
   django_server_email             = var.django_server_email
   email_url                       = var.email_url
@@ -77,10 +78,9 @@ module "deployment" {
   s3_region                       = var.s3_region
   s3_secret_key                   = var.s3_secret_key
   sentry_dsn                      = var.sentry_dsn
+  use_redis                       = var.use_redis
   web_concurrency                 = var.web_concurrency
 
   extra_config_values = var.extra_config_values
   extra_secret_values = var.extra_secret_values
-
-  additional_secrets = var.use_redis ? ["database-url", "redis-url"] : ["database-url"]
 }
