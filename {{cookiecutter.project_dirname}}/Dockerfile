@@ -67,7 +67,7 @@ RUN apt-get update \
         libpq-dev \
         make \
         openssh-client \
-        postgresql-client-13
+        postgresql-client
 USER $APPUSER
 COPY --chown=$APPUSER ./requirements/local.txt requirements/local.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/local.txt
