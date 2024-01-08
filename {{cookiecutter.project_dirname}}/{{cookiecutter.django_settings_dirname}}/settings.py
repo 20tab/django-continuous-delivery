@@ -166,7 +166,6 @@ class ProjectDefault(Configuration):
     # https://django-configurations.readthedocs.io/en/stable/values.html
 
     CACHES = values.CacheURLValue("locmem://")
-
     # Storages
      # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
 
@@ -397,7 +396,6 @@ class Remote(ProjectDefault):
 
     CONN_MAX_AGE = None
 
-
     # Storages
     # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
 
@@ -405,6 +403,7 @@ class Remote(ProjectDefault):
     def STORAGES(self):  # pragma: no cover
         """Return the storage settings."""
         storages = deepcopy(ProjectDefault.STORAGES)
+        storages["default"]["BACKEND"] = "storages.backends.s3boto3.S3Boto3Storage"
         try:
             # WhiteNoise
             # http://whitenoise.evans.io/en/stable/django.html
@@ -449,6 +448,4 @@ class Remote(ProjectDefault):
 
     AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
 
-    AWS_STORAGE_BUCKET_NAME = values.Value()
-
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
+    AWS_STORAGE_BUCKET_NAME = values.Value()  # noqa{% endif %}
