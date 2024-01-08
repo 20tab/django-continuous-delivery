@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ["py311"]
+target-version = ["py312"]
 
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
@@ -34,7 +34,7 @@ enable_error_code = [
     "truthy-bool",
 ]
 ignore_missing_imports = true
-python_version = "3.11"
+python_version = "3.12"
 
 [tool.bandit]
 exclude_dirs = [
@@ -79,7 +79,7 @@ select = [
     "W",
     "B9"
 ]
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.per-file-ignores]
 "{{ cookiecutter.django_settings_dirname }}/*sgi.py" = ["E402"]
