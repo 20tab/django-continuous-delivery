@@ -167,6 +167,18 @@ class ProjectDefault(Configuration):
 
     CACHES = values.CacheURLValue("locmem://")
 
+    # Storages
+     # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.InMemoryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
     # Translation
     # https://docs.djangoproject.com/en/stable/topics/i18n/translation/
 
@@ -283,11 +295,6 @@ class Testing(ProjectDefault):
 
     CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 
-    # During testing, ensure that the STATICFILES_STORAGE setting is set to the default.
-    # https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/
-
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
-
     # The MD5 based password hasher is much less secure but faster
     # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
 
@@ -323,7 +330,20 @@ class Remote(ProjectDefault):
 
     DEBUG = False
 
-    MIDDLEWARE = ProjectDefault.MIDDLEWARE.copy()
+    @property
+    def MIDDLEWARE(self):  # pragma: no cover
+        """Return the middleware settings."""
+        middleware = deepcopy(ProjectDefault.MIDDLEWARE)
+        try:
+            # WhiteNoise
+            # http://whitenoise.evans.io/en/stable/django.html
+
+            import whitenoise  # noqa: F401
+        except ModuleNotFoundError:  # pragma: no cover
+            pass
+        else:  # pragma: no cover
+            middleware.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
+        return middleware
 
     # DB Transaction pooling and server-side cursors
     # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
@@ -377,16 +397,26 @@ class Remote(ProjectDefault):
 
     CONN_MAX_AGE = None
 
-    # WhiteNoise
-    # http://whitenoise.evans.io/en/stable/django.html
 
-    try:
-        import whitenoise  # noqa: F401
-    except ModuleNotFoundError:  # pragma: no cover
-        pass
-    else:  # pragma: no cover
-        MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
-        STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    # Storages
+    # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
+
+    @property
+    def STORAGES(self):  # pragma: no cover
+        """Return the storage settings."""
+        storages = deepcopy(ProjectDefault.STORAGES)
+        try:
+            # WhiteNoise
+            # http://whitenoise.evans.io/en/stable/django.html
+
+            import whitenoise  # noqa: F401
+        except ModuleNotFoundError:  # pragma: no cover
+            pass
+        else:  # pragma: no cover
+            storages["staticfiles"][
+                "BACKEND"
+            ] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        return storages
 
     # Sentry
     # https://sentry.io/for/django/
