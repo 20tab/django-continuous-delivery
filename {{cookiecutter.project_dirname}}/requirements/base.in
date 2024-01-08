@@ -1,3 +1,1 @@
-django-configurations[cache,database,email]~=2.4.0
-django~=4.1.0
 psycopg2~=2.9.0
