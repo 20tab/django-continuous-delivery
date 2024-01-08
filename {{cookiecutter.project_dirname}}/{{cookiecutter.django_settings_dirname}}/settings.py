@@ -166,6 +166,7 @@ class ProjectDefault(Configuration):
     # https://django-configurations.readthedocs.io/en/stable/values.html
 
     CACHES = values.CacheURLValue("locmem://")
+
     # Storages
      # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
 
