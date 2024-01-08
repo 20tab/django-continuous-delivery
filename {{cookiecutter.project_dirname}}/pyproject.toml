@@ -37,7 +37,11 @@ ignore_missing_imports = true
 python_version = "3.11"
 
 [tool.bandit]
-exclude_dirs = [".venv", "tests", "features"]
+exclude_dirs = [
+    ".venv",
+    "tests",
+    "features"
+]
 
 [tool.ruff]
 extend-exclude = [
@@ -46,7 +50,7 @@ extend-exclude = [
     ".vscode*",
     "*/migrations/*",
 ]
-extend-ignore = [
+ignore = [
     "D203",
     "D212",
     "D213",
@@ -65,7 +69,16 @@ extend-ignore = [
     "D416",
     "D417",
 ]
-select = ["A", "B", "C", "D", "E", "F", "I", "W", "B9"]
+select = [
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "I",
+    "W",
+    "B9"
+]
 target-version = "py311"
 
 [tool.ruff.per-file-ignores]
