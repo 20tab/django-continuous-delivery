@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye AS base
+FROM python:3.12-slim-bookworm AS base
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="base"
 ARG DEBIAN_FRONTEND=noninteractive
