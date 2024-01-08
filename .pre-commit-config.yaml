@@ -66,5 +66,5 @@ repos:
             "--require-hashes",
             "--disable-pip",
             "--requirement",
-            "requirements/remote.txt",
+            "requirements/local.txt",
           ]
