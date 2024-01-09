@@ -286,12 +286,14 @@ class Testing(ProjectDefault):
     # Storages
     # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
 
-    @property
-    def STORAGES(self):  # pragma: no cover
-        """Return the storage settings."""
-        storages = deepcopy(ProjectDefault.STORAGES)
-        storages["default"]["BACKEND"] = "django.core.files.storage.InMemoryStorage"
-        return storages
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.InMemoryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 
     # The MD5 based password hasher is much less secure but faster
     # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
