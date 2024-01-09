@@ -167,18 +167,6 @@ class ProjectDefault(Configuration):
 
     CACHES = values.CacheURLValue("locmem://")
 
-    # Storages
-    # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
-
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.InMemoryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
-
     # Translation
     # https://docs.djangoproject.com/en/stable/topics/i18n/translation/
 
@@ -294,6 +282,15 @@ class Testing(ProjectDefault):
     # https://django-configurations.readthedocs.io/en/stable/values/
 
     CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+
+    # Storages
+    # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
+
+    @property
+    def STORAGES(self):  # pragma: no cover
+        """Return the storage settings."""
+        storages = deepcopy(ProjectDefault.STORAGES)
+        storages["default"]["BACKEND"] = "django.core.files.storage.InMemoryStorage"
 
     # The MD5 based password hasher is much less secure but faster
     # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
