@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bullseye AS base
+FROM python:3.12-slim-bookworm AS base
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="base"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -8,7 +8,7 @@ WORKDIR $WORKDIR
 RUN useradd --skel /dev/null --create-home $APPUSER
 RUN chown $APPUSER:$APPUSER $WORKDIR
 ENV PATH="/home/${APPUSER}/.local/bin:${PATH}"
-ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.11/site-packages
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.12/site-packages
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends \
         libpq5 \
@@ -45,7 +45,7 @@ FROM base AS remote
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="remote"
 ENV DJANGO_CONFIGURATION=Remote INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 USER $APPUSER
-ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.11/site-packages
+ARG PACKAGES_PATH=/home/${APPUSER}/.local/lib/python3.12/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/remote.txt \
     && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
@@ -67,7 +67,7 @@ RUN apt-get update \
         libpq-dev \
         make \
         openssh-client \
-        postgresql-client-13
+        postgresql-client
 USER $APPUSER
 COPY --chown=$APPUSER ./requirements/local.txt requirements/local.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/local.txt
