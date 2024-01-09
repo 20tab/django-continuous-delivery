@@ -6,7 +6,7 @@ from django.test import Client, TestCase
 class ApiHealthTest(TestCase):
     """The health view tests."""
 
-    url = "/backend/health/"
+    url = "/{{ cookiecutter.service_slug }}/health/"
     client = Client()
 
     def test_health(self):
