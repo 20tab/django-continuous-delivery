@@ -167,6 +167,18 @@ class ProjectDefault(Configuration):
 
     CACHES = values.CacheURLValue("locmem://")
 
+    # Storages
+    # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.InMemoryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
     # Translation
     # https://docs.djangoproject.com/en/stable/topics/i18n/translation/
 
