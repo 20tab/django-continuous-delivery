@@ -13,14 +13,14 @@ class ApiHealthTest(TestCase):
         """Test api health endpoint."""
         with self.subTest("GET"):
             response = self.client.get(self.url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.json(), {"status": "ok"})
+            self.assertEqual(response.status_code, 204)
+            self.assertEqual(response.content, b"")
             self.assertEqual(
                 response.headers,
                 {
-                    "Content-Type": "application/json",
+                    "Content-Type": "text/html; charset=utf-8",
                     "X-Frame-Options": "SAMEORIGIN",
-                    "Content-Length": "16",
+                    "Content-Length": "0",
                     "X-Content-Type-Options": "nosniff",
                     "Referrer-Policy": "same-origin",
                     "Cross-Origin-Opener-Policy": "same-origin",
@@ -44,14 +44,14 @@ class ApiHealthTest(TestCase):
             )
         with self.subTest("HEAD"):
             response = self.client.head(self.url)
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 204)
             self.assertEqual(response.content, b"")
             self.assertEqual(
                 response.headers,
                 {
-                    "Content-Type": "application/json",
+                    "Content-Type": "text/html; charset=utf-8",
                     "X-Frame-Options": "SAMEORIGIN",
-                    "Content-Length": "16",
+                    "Content-Length": "0",
                     "X-Content-Type-Options": "nosniff",
                     "Referrer-Policy": "same-origin",
                     "Cross-Origin-Opener-Policy": "same-origin",

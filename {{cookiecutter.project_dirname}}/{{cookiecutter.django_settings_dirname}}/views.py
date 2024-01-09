@@ -1,6 +1,6 @@
 """The main app views."""
 
-from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.generic import View
 
 
@@ -11,4 +11,4 @@ class HealthView(View):
 
     def get(self, request, *args, **kwargs):
         """Return health endpoint GET response."""
-        return JsonResponse({"status": "ok"})
+        return HttpResponse(status=204)
