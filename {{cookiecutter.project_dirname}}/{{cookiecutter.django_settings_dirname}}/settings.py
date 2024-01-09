@@ -403,8 +403,12 @@ class Remote(ProjectDefault):
     @property
     def STORAGES(self):  # pragma: no cover
         """Return the storage settings."""
-        storages = deepcopy(ProjectDefault.STORAGES)  # noqa{% if "s3" in cookiecutter.media_storage %}
-        storages["default"]["BACKEND"] = "storages.backends.s3boto3.S3Boto3Storage" # noqa{% endif %}
+        storages = deepcopy(
+            ProjectDefault.STORAGES
+        )  # noqa{% if "s3" in cookiecutter.media_storage %}
+        storages["default"][
+            "BACKEND"
+        ] = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
         try:
             # WhiteNoise
             # http://whitenoise.evans.io/en/stable/django.html
