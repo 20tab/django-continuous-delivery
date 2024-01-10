@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG OUTPUT_BASE_DIR=/data

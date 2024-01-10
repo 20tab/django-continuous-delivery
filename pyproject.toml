@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ["py311"]
+target-version = ["py312"]
 
 [tool.coverage.html]
 title = "Django Continuous Delivery - Coverage"
@@ -22,17 +22,21 @@ enable_error_code = [
     "truthy-bool",
 ]
 ignore_missing_imports = true
-python_version = "3.11"
+python_version = "3.12"
 
 [tool.bandit]
-exclude_dirs = [".venv", "tests", "features"]
+exclude_dirs = [
+    ".venv",
+    "tests",
+    "features"
+]
 
 [tool.ruff]
 extend-exclude = [
     "__pycache__",
     ".vscode*",
 ]
-extend-ignore = [
+ignore = [
     "D203",
     "D212",
     "D213",
@@ -51,8 +55,17 @@ extend-ignore = [
     "D416",
     "D417",
 ]
-select = ["A", "B", "C", "D", "E", "F", "I", "W", "B9"]
-target-version = "py311"
+select = [
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "I",
+    "W",
+    "B9"
+]
+target-version = "py312"
 
 [tool.ruff.isort]
 known-first-party = [
