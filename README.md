@@ -49,7 +49,7 @@ cd ~/projects
 ### 🐋 Docker
 
 ```console
-docker run --interactive --tty --rm --volume $PWD:/data 20tab/talos-django:latest
+docker run --interactive --tty --rm --volume $PWD/.dumps:/app/.dumps --volume $PWD/.logs:/app/.logs --volume $PWD:/data 20tab/talos:latest
 ```
 
 ### 👨‍💻 Shell command
