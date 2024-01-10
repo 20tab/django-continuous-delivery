@@ -19,10 +19,13 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.static import serve
 
+from .views import HealthView
+
 admin.site.site_header = admin.site.site_title = "{{ cookiecutter.project_name }}"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("{{ cookiecutter.service_slug }}/health/", HealthView.as_view(), name="health-check"),
 ]
 
 if settings.DEBUG:  # pragma: no cover

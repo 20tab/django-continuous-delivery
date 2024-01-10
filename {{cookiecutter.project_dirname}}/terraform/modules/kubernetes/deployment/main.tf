@@ -16,6 +16,10 @@ locals {
     )
   )
 
+  additional_secrets = var.use_redis ? ["database-url", "redis-url"] : ["database-url"]
+
+  cache_url = var.cache_url != "" ? var.cache_url : var.use_redis ? "$(REDIS_URL)?key_prefix=${var.environment_slug}" : ""
+
   use_s3 = length(regexall("s3", var.media_storage)) > 0
 }
 
@@ -162,16 +166,20 @@ resource "kubernetes_deployment_v1" "main" {
             }
           }
           dynamic "env_from" {
-            for_each = toset(var.additional_secrets)
+            for_each = toset(local.additional_secrets)
             content {
               secret_ref {
                 name = env_from.key
               }
             }
           }
-          env {
-            name  = "CACHE_URL"
-            value = coalesce(var.cache_url, "$(REDIS_URL)?key_prefix=${var.environment_slug}")
+          dynamic "env" {
+            for_each = toset(local.cache_url != "" ? [1] : [])
+
+            content {
+              name  = "CACHE_URL"
+              value = local.cache_url
+            }
           }
         }
       }

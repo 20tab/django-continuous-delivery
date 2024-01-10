@@ -1,1 +1,3 @@
 -r base.in
+django-configurations[cache,database,email]~=2.4.0
+django~=5.0
