@@ -207,7 +207,9 @@ coverage[toml]==7.4.0 \
     --hash=sha256:e7defbb9737274023e2d7af02cac77043c86ce88a907c58f42b580a97d5bcca9 \
     --hash=sha256:e9d1bf53c4c8de58d22e0e956a79a5b37f754ed1ffdbf1a260d9dcfa2d8a325e \
     --hash=sha256:ea81d8f9691bb53f4fb4db603203029643caffc82bf998ab5b59ca05560f4c06
-    # via -r requirements/test.in
+    # via
+    #   -r requirements/test.in
+    #   coverage
 decorator==5.1.1 \
     --hash=sha256:637996211036b6385ef91435e4fae22989472f9d571faba8927ba8253acbc330 \
     --hash=sha256:b8c3f85900b9dc423225913c5aace94729fe1fa9763b38939a95226f02d37186
@@ -523,24 +525,24 @@ rich==13.7.0 \
     --hash=sha256:5cb5123b5cf9ee70584244246816e9114227e0b98ad9176eede6ad54bf5403fa \
     --hash=sha256:6da14c108c4866ee9520bbffa71f6fe3962e193b7da68720583850cd4548e235
     # via cookiecutter
-ruff==0.0.292 \
-    --hash=sha256:02f29db018c9d474270c704e6c6b13b18ed0ecac82761e4fcf0faa3728430c96 \
-    --hash=sha256:1093449e37dd1e9b813798f6ad70932b57cf614e5c2b5c51005bf67d55db33ac \
-    --hash=sha256:69654e564342f507edfa09ee6897883ca76e331d4bbc3676d8a8403838e9fade \
-    --hash=sha256:6bdfabd4334684a4418b99b3118793f2c13bb67bf1540a769d7816410402a205 \
-    --hash=sha256:6c3c91859a9b845c33778f11902e7b26440d64b9d5110edd4e4fa1726c41e0a4 \
-    --hash=sha256:7f67a69c8f12fbc8daf6ae6d36705037bde315abf8b82b6e1f4c9e74eb750f68 \
-    --hash=sha256:87616771e72820800b8faea82edd858324b29bb99a920d6aa3d3949dd3f88fb0 \
-    --hash=sha256:8e087b24d0d849c5c81516ec740bf4fd48bf363cfb104545464e0fca749b6af9 \
-    --hash=sha256:9889bac18a0c07018aac75ef6c1e6511d8411724d67cb879103b01758e110a81 \
-    --hash=sha256:aa7c77c53bfcd75dbcd4d1f42d6cabf2485d2e1ee0678da850f08e1ab13081a8 \
-    --hash=sha256:ac153eee6dd4444501c4bb92bff866491d4bfb01ce26dd2fff7ca472c8df9ad0 \
-    --hash=sha256:b76deb3bdbea2ef97db286cf953488745dd6424c122d275f05836c53f62d4016 \
-    --hash=sha256:be8eb50eaf8648070b8e58ece8e69c9322d34afe367eec4210fdee9a555e4ca7 \
-    --hash=sha256:e854b05408f7a8033a027e4b1c7f9889563dd2aca545d13d06711e5c39c3d003 \
-    --hash=sha256:f160b5ec26be32362d0774964e218f3fcf0a7da299f7e220ef45ae9e3e67101a \
-    --hash=sha256:f27282bedfd04d4c3492e5c3398360c9d86a295be00eccc63914438b4ac8a83c \
-    --hash=sha256:f4476f1243af2d8c29da5f235c13dca52177117935e1f9393f9d90f9833f69e4
+ruff==0.1.11 \
+    --hash=sha256:09c415716884950080921dd6237767e52e227e397e2008e2bed410117679975b \
+    --hash=sha256:0f58948c6d212a6b8d41cd59e349751018797ce1727f961c2fa755ad6208ba45 \
+    --hash=sha256:190a566c8f766c37074d99640cd9ca3da11d8deae2deae7c9505e68a4a30f740 \
+    --hash=sha256:231d8fb11b2cc7c0366a326a66dafc6ad449d7fcdbc268497ee47e1334f66f77 \
+    --hash=sha256:4b077ce83f47dd6bea1991af08b140e8b8339f0ba8cb9b7a484c30ebab18a23f \
+    --hash=sha256:5b25093dad3b055667730a9b491129c42d45e11cdb7043b702e97125bcec48a1 \
+    --hash=sha256:6464289bd67b2344d2a5d9158d5eb81025258f169e69a46b741b396ffb0cda95 \
+    --hash=sha256:934832f6ed9b34a7d5feea58972635c2039c7a3b434fe5ba2ce015064cb6e955 \
+    --hash=sha256:97ce4d752f964ba559c7023a86e5f8e97f026d511e48013987623915431c7ea9 \
+    --hash=sha256:9b8f397902f92bc2e70fb6bebfa2139008dc72ae5177e66c383fa5426cb0bf2c \
+    --hash=sha256:9bd4025b9c5b429a48280785a2b71d479798a69f5c2919e7d274c5f4b32c3607 \
+    --hash=sha256:a7f772696b4cdc0a3b2e527fc3c7ccc41cdcb98f5c80fdd4f2b8c50eb1458196 \
+    --hash=sha256:c4a88efecec23c37b11076fe676e15c6cdb1271a38f2b415e381e87fe4517f18 \
+    --hash=sha256:e1ad00662305dcb1e987f5ec214d31f7d6a062cae3e74c1cbccef15afd96611d \
+    --hash=sha256:ea0d3e950e394c4b332bcdd112aa566010a9f9c95814844a7468325290aabfd9 \
+    --hash=sha256:eb85ee287b11f901037a6683b2374bb0ec82928c5cbc984f575d0437979c521a \
+    --hash=sha256:f9d4d88cb6eeb4dfe20f9f0519bd2eaba8119bde87c3d5065c541dbae2b5a2cb
     # via -r requirements/test.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
@@ -593,6 +595,7 @@ wheel==0.42.0 \
     # via pip-tools
 
 # WARNING: The following packages were not pinned, but pip requires them to be
-# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# pinned when the requirements file includes hashes and the requirement is not
+# satisfied by a package already installed. Consider using the --allow-unsafe flag.
 # pip
 # setuptools
