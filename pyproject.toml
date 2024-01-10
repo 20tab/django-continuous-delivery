@@ -22,7 +22,11 @@ ignore_missing_imports = true
 python_version = "3.12"
 
 [tool.bandit]
-exclude_dirs = [".venv", "tests", "features"]
+exclude_dirs = [
+    ".venv",
+    "tests",
+    "features"
+]
 
 [tool.ruff]
 extend-exclude = [
@@ -48,7 +52,16 @@ ignore = [
     "D416",
     "D417",
 ]
-select = ["A", "B", "C", "D", "E", "F", "I", "W", "B9"]
+select = [
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "I",
+    "W",
+    "B9"
+]
 target-version = "py312"
 
 [tool.ruff.isort]
