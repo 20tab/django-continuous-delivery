@@ -60,6 +60,7 @@ LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend
 ENV DJANGO_CONFIGURATION=Local INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends \
+        curl \
         gcc \
         gettext \
         git \
