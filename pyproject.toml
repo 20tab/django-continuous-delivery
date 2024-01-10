@@ -29,7 +29,7 @@ extend-exclude = [
     "__pycache__",
     ".vscode*",
 ]
-extend-ignore = [
+ignore = [
     "D203",
     "D212",
     "D213",
