@@ -1,4 +1,4 @@
-FROM python:3.12-slim-bullseye AS base
+FROM python:3.12-slim-bookworm AS base
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="base"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -67,7 +67,7 @@ RUN apt-get update \
         libpq-dev \
         make \
         openssh-client \
-        postgresql-client-13
+        postgresql-client
 USER $APPUSER
 COPY --chown=$APPUSER ./requirements/local.txt requirements/local.txt
 RUN python3 -m pip install --user --no-cache-dir -r requirements/local.txt
