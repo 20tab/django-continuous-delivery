@@ -10,6 +10,7 @@
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "false",
+  "local_s3_storage": "false",
   "use_vault": "false",
   "environments_distribution": "1",
   "resources": {

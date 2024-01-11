@@ -33,6 +33,8 @@ python3 -m pip install -r requirements/common.txt
 
 The `terraform` cli package is required, unless you want to generate a project only locally. To install it we suggest to use the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
+Should you opt for an S3-like object storage, you must install and launch MinIO Server's `mc` package as outlined in this [install guide](https://min.io/docs/minio/linux/index.html).
+
 ## 🔑 Credentials (optional)
 
 ### 🦊 GitLab
@@ -201,6 +203,16 @@ If you don't want DigitalOcean DNS configuration the following args are required
 | aws-s3          | AWS S3 are used to store media              | `--media-storage=aws-s3`          |
 | local           | Docker Volume are used to store media       | `--media-storage=local`           |
 | none            | Project have no media                       | `--media-storage=none`            |
+
+#### Local S3 storage
+
+For enabling a local S3-like object storage the following argument is needed:
+
+`--local-s3-storage`
+
+Disabled arg:
+
+`--no-local-s3-storage`
 
 #### Redis
 
