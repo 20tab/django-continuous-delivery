@@ -346,7 +346,7 @@ class Remote(ProjectDefault):
         return middleware
 
     # DB Transaction pooling and server-side cursors
-    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa: E501
+    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors
 
     DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
 
