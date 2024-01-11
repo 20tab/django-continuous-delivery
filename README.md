@@ -27,6 +27,7 @@ Then, create and activate a virtual environment and install the requirements:
 ```console
 python3.12 -m venv .venv
 source .venv/bin/activate
+python3 -m pip install --upgrade pip setuptools
 python3 -m pip install -r requirements/common.txt
 ```
 
