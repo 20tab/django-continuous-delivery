@@ -44,7 +44,7 @@ It can be generated in the GitLab User Settings panel.
 
 ## 🚀️ Quickstart
 
-Change to the projects directory, for example
+Change to the projects directory, for example:
 
 ```console
 cd ~/projects
@@ -56,9 +56,10 @@ cd ~/projects
 docker run --interactive --tty --rm --volume $PWD/.dumps:/app/.dumps --volume $PWD/.logs:/app/.logs --volume $PWD:/data 20tab/talos-django:latest
 ```
 
-### 👨‍💻 Shell command
+### 🐍 Virtual environment
 
 ```console
+source talos-django/.venv/bin/activate
 ./talos-django/start.py
 ```
 
