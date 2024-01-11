@@ -184,8 +184,6 @@ class ProjectDefault(Configuration):
 
     SESSION_COOKIE_SECURE = True
 
-    SESSION_COOKIE_SAMESITE = "Strict"
-
     # Secure Proxy SSL Header
     # https://docs.djangoproject.com/en/stable/ref/settings/#secure-proxy-ssl-header
 
@@ -379,8 +377,6 @@ class Remote(ProjectDefault):
 
     # Security
     # https://docs.djangoproject.com/en/stable/topics/security/
-
-    CSRF_COOKIE_SAMESITE = "Strict"
 
     CSRF_COOKIE_SECURE = True
 
