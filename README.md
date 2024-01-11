@@ -27,7 +27,7 @@ Then, create and activate a virtual environment and install the requirements:
 ```console
 python3.12 -m venv .venv
 . .venv/bin/activate
-python -m pip install -r requirements/common.txt
+python3 -m pip install -r requirements/common.txt
 ```
 
 You can leverage the optional `terraform` integration by installing the package via the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
