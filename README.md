@@ -14,7 +14,7 @@ In order to run Talos via Docker, a working [Docker installation](https://docs.d
 
 ### 🐍 Virtual environment
 
-In order to run Talos in a virtual environment first clone the repository in a local projects directory and the enter in it:
+In order to run Talos in a virtual environment, first clone the repository in a local projects directory and ensure it is your current root:
 
 ```console
 cd ~/projects
