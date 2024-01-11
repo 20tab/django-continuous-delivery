@@ -19,7 +19,7 @@ omit = [
     "{{cookiecutter.django_settings_dirname}}/asgi.py",
     "{{cookiecutter.django_settings_dirname}}/workers.py",
     "{{cookiecutter.django_settings_dirname}}/wsgi.py",
-    "manage*.py",
+    "manage.py",
     "pacts/*",
     "venv/*",
     "*/pact_states.py",

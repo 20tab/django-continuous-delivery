@@ -29,7 +29,7 @@ dumpgroups:  ## Django dump auth.Group data
 	python3 -m manage dumpdata auth.Group --natural-foreign --natural-primary --output fixtures/auth_groups.json
 
 .PHONY: fix
-fix:  ## Fix code formatting, linting and sorting imports
+fix:  ## Fix Python code formatting, linting and sorting imports
 	python3 -m ruff format .
 	python3 -m ruff --fix .
 	python3 -m mypy --no-site-packages .
@@ -73,11 +73,11 @@ outdated:  ## Check outdated requirements and dependencies
 
 .PHONY: pip
 pip: pip_update  ## Compile requirements
-	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/base.txt requirements/base.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/common.txt requirements/common.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/local.txt requirements/local.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/remote.txt requirements/remote.in
-	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --upgrade --output-file requirements/test.txt requirements/test.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --strip-extras --upgrade --output-file requirements/base.txt requirements/base.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --strip-extras --upgrade --output-file requirements/common.txt requirements/common.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --strip-extras --upgrade --output-file requirements/local.txt requirements/local.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --strip-extras --upgrade --output-file requirements/remote.txt requirements/remote.in
+	python3 -m piptools compile --generate-hashes --no-header --quiet --resolver=backtracking --strip-extras --upgrade --output-file requirements/test.txt requirements/test.in
 
 .PHONY: pip_update
 pip_update:  ## Update requirements and dependencies
@@ -87,12 +87,16 @@ pip_update:  ## Update requirements and dependencies
 precommit:  ## Fix code formatting, linting and sorting imports
 	python3 -m pre_commit run --all-files
 
+.PHONY: precommit_install
+precommit_install:  ## Install pre_commit
+	python3 -m pre_commit install
+
 .PHONY: precommit_update
 precommit_update:  ## Update pre_commit
 	python3 -m pre_commit autoupdate
 
 .PHONY: pytest
-pytest:  ## Run debugging test
+pytest:  ## Run debugging test with pytest
 	python3 -m pytest --capture=no --dc=Testing --durations 10
 
 .PHONY: remote

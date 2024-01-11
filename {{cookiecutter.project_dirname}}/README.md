@@ -25,7 +25,7 @@ A [Django](https://docs.djangoproject.com) project using [uvicorn](https://www.u
 ## Conventions
 
 -   replace `projects` with your actual projects directory
--   replace `git_repository_url` with your actual git repository url
+-   replace `git_repository_url` with your actual git repository URL
 
 ## Initialization
 
@@ -33,28 +33,28 @@ We suggest updating pip to the latest version and using a virtual environment to
 
 ### Virtual environment
 
-**IMPORTANT**: Please, create an empty virtual environment, with the right python version, and activate it.
-To install and use virtualenv, please, visit the official [Python tutorial](https://docs.python.org/3/tutorial/venv.html)
+**IMPORTANT**: Please, create an empty virtual environment, with the right Python version, and activate it.
+To install and use a virtual environment, please, visit the official [Python tutorial](https://docs.python.org/3/tutorial/venv.html)
 
 ## Git
 
 ### Git clone
 
-To get the existing project, change directory, clone the project repository and enter the newly created **{{ cookiecutter.project_slug }}** directory.
+To get the existing project, change the directory, clone the project repository and enter the newly created `{{ cookiecutter.project_slug }}` directory.
 
 ### Git hooks
 
-To install pre-commit into your git hooks run the below command. Pre-commit will now run on every commit. Every time you clone a project using pre-commit, running pre-commit install should always be the first thing you do.
+To install pre-commit into your git hooks run the below command. Pre-commit will now run on every commit. Every time you clone a project using pre-commit, running `pre-commit` install should always be the first thing you do.
 
 ```shell
-$ pre-commit install
+$ make precommit_install
 ```
 
 ## Libraries
 
-### Self documentation of Makefile commands
+### Self-documentation of Makefile commands
 
-To show the Makefile self documentation help:
+To show the Makefile self-documentation help:
 
 ```shell
 $ make
@@ -80,10 +80,10 @@ $ make pip
 
 ### Install libraries
 
-To install the just updated requirements (e.g. `requirements/dev.txt`), execute:
+To install the just updated requirements (e.g. `requirements/local.txt`), execute:
 
 ```shell
-$ make dev
+$ make local
 ```
 
 ## Testing
@@ -106,7 +106,7 @@ To run a single test suite, without coverage calculation, execute:
 $ make simpletest app.tests.single.Test.to_execute
 ```
 
-The _simpletest_ command accept dashed arguments with a particular syntax, such as:
+The `simpletest` command accepts dashed arguments with a particular syntax, such as:
 
 ```shell
 $ make simpletest app.tests.single.Test.to_execute -- --keepdb
@@ -130,8 +130,10 @@ The configuration file `.gitlab-ci.yml` should work as it is, needing no further
 
 ### The Kubernetes resource limits
 
-The Kubernetes deployment service limits should be adapted to the expected load of the other services and to the size of the available nodes.
+The Kubernetes deployment service limits should be adapted to the expected load of the other services and the size of the available nodes.
+
 By default, the `s-1vcpu-1gb-amd` DigitalOcean droplet is used (https://slugs.do-api.dev/), which allocates 900.00m of CPU capacity and 1.54Gi of memory capacity.
+
 The following default values are calculated assuming 2 deployments and 2 stacks on a single node.
 
 | tfvars name             | default value |
