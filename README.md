@@ -14,7 +14,7 @@ In order to run Talos via Docker, a working [Docker installation](https://docs.d
 
 ### 🐍 Virtual environment
 
-In order to run Talos in a virtual environment, first clone the repository in a local projects directory and ensure it is your current root:
+In order to run Talos in a virtual environment, first clone the repository in a local projects directory and ensure it is your current directory:
 
 ```console
 cd ~/projects
@@ -30,9 +30,9 @@ source .venv/bin/activate
 python3 -m pip install -r requirements/common.txt
 ```
 
-You can leverage the optional `terraform` integration by installing the package via the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+You can leverage the optional `terraform` integration by installing the `cli` via the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
-## 🔑 Credentials
+## 🔑 Credentials (optional)
 
 ### 🦊 GitLab
 
