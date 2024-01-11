@@ -1,6 +1,3 @@
-[tool.black]
-target-version = ["py312"]
-
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
 DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"
@@ -82,7 +79,12 @@ select = [
 target-version = "py312"
 
 [tool.ruff.per-file-ignores]
-"{{ cookiecutter.django_settings_dirname }}/*sgi.py" = ["E402"]
+"{{ cookiecutter.django_settings_dirname }}/*sgi.py" = [
+    "E402",
+]
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.ruff.isort]
 known-first-party = [

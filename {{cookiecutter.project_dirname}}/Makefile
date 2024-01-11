@@ -30,7 +30,7 @@ dumpgroups:  ## Django dump auth.Group data
 
 .PHONY: fix
 fix:  ## Fix code formatting, linting and sorting imports
-	python3 -m black .
+	python3 -m ruff format .
 	python3 -m ruff --fix .
 	python3 -m mypy --no-site-packages .
 

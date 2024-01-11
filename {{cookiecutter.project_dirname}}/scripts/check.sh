@@ -4,7 +4,7 @@ set -euo pipefail
 
 python3 -m manage check
 python3 -m manage makemigrations --dry-run --check
-python3 -m black --check .
+python3 -m ruff format --check .
 python3 -m ruff check .
 python3 -m mypy --no-site-packages .
 python3 -m bandit --configfile pyproject.toml --quiet --recursive .
