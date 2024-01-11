@@ -12,21 +12,25 @@ The Talos script can be run either using Docker or a Python virtual environment.
 
 In order to run Talos via Docker, a working [Docker installation](https://docs.docker.com/get-docker/) is the only requirement.
 
-### 👨‍💻 Shell command
+### 🐍 Virtual environment
 
-In order to run Talos as a shell command, first clone the repository in a local projects directory
+In order to run Talos in a virtual environment first clone the repository in a local projects directory and the enter in it:
 
 ```console
 cd ~/projects
 git clone git@github.com:20tab/django-continuous-delivery.git talos-django
+cd talos-django
 ```
 
-Then, install the following requirements
+Then, create and activate a virtual environment and install the requirements:
 
-| Requirements           | Instructions                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------- |
-| 🌎 Terraform           | [Install Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli) |
-| 🐍 Python Dependencies | `pip install -r talos-django/requirements/common.txt`                        |
+```console
+python3.12 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements/common.txt
+```
+
+Optionally, in order to use `terraform`, you have to install it using the [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
 ## 🔑 Credentials
 
