@@ -26,7 +26,7 @@ Then, create and activate a virtual environment and install the requirements:
 
 ```console
 python3.12 -m venv .venv
-. .venv/bin/activate
+source .venv/bin/activate
 python3 -m pip install -r requirements/common.txt
 ```
 
