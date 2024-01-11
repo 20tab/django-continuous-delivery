@@ -30,7 +30,7 @@ python3.12 -m venv .venv
 python -m pip install -r requirements/common.txt
 ```
 
-Optionally, in order to use `terraform`, you have to install it using the [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+You can leverage the optional `terraform` integration by installing the package via the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
 ## 🔑 Credentials
 
