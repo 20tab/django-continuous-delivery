@@ -208,7 +208,7 @@ class Local(ProjectDefault):
     # https://django-debug-toolbar.readthedocs.io/en/stable/configuration.html
 
     try:
-        import debug_toolbar  # noqa: F401
+        import debug_toolbar
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -221,7 +221,7 @@ class Local(ProjectDefault):
     # https://django-extensions.readthedocs.io/en/stable/graph_models.html
 
     try:
-        import django_extensions  # noqa: F401
+        import django_extensions
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -306,7 +306,7 @@ class Testing(ProjectDefault):
     # https://behave-django.readthedocs.io/en/latest/installation.html
 
     try:
-        import behave_django  # noqa: F401
+        import behave_django
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover
@@ -346,7 +346,7 @@ class Remote(ProjectDefault):
         return middleware
 
     # DB Transaction pooling and server-side cursors
-    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors  # noqa
+    # https://docs.djangoproject.com/en/stable/ref/databases/#transaction-pooling-and-server-side-cursors
 
     DISABLE_SERVER_SIDE_CURSORS = values.BooleanValue(False)
 
@@ -426,7 +426,7 @@ class Remote(ProjectDefault):
     # https://sentry.io/for/django/
 
     try:
-        import sentry_sdk  # noqa: F401
+        import sentry_sdk
     except ModuleNotFoundError:  # pragma: no cover
         pass
     else:  # pragma: no cover{% if cookiecutter.use_redis == "true" %}
