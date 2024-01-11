@@ -6,7 +6,7 @@
 
 ## 🧩 Requirements
 
-The Talos script can be run either using Docker or as a local shell command.
+The Talos script can be run either using Docker or a Python virtual environment.
 
 ### 🐋 Docker
 
