@@ -25,6 +25,11 @@ repos:
         args: ["--remove"]
       - id: mixed-line-ending
       - id: trailing-whitespace
+  - repo: https://github.com/adamchainz/django-upgrade
+    rev: "1.15.0"
+    hooks:
+      - id: django-upgrade
+        args: [--target-version, "5.0"]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.1.11
     hooks:
@@ -32,11 +37,6 @@ repos:
         args:
           - --fix
       - id: ruff-format
-  - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.15.0"
-    hooks:
-      - id: django-upgrade
-        args: [--target-version, "5.0"]
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: "1.5.3"
     hooks:
