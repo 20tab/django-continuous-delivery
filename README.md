@@ -31,7 +31,7 @@ python3 -m pip install --upgrade pip setuptools
 python3 -m pip install -r requirements/common.txt
 ```
 
-You can leverage the optional `terraform` integration by installing the cli package via the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+The `terraform` cli package is required, unless you want to generate a project only locally. To install it we suggest to use the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
 ## 🔑 Credentials (optional)
 
