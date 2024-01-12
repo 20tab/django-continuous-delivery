@@ -6,29 +6,34 @@
 
 ## 🧩 Requirements
 
-The Talos script can be run either using Docker or as a local shell command.
+The Talos script can be run either using Docker or a Python virtual environment.
 
 ### 🐋 Docker
 
 In order to run Talos via Docker, a working [Docker installation](https://docs.docker.com/get-docker/) is the only requirement.
 
-### 👨‍💻 Shell command
+### 🐍 Virtual environment
 
-In order to run Talos as a shell command, first clone the repository in a local projects directory
+In order to run Talos in a virtual environment, first clone the repository in a local projects directory and ensure it is your current directory:
 
 ```console
 cd ~/projects
 git clone git@github.com:20tab/django-continuous-delivery.git talos-django
+cd talos-django
 ```
 
-Then, install the following requirements
+Then, create and activate a virtual environment and install the requirements:
 
-| Requirements           | Instructions                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------- |
-| 🌎 Terraform           | [Install Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli) |
-| 🐍 Python Dependencies | `pip install -r talos-django/requirements/common.txt`                        |
+```console
+python3.12 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install --upgrade pip setuptools
+python3 -m pip install -r requirements/common.txt
+```
 
-## 🔑 Credentials
+The `terraform` cli package is required, unless you want to generate a project only locally. To install it we suggest to use the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+
+## 🔑 Credentials (optional)
 
 ### 🦊 GitLab
 
@@ -40,7 +45,7 @@ It can be generated in the GitLab User Settings panel.
 
 ## 🚀️ Quickstart
 
-Change to the projects directory, for example
+Change to the projects directory, for example:
 
 ```console
 cd ~/projects
@@ -52,9 +57,10 @@ cd ~/projects
 docker run --interactive --tty --rm --volume $PWD/.dumps:/app/.dumps --volume $PWD/.logs:/app/.logs --volume $PWD:/data 20tab/talos-django:latest
 ```
 
-### 👨‍💻 Shell command
+### 🐍 Virtual environment
 
 ```console
+source talos-django/.venv/bin/activate
 ./talos-django/start.py
 ```
 

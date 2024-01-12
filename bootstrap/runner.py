@@ -275,8 +275,8 @@ class Runner:
             [
                 "python3",
                 "-m",
-                "black",
-                "-q",
+                "ruff",
+                "format",
                 f"{self.service_dir.resolve()}",
             ]
         )
@@ -294,6 +294,7 @@ class Runner:
             "--no-header",
             "--quiet",
             "--resolver=backtracking",
+            "--strip-extras",
             "--upgrade",
             "--output-file",
         ]
