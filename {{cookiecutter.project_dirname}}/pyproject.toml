@@ -1,45 +1,3 @@
-[tool.pytest.ini_options]
-DJANGO_CONFIGURATION = "Testing"
-DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"
-
-[tool.coverage.html]
-title = "{{cookiecutter.project_name}} - Coverage"
-
-[tool.coverage.report]
-fail_under = 100
-show_missing = true
-
-[tool.coverage.run]
-branch = true
-concurrency = ["multiprocessing"]
-data_file = ".coverages/.coverage"
-disable_warnings = ["no-data-collected"]
-omit = [
-    ".venv/*",
-    "{{cookiecutter.django_settings_dirname}}/asgi.py",
-    "{{cookiecutter.django_settings_dirname}}/workers.py",
-    "{{cookiecutter.django_settings_dirname}}/wsgi.py",
-    "manage.py",
-    "pacts/*",
-    "venv/*",
-    "*/pact_states.py",
-]
-source = ["."]
-
-[tool.mypy]
-enable_error_code = [
-    "truthy-bool",
-]
-ignore_missing_imports = true
-python_version = "3.12"
-
-[tool.bandit]
-exclude_dirs = [
-    ".venv",
-    "tests",
-    "features"
-]
-
 [tool.ruff]
 target-version = "py312"
 
@@ -83,4 +41,46 @@ known-first-party = [
 ]
 known-third-party = [
     "django",
+]
+
+[tool.pytest.ini_options]
+DJANGO_CONFIGURATION = "Testing"
+DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"
+
+[tool.coverage.html]
+title = "{{cookiecutter.project_name}} - Coverage"
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[tool.coverage.run]
+branch = true
+concurrency = ["multiprocessing"]
+data_file = ".coverages/.coverage"
+disable_warnings = ["no-data-collected"]
+omit = [
+    ".venv/*",
+    "{{cookiecutter.django_settings_dirname}}/asgi.py",
+    "{{cookiecutter.django_settings_dirname}}/workers.py",
+    "{{cookiecutter.django_settings_dirname}}/wsgi.py",
+    "manage.py",
+    "pacts/*",
+    "venv/*",
+    "*/pact_states.py",
+]
+source = ["."]
+
+[tool.mypy]
+enable_error_code = [
+    "truthy-bool",
+]
+ignore_missing_imports = true
+python_version = "3.12"
+
+[tool.bandit]
+exclude_dirs = [
+    ".venv",
+    "tests",
+    "features"
 ]

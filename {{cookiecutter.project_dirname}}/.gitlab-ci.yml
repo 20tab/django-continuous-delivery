@@ -203,8 +203,7 @@ pact-verify-webhook:
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $PACT_ENABLED == "true"
       allow_failure: true
-  before_script:
-    *pact-verify-before-script
+  before_script: *pact-verify-before-script
   script:
     - docker-compose build
     - >
