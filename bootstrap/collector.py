@@ -61,6 +61,7 @@ class Collector:
     sentry_org: str | None = None
     sentry_url: str | None = None
     media_storage: str | None = None
+    local_s3_storage: bool | None = None
     gitlab_url: str | None = None
     gitlab_token: str | None = None
     gitlab_namespace_path: str | None = None
@@ -89,6 +90,7 @@ class Collector:
         self.set_sentry()
         self.set_gitlab()
         self.set_media_storage()
+        self.set_local_s3_storage()
 
     def set_project_slug(self):
         """Set the project slug option."""
@@ -286,6 +288,13 @@ class Collector:
                 type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
             ).lower()
 
+    def set_local_s3_storage(self):
+        """Set the local S3 storage option."""
+        if "s3" in self.media_storage and self.local_s3_storage is None:
+            self.local_s3_storage = click.confirm(
+                warning("Do you want to use the local S3 storage?"), default=False
+            )
+
     def get_runner(self):
         """Get the bootstrap runner instance."""
         return Runner(
@@ -315,6 +324,7 @@ class Collector:
             sentry_org=self.sentry_org,
             sentry_url=self.sentry_url,
             media_storage=self.media_storage,
+            local_s3_storage=self.local_s3_storage,
             use_redis=self.use_redis,
             gitlab_url=self.gitlab_url,
             gitlab_token=self.gitlab_token,

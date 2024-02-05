@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
+import re
 import string
 from copy import deepcopy
 from pathlib import Path
@@ -141,6 +142,50 @@ class ProjectDefault(Configuration):
     # MEDIA_URL = "/media/"
 
     # MEDIA_ROOT = BASE_DIR / "media"{% endif %}
+
+    {% if cookiecutter.local_s3_storage == "true" %}# Django Storages
+    # https://django-storages.readthedocs.io/en/latest/
+
+    AWS_S3_URL = values.Value()
+
+    @property
+    def AWS_S3_URL_PARTS(self):
+        """Return the AWS S3 URL parts."""
+        pattern = re.compile(
+            r"^(?P<scheme>https?):\/\/(?P<access_key_id>.+?):(?P<secret_access_key>.+?)"
+            r"@(?P<host>.+?)(?::(?P<port>\d*?))?\/(?P<bucket_name>.+)$"
+        )
+        return pattern.match(self.AWS_S3_URL).groupdict()
+
+    @property
+    def AWS_STORAGE_BUCKET_NAME(self):
+        """Return the AWS storage bucket name."""
+        return self.AWS_S3_URL_PARTS["bucket_name"]
+
+    @property
+    def AWS_S3_ENDPOINT_URL(self):
+        """Return the AWS S3 endpoint URL."""
+        return (
+            f'{self.AWS_S3_URL_PARTS["scheme"]}://'
+            f'{self.AWS_S3_URL_PARTS["host"]}'
+            f':{self.AWS_S3_URL_PARTS["port"]}'
+        )
+
+    AWS_LOCATION = ""
+
+    AWS_S3_FILE_OVERWRITE = False{% endif %}
+
+    # Storage
+    # https://docs.djangoproject.com/en/stable/ref/files/storage/
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }{% endif %}
 
     # Email Settings
     # https://docs.djangoproject.com/en/stable/topics/email/
@@ -281,7 +326,7 @@ class Testing(ProjectDefault):
     # Cache URL
     # https://django-configurations.readthedocs.io/en/stable/values/
 
-    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}{% if "s3" not in cookiecutter.media_storage %}
 
     # Storages
     # https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-STORAGES
@@ -293,7 +338,7 @@ class Testing(ProjectDefault):
         "staticfiles": {
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
-    }
+    }{% endif %}
 
     # The MD5 based password hasher is much less secure but faster
     # https://docs.djangoproject.com/en/stable/topics/auth/passwords/
@@ -405,10 +450,10 @@ class Remote(ProjectDefault):
         """Return the storage settings."""
         storages = deepcopy(
             ProjectDefault.STORAGES
-        )  # noqa{% if "s3" in cookiecutter.media_storage %}
+        ){% if "s3" in cookiecutter.media_storage and cookiecutter.local_s3_storage == "false" %}
         storages["default"][
             "BACKEND"
-        ] = "storages.backends.s3boto3.S3Boto3Storage"  # noqa{% endif %}
+        ] = "storages.backends.s3boto3.S3Boto3Storage"{% endif %}
         try:
             # WhiteNoise
             # http://whitenoise.evans.io/en/stable/django.html
@@ -420,7 +465,39 @@ class Remote(ProjectDefault):
             storages["staticfiles"][
                 "BACKEND"
             ] = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-        return storages
+        return storages{% if "s3" in cookiecutter.media_storage and cookiecutter.local_s3_storage == "false" %}
+
+    # Django Storages
+    # https://django-storages.readthedocs.io/en/latest/
+
+    AWS_S3_URL = values.Value()
+
+    @property
+    def AWS_S3_URL_PARTS(self):
+        """Return the AWS S3 URL parts."""
+        pattern = re.compile(
+            r"^(?P<scheme>https?):\/\/(?P<access_key_id>.+?):(?P<secret_access_key>.+?)"
+            r"@(?P<host>.+?)(?::(?P<port>\d*?))?\/(?P<bucket_name>.+)$"
+        )
+        return pattern.match(self.AWS_S3_URL).groupdict()
+
+    @property
+    def AWS_STORAGE_BUCKET_NAME(self):
+        """Return the AWS storage bucket name."""
+        return self.AWS_S3_URL_PARTS["bucket_name"]
+
+    @property
+    def AWS_S3_ENDPOINT_URL(self):
+        """Return the AWS S3 endpoint URL."""
+        return (
+            f'{self.AWS_S3_URL_PARTS["scheme"]}://'
+            f'{self.AWS_S3_URL_PARTS["host"]}'
+            f':{self.AWS_S3_URL_PARTS["port"]}'
+        )
+
+    AWS_LOCATION = ""
+
+    AWS_S3_FILE_OVERWRITE = False{% endif %}
 
     # Sentry
     # https://sentry.io/for/django/
@@ -436,21 +513,10 @@ class Remote(ProjectDefault):
         sentry_sdk.init(
             integrations=[DjangoIntegration(), RedisIntegration()],
             send_default_pii=True,
-        )  # noqa{% else %}
+        ){% else %}
         from sentry_sdk.integrations.django import DjangoIntegration
 
         sentry_sdk.init(
             integrations=[DjangoIntegration()],
             send_default_pii=True,
-        )  # noqa{% endif %}{% if "s3" in cookiecutter.media_storage %}
-
-    # Django Storages
-    # https://django-storages.readthedocs.io/en/stable/
-
-    AWS_LOCATION = values.Value("")
-
-    AWS_S3_ENDPOINT_URL = values.Value()
-
-    AWS_S3_FILE_OVERWRITE = values.BooleanValue(False)
-
-    AWS_STORAGE_BUCKET_NAME = values.Value()  # noqa{% endif %}
+        ){% endif %}

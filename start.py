@@ -62,6 +62,7 @@ from bootstrap.helpers import slugify_option
     "--media-storage",
     type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
 )
+@click.option("--local-s3-storage/--no-local-s3-storage", is_flag=True, default=None)
 @click.option("--use-redis/--no-redis", is_flag=True, default=None)
 @click.option("--gitlab-url")
 @click.option("--gitlab-token", envvar=GITLAB_TOKEN_ENV_VAR)

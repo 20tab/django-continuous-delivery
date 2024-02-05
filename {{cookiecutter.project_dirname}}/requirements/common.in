@@ -1,3 +1,4 @@
 -r base.in
 django-configurations[cache,database,email]~=2.5.0
-django~=5.0.0
+{% if "s3" in cookiecutter.media_storage %}django-storages[boto3]~=1.14.0
+{% endif %}django~=5.0.0
