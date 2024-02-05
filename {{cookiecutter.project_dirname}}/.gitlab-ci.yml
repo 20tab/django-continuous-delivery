@@ -142,7 +142,7 @@ test:
     - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/htmlcov htmlcov{% if cookiecutter.local_s3_storage == "true" %}
     - docker network create --subnet=172.20.0.0/16 custom
     - docker network connect --ip 172.20.0.11 custom minio
-    - docker network connect --ip 172.20.0.13 custom postgres{% endif %}
+    - docker network connect --ip 172.20.0.12 custom postgres{% endif %}
   after_script:
     - docker-compose down -v
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
