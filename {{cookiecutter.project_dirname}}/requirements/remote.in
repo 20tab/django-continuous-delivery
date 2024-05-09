@@ -1,7 +1,7 @@
 -r common.in
 argon2-cffi~=23.1.0
 {% if "s3" in cookiecutter.media_storage %}django-storages[boto3]~=1.14.0
-{% endif %}gunicorn~=21.2.0
+{% endif %}gunicorn~=22.0.0
 {% if cookiecutter.use_redis == "true" %}redis~=5.0.0
 {% endif %}sentry-sdk~=1.39.0
 uvicorn[standard]~=0.25.0
