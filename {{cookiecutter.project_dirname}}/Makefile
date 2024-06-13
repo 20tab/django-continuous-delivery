@@ -18,7 +18,12 @@ compilemessages:  ## Django compilemessages
 
 .PHONY: coverage
 coverage:  ## Run coverage
-	./scripts/coverage.sh
+	./scripts/coverage.sh{% if cookiecutter.local_s3_storage == "true" %}
+
+.PHONY: createbucket
+createbucket:  ## Create MinIO bucket
+	minio-client mb --quiet minio/{{ cookiecutter.project_slug }};
+	minio-client anonymous set public minio/{{ cookiecutter.project_slug }};{% endif %}
 
 .PHONY: createsuperuser
 createsuperuser:  ## Django createsuperuser

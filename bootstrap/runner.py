@@ -73,6 +73,7 @@ class Runner:
     sentry_url: str | None = None
     media_storage: str
     use_redis: bool = False
+    local_s3_storage: bool = False
     gitlab_url: str | None = None
     gitlab_namespace_path: str | None = None
     gitlab_token: str | None = None
@@ -251,6 +252,7 @@ class Runner:
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
                 "use_redis": self.use_redis and "true" or "false",
+                "local_s3_storage": self.local_s3_storage and "true" or "false",
                 "use_vault": self.vault_url and "true" or "false",
             },
             output_dir=self.output_dir,
