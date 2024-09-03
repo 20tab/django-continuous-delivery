@@ -28,15 +28,14 @@ RUN apt-get update \
         libc6-dev \
         libpq-dev \
     && su $APPUSER -c "python3 -m pip install --no-cache-dir -r requirements/base.txt" \
-    && find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true \
     && apt-get purge --assume-yes --auto-remove \
         gcc \
         libc6-dev \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY --chown=$APPUSER ./requirements/common.txt requirements/common.txt
-RUN su $APPUSER -c "python3 -m pip install --no-cache-dir -r requirements/common.txt" \
-    && find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true
+RUN su $APPUSER -c "python3 -m pip install --no-cache-dir -r requirements/common.txt"
+RUN find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true
 
 FROM base AS test
 
@@ -55,8 +54,8 @@ ENV DJANGO_CONFIGURATION=Remote INTERNAL_SERVICE_PORT={{ cookiecutter.internal_s
 USER $APPUSER
 ARG PACKAGES_PATH=${VIRTUAL_ENV}/lib/python3.12/site-packages
 COPY --chown=$APPUSER ./requirements/remote.txt requirements/remote.txt
-RUN python3 -m pip install --no-cache-dir -r requirements/remote.txt \
-    && find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
+RUN python3 -m pip install --no-cache-dir -r requirements/remote.txt
+RUN find ${PACKAGES_PATH}/boto*/data/* -maxdepth 0 -type d -not -name s3* -exec rm -rf {} \; || true
 COPY --chown=$APPUSER . .
 RUN DJANGO_SECRET_KEY=build python3 -m manage collectstatic --clear --link --noinput
 ENTRYPOINT ["./scripts/entrypoint.sh"]
@@ -66,6 +65,7 @@ FROM base AS local
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="backend" stage="local"
 ENV DJANGO_CONFIGURATION=Local INTERNAL_SERVICE_PORT={{ cookiecutter.internal_service_port }}
+ARG PACKAGES_PATH=${VIRTUAL_ENV}/lib/python3.12/site-packages
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends \
         curl \
@@ -79,8 +79,8 @@ RUN apt-get update \
         postgresql-client
 USER $APPUSER
 COPY --chown=$APPUSER ./requirements/local.txt requirements/local.txt
-RUN python3 -m pip install --no-cache-dir -r requirements/local.txt \
-    && find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true
+RUN python3 -m pip install --no-cache-dir -r requirements/local.txt
+RUN find ${PACKAGES_PATH} -regex '^.*/locale/.*/*.\(mo\|po\)$' -not -path '*/en*' -not -path '*/it*' -delete || true
 COPY --chown=$APPUSER . .
 RUN DJANGO_SECRET_KEY=build python3 -m manage collectstatic --clear --link --noinput
 ENTRYPOINT ["./scripts/entrypoint.sh"]
