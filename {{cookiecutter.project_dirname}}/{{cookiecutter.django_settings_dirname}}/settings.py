@@ -180,7 +180,7 @@ class ProjectDefault(Configuration):
     # Session auth
     # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
 
-    SESSION_COOKIE_DOMAIN = values.Value()
+    SESSION_COOKIE_DOMAIN = None
 
     SESSION_COOKIE_SECURE = True
 
@@ -391,6 +391,11 @@ class Remote(ProjectDefault):
     SECURE_HSTS_SECONDS = 3_600
 
     X_FRAME_OPTIONS = "DENY"
+
+    # Session auth
+    # https://docs.djangoproject.com/en/stable/ref/settings/#sessions
+
+    SESSION_COOKIE_DOMAIN = values.Value()
 
     # Persistent connections
     # https://docs.djangoproject.com/en/stable/ref/databases/#general-notes
