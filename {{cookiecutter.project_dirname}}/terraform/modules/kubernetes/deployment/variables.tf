@@ -26,7 +26,6 @@ variable "django_default_from_email" {
 variable "django_disable_server_side_cursors" {
   type        = string
   description = "The value of the DJANGO_DISABLE_SERVER_SIDE_CURSORS environment variable."
-  default     = "False"
 }
 
 variable "django_server_email" {
