@@ -8,7 +8,7 @@
   "deployment_type": ["digitalocean-k8s", "other-k8s"],
   "terraform_backend": "gitlab",
   "terraform_cloud_organization": "",
-  "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
+  "media_storage": ["digitalocean-s3", "aws-s3", "local", "none"],
   "use_redis": "false",
   "use_vault": "false",
   "environments_distribution": "1",
