@@ -93,21 +93,22 @@ module "deployment" {
 
   media_persistent_volume_claim_name = var.media_storage == "local" ? kubernetes_persistent_volume_claim_v1.media[0].metadata[0].name : ""
 
-  cache_url                       = var.cache_url
-  django_additional_allowed_hosts = var.django_additional_allowed_hosts
-  django_admins                   = var.django_admins
-  django_default_from_email       = var.django_default_from_email
-  django_server_email             = var.django_server_email
-  email_url                       = var.email_url
-  s3_access_id                    = var.s3_access_id
-  s3_bucket_name                  = var.s3_bucket_name
-  s3_file_overwrite               = var.s3_file_overwrite
-  s3_host                         = var.s3_host
-  s3_region                       = var.s3_region
-  s3_secret_key                   = var.s3_secret_key
-  sentry_dsn                      = var.sentry_dsn
-  use_redis                       = var.use_redis
-  web_concurrency                 = var.web_concurrency
+  cache_url                          = var.cache_url
+  django_additional_allowed_hosts    = var.django_additional_allowed_hosts
+  django_admins                      = var.django_admins
+  django_default_from_email          = var.django_default_from_email
+  django_disable_server_side_cursors = var.django_disable_server_side_cursors
+  django_server_email                = var.django_server_email
+  email_url                          = var.email_url
+  s3_access_id                       = var.s3_access_id
+  s3_bucket_name                     = var.s3_bucket_name
+  s3_file_overwrite                  = var.s3_file_overwrite
+  s3_host                            = var.s3_host
+  s3_region                          = var.s3_region
+  s3_secret_key                      = var.s3_secret_key
+  sentry_dsn                         = var.sentry_dsn
+  use_redis                          = var.use_redis
+  web_concurrency                    = var.web_concurrency
 
   extra_config_values = var.extra_config_values
   extra_secret_values = var.extra_secret_values
