@@ -3,4 +3,5 @@
 set -euo pipefail
 
 python3 -m manage migrate --noinput
-exec "${@}"
+
+exec python3 -m manage runserver "0.0.0.0:${INTERNAL_SERVICE_PORT:-8000}"
