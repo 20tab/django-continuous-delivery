@@ -107,3 +107,37 @@ TERRAFORM_BACKEND_CHOICES = [TERRAFORM_BACKEND_GITLAB, TERRAFORM_BACKEND_TFC]
 # GitLab
 
 GITLAB_URL_DEFAULT = "https://gitlab.com"
+
+# Clusters — declared here (service-side) so env→cluster mapping has a stable vocabulary
+
+CLUSTER_DEV_SLUG = "dev"
+
+CLUSTER_MAIN_SLUG = "main"
+
+# Environments — BEWARE: environment names must be suitable for inclusion in Vault paths
+
+ENV_NAMES = ["development", "staging", "production"]
+
+ENV_TO_CLUSTER_DEFAULT: dict[str, str] = {
+    "development": CLUSTER_DEV_SLUG,
+    "staging": CLUSTER_DEV_SLUG,
+    "production": CLUSTER_MAIN_SLUG,
+}
+
+# Vault
+
+VAULT_SERVICE_ROLE = "service-gitlab-job"
+
+# Minos
+
+MINOS_SERVICE_IMAGE = "registry.gitlab.com/20tab-open/minos/service:latest"
+
+# OpenTofu
+
+OPENTOFU_COMPONENT_VERSION = "3.11.0"
+
+OPENTOFU_VERSION = "1.10.6"
+
+# Python
+
+PYTHON_VERSION_DEFAULT = "3.14"
