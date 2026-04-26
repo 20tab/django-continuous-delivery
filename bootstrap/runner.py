@@ -17,18 +17,11 @@ from pydantic import validate_arguments
 from bootstrap.constants import (
     DEV_ENV_NAME,
     DEV_ENV_SLUG,
-    DEV_ENV_STACK_CHOICES,
-    DEV_STACK_SLUG,
     GITLAB_URL_DEFAULT,
-    MAIN_STACK_SLUG,
     PROD_ENV_NAME,
     PROD_ENV_SLUG,
-    PROD_ENV_STACK_CHOICES,
-    STACKS_CHOICES,
     STAGE_ENV_NAME,
     STAGE_ENV_SLUG,
-    STAGE_ENV_STACK_CHOICES,
-    STAGE_STACK_SLUG,
     TERRAFORM_BACKEND_TFC,
 )
 from bootstrap.exceptions import BootstrapError
@@ -55,8 +48,7 @@ class Runner:
     service_dir: Path
     service_slug: str
     internal_service_port: int
-    deployment_type: str
-    environments_distribution: str
+    env_to_cluster: dict[str, str]
     project_url_dev: str = ""
     project_url_stage: str = ""
     project_url_prod: str = ""
@@ -81,7 +73,6 @@ class Runner:
     terraform_dir: Path | None = None
     logs_dir: Path | None = None
     run_id: str = field(init=False)
-    stacks: list = field(init=False, default_factory=list)
     envs: list = field(init=False, default_factory=list)
     gitlab_variables: dict = field(init=False, default_factory=dict)
     tfvars: dict = field(init=False, default_factory=dict)
@@ -95,45 +86,25 @@ class Runner:
         self.run_id = f"{time():.0f}"
         self.terraform_dir = self.terraform_dir or Path(f".terraform/{self.run_id}")
         self.logs_dir = self.logs_dir or Path(f".logs/{self.run_id}")
-        self.set_stacks()
         self.set_envs()
         self.collect_tfvars()
         self.collect_gitlab_variables()
 
-    def set_stacks(self):
-        """Set the stacks."""
-        self.stacks = STACKS_CHOICES[self.environments_distribution]
+    def _env(self, name, slug, url, basic_auth_enabled):
+        return {
+            "basic_auth_enabled": basic_auth_enabled,
+            "name": name,
+            "slug": slug,
+            "cluster_slug": self.env_to_cluster[name],
+            "url": url,
+        }
 
     def set_envs(self):
         """Set the envs."""
         self.envs = [
-            {
-                "basic_auth_enabled": True,
-                "name": DEV_ENV_NAME,
-                "slug": DEV_ENV_SLUG,
-                "stack_slug": DEV_ENV_STACK_CHOICES.get(
-                    self.environments_distribution, DEV_STACK_SLUG
-                ),
-                "url": self.project_url_dev,
-            },
-            {
-                "basic_auth_enabled": True,
-                "name": STAGE_ENV_NAME,
-                "slug": STAGE_ENV_SLUG,
-                "stack_slug": STAGE_ENV_STACK_CHOICES.get(
-                    self.environments_distribution, STAGE_STACK_SLUG
-                ),
-                "url": self.project_url_stage,
-            },
-            {
-                "basic_auth_enabled": False,
-                "name": PROD_ENV_NAME,
-                "slug": PROD_ENV_SLUG,
-                "stack_slug": PROD_ENV_STACK_CHOICES.get(
-                    self.environments_distribution, MAIN_STACK_SLUG
-                ),
-                "url": self.project_url_prod,
-            },
+            self._env(DEV_ENV_NAME, DEV_ENV_SLUG, self.project_url_dev, True),
+            self._env(STAGE_ENV_NAME, STAGE_ENV_SLUG, self.project_url_stage, True),
+            self._env(PROD_ENV_NAME, PROD_ENV_SLUG, self.project_url_prod, False),
         ]
 
     def register_gitlab_variable(
@@ -214,7 +185,7 @@ class Runner:
             self.register_environment_tfvars(
                 ("environment", env["name"]),
                 ("project_url", env["url"]),
-                ("stack_slug", env["stack_slug"]),
+                ("cluster_slug", env["cluster_slug"]),
                 env_slug=env["slug"],
             )
 
@@ -239,13 +210,13 @@ class Runner:
         cookiecutter(
             os.path.dirname(os.path.dirname(__file__)),
             extra_context={
-                "deployment_type": self.deployment_type,
+                "deployment_type": "digitalocean-k8s",
                 "internal_service_port": self.internal_service_port,
                 "media_storage": self.media_storage,
                 "project_dirname": self.project_dirname,
                 "project_name": self.project_name,
                 "project_slug": self.project_slug,
-                "resources": {"envs": self.envs, "stacks": self.stacks},
+                "resources": {"envs": self.envs, "stacks": []},
                 "service_slug": self.service_slug,
                 "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,

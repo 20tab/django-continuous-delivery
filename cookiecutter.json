@@ -25,17 +25,17 @@
       {
         "name": "development",
         "slug": "dev",
-        "stack_slug": "main"
+        "cluster_slug": "main"
       },
       {
         "name": "staging",
         "slug": "stage",
-        "stack_slug": "main"
+        "cluster_slug": "main"
       },
       {
         "name": "production",
         "slug": "prod",
-        "stack_slug": "main"
+        "cluster_slug": "main"
       }
     ]
   },

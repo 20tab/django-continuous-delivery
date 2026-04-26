@@ -9,12 +9,8 @@ from pydantic import validate_arguments
 from slugify import slugify
 
 from bootstrap.constants import (
-    DEPLOYMENT_TYPE_CHOICES,
-    DEPLOYMENT_TYPE_DIGITALOCEAN,
-    DEPLOYMENT_TYPE_OTHER,
-    ENVIRONMENTS_DISTRIBUTION_CHOICES,
-    ENVIRONMENTS_DISTRIBUTION_DEFAULT,
-    ENVIRONMENTS_DISTRIBUTION_PROMPT,
+    ENV_NAMES,
+    ENV_TO_CLUSTER_DEFAULT,
     GITLAB_URL_DEFAULT,
     MEDIA_STORAGE_CHOICES,
     MEDIA_STORAGE_DIGITALOCEAN_S3,
@@ -43,7 +39,6 @@ class Collector:
     project_dirname: str | None = None
     service_slug: str | None = None
     internal_service_port: int | None = None
-    deployment_type: str | None = None
     terraform_backend: str | None = None
     terraform_cloud_hostname: str | None = None
     terraform_cloud_token: str | None = None
@@ -52,7 +47,7 @@ class Collector:
     terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
     vault_url: str | None = None
-    environments_distribution: str | None = None
+    env_to_cluster: dict[str, str] | None = None
     project_url_dev: str | None = None
     project_url_stage: str | None = None
     project_url_prod: str | None = None
@@ -83,8 +78,7 @@ class Collector:
         self.set_use_redis()
         self.set_terraform()
         self.set_vault()
-        self.set_deployment_type()
-        self.set_environments_distribution()
+        self.set_env_to_cluster()
         self.set_project_urls()
         self.set_sentry()
         self.set_gitlab()
@@ -192,27 +186,15 @@ class Collector:
             )
             self.vault_url = validate_or_prompt_url("Vault address", self.vault_url)
 
-    def set_deployment_type(self):
-        """Set the deployment type option."""
-        if self.deployment_type not in DEPLOYMENT_TYPE_CHOICES:
-            self.deployment_type = click.prompt(
-                "Deploy type",
-                default=DEPLOYMENT_TYPE_DIGITALOCEAN,
-                type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
-            ).lower()
-
-    def set_environments_distribution(self):
-        """Set the environments distribution option."""
-        # TODO: forcing a single stack when deployment is `k8s-other` should be removed,
-        #       and `set_deployment_type` merged with `set_deployment`
-        if self.deployment_type == DEPLOYMENT_TYPE_OTHER:
-            self.environments_distribution = "1"
-        elif self.environments_distribution not in ENVIRONMENTS_DISTRIBUTION_CHOICES:
-            self.environments_distribution = click.prompt(
-                ENVIRONMENTS_DISTRIBUTION_PROMPT,
-                default=ENVIRONMENTS_DISTRIBUTION_DEFAULT,
-                type=click.Choice(ENVIRONMENTS_DISTRIBUTION_CHOICES),
-            )
+    def set_env_to_cluster(self):
+        """Set the environment-to-cluster mapping (one cluster slug per environment)."""
+        self.env_to_cluster = self.env_to_cluster or {}
+        for env_name in ENV_NAMES:
+            if env_name not in self.env_to_cluster:
+                self.env_to_cluster[env_name] = click.prompt(
+                    f"Cluster slug hosting the '{env_name}' environment",
+                    default=ENV_TO_CLUSTER_DEFAULT[env_name],
+                )
 
     def set_project_urls(self):
         """Set the project urls options."""
@@ -298,7 +280,6 @@ class Collector:
             service_dir=self._service_dir,
             service_slug=self.service_slug,
             internal_service_port=self.internal_service_port,
-            deployment_type=self.deployment_type,
             terraform_backend=self.terraform_backend,
             terraform_cloud_hostname=self.terraform_cloud_hostname,
             terraform_cloud_token=self.terraform_cloud_token,
@@ -307,7 +288,7 @@ class Collector:
             terraform_cloud_admin_email=self.terraform_cloud_admin_email,
             vault_token=self.vault_token,
             vault_url=self.vault_url,
-            environments_distribution=self.environments_distribution,
+            env_to_cluster=self.env_to_cluster,
             project_url_dev=self.project_url_dev,
             project_url_stage=self.project_url_stage,
             project_url_prod=self.project_url_prod,
