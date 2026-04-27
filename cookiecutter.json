@@ -10,32 +10,28 @@
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "false",
+  "use_postgres": "true",
+  "postgres_create_database": "true",
   "use_vault": "false",
-  "environments_distribution": "1",
   "resources": {
-    "stacks": [
-      [
-        {
-          "name": "main",
-          "slug": "main"
-        }
-      ]
-    ],
     "envs": [
       {
         "name": "development",
         "slug": "dev",
-        "cluster_slug": "main"
+        "cluster_slug": "main",
+        "host": ""
       },
       {
         "name": "staging",
         "slug": "stage",
-        "cluster_slug": "main"
+        "cluster_slug": "main",
+        "host": ""
       },
       {
         "name": "production",
         "slug": "prod",
-        "cluster_slug": "main"
+        "cluster_slug": "main",
+        "host": ""
       }
     ]
   },

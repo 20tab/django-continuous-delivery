@@ -65,6 +65,8 @@ class Runner:
     sentry_url: str | None = None
     media_storage: str
     use_redis: bool = False
+    use_postgres: bool = True
+    postgres_create_database: bool = True
     gitlab_url: str | None = None
     gitlab_namespace_path: str | None = None
     gitlab_token: str | None = None
@@ -91,11 +93,13 @@ class Runner:
         self.collect_gitlab_variables()
 
     def _env(self, name, slug, url, basic_auth_enabled):
+        host = (url or "").removeprefix("https://").removeprefix("http://").rstrip("/")
         return {
             "basic_auth_enabled": basic_auth_enabled,
             "name": name,
             "slug": slug,
             "cluster_slug": self.env_to_cluster[name],
+            "host": host,
             "url": url,
         }
 
@@ -216,11 +220,15 @@ class Runner:
                 "project_dirname": self.project_dirname,
                 "project_name": self.project_name,
                 "project_slug": self.project_slug,
-                "resources": {"envs": self.envs, "stacks": []},
+                "resources": {"envs": self.envs},
                 "service_slug": self.service_slug,
                 "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
+                "use_postgres": self.use_postgres and "true" or "false",
+                "postgres_create_database": (
+                    self.postgres_create_database and "true" or "false"
+                ),
                 "use_redis": self.use_redis and "true" or "false",
                 "use_vault": self.vault_url and "true" or "false",
             },

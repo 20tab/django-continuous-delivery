@@ -47,6 +47,8 @@ class Collector:
     terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
     vault_url: str | None = None
+    use_postgres: bool | None = None
+    postgres_create_database: bool | None = None
     env_to_cluster: dict[str, str] | None = None
     project_url_dev: str | None = None
     project_url_stage: str | None = None
@@ -76,6 +78,7 @@ class Collector:
         self.set_project_dirname()
         self.set_service_dir()
         self.set_use_redis()
+        self.set_postgres()
         self.set_terraform()
         self.set_vault()
         self.set_env_to_cluster()
@@ -125,6 +128,18 @@ class Collector:
         if self.use_redis is None:
             self.use_redis = click.confirm(
                 warning("Do you want to use Redis?"), default=False
+            )
+
+    def set_postgres(self):
+        """Set the Postgres options."""
+        if self.use_postgres is None:
+            self.use_postgres = click.confirm(
+                warning("Do you want to use Postgres?"), default=True
+            )
+        if self.use_postgres and self.postgres_create_database is None:
+            self.postgres_create_database = click.confirm(
+                warning("Create a database inside the Postgres cluster?"),
+                default=True,
             )
 
     def set_terraform(self):
@@ -288,6 +303,8 @@ class Collector:
             terraform_cloud_admin_email=self.terraform_cloud_admin_email,
             vault_token=self.vault_token,
             vault_url=self.vault_url,
+            use_postgres=self.use_postgres,
+            postgres_create_database=self.postgres_create_database,
             env_to_cluster=self.env_to_cluster,
             project_url_dev=self.project_url_dev,
             project_url_stage=self.project_url_stage,
