@@ -1,0 +1,513 @@
+{% set env_dev = cookiecutter.resources.envs|selectattr("slug", "equalto", "dev")|first %}{% set env_stage = cookiecutter.resources.envs|selectattr("slug", "equalto", "stage")|first %}{% set env_prod = cookiecutter.resources.envs|selectattr("slug", "equalto", "prod")|first %}include:
+  - component: ${CI_SERVER_FQDN}/components/opentofu/apply@3.11.0
+    inputs:
+      as: .apply
+      version: 3.11.0
+      opentofu_version: 1.10.6
+      no_plan: true
+
+stages:
+  - Build
+  - Test
+  - Pact-verify
+  - Pact-check
+  - Deploy
+  - Pact-tag
+  - Report
+  - Sentry
+
+variables:
+  IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+  BUILDAH_FORMAT: docker
+  BUILDAH_IMAGE: quay.io/buildah/stable:latest
+  BUILDAH_ISOLATION: chroot
+  STORAGE_DRIVER: vfs
+  COMPOSE_DOCKER_CLI_BUILD: 1
+  DOCKER_BUILDKIT: 1
+  PROJECT_SLUG: {{ cookiecutter.project_slug }}
+  SERVICE_SLUG: {{ cookiecutter.service_slug }}
+  VERSION_BEFORE_REF: ${CI_COMMIT_BEFORE_SHA}
+  VAULT_ROLE: service-gitlab-job
+
+# [Environments]
+# -----------------------------------------------------------------------------
+
+.development:
+  rules: &development-rules
+    - &pipeline-push-rule
+      if: $CI_PIPELINE_SOURCE != "push"
+      when: never
+    - &development-rule
+      if: $CI_COMMIT_BRANCH == "develop"
+      variables:
+        CLUSTER_SLUG: {{ env_dev.cluster_slug }}
+  environment:
+    name: development
+    url: {{ env_dev.url }}
+
+.staging:
+  rules: &staging-rules
+    - <<: *pipeline-push-rule
+    - &staging-rule
+      if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        CLUSTER_SLUG: {{ env_stage.cluster_slug }}
+  environment:
+    name: staging
+    url: {{ env_stage.url }}
+
+.production:
+  rules: &production-rules
+    - <<: *pipeline-push-rule
+    - &production-rule
+      if: $CI_COMMIT_TAG
+      variables:
+        CLUSTER_SLUG: {{ env_prod.cluster_slug }}
+  environment:
+    name: production
+    url: {{ env_prod.url }}
+
+# [Pre]
+# -----------------------------------------------------------------------------
+
+.sentry:
+  stage: .pre
+  image:
+    name: getsentry/sentry-cli:latest
+    entrypoint: []
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: ${VAULT_ADDR}
+  variables:
+    ENV_NAME: ${CI_ENVIRONMENT_SLUG}
+    PROJECT_DIR: ${CI_PROJECT_DIR}
+    SENTRY_PROJECT_NAME: ${PROJECT_SLUG}-${SERVICE_SLUG}
+  before_script:
+    - source ./scripts/ci_sentry.sh
+
+# [Sentry Release]
+# -----------------------------------------------------------------------------
+
+.sentry_release:
+  extends:
+    - .sentry
+  script:
+    - >
+      sentry-cli releases new "${CI_COMMIT_SHA}"
+      --log-level=debug --project "${SENTRY_PROJECT_NAME}"
+    - sentry-cli releases set-commits "${CI_COMMIT_SHA}" --auto --ignore-missing
+    - sentry-cli releases finalize "${CI_COMMIT_SHA}"
+
+sentry_release_development:
+  extends:
+    - .development
+    - .sentry_release
+  rules:
+    - &sentry-rule
+      if: $SENTRY_ENABLED != "true"
+      when: never
+    - *development-rules
+
+sentry_release_staging:
+  extends:
+    - .staging
+    - .sentry_release
+  rules:
+    - <<: *sentry-rule
+    - *staging-rules
+
+sentry_release_production:
+  extends:
+    - .production
+    - .sentry_release
+  rules:
+    - <<: *sentry-rule
+    - *production-rules
+
+# [Build]
+# -----------------------------------------------------------------------------
+
+build:
+  stage: Build
+  image: ${BUILDAH_IMAGE}
+  before_script:
+    - echo "${CI_REGISTRY_PASSWORD}" | buildah login "${CI_REGISTRY}" --username "${CI_REGISTRY_USER}" --password-stdin
+    - |
+      TAGS="--tag=${IMAGE_TAG}"
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        TAGS="$TAGS --tag=${CI_REGISTRY_IMAGE}:v${CI_COMMIT_TAG} --tag=${CI_REGISTRY_IMAGE}:latest"
+      fi
+  script:
+    - buildah bud --format="${BUILDAH_FORMAT}" --target=remote --layers $TAGS .
+    - buildah push --all "${IMAGE_TAG}"
+  after_script:
+    - buildah logout ${CI_REGISTRY}
+
+# [Test]
+# -----------------------------------------------------------------------------
+
+.test:
+  image:
+    entrypoint: ["./scripts/ci_test_entrypoint.sh"]
+    name: ${IMAGE_TAG}
+  services:
+    - alias: postgres
+      name: postgres:17-alpine
+  variables:
+    POSTGRES_DB: {{ cookiecutter.project_slug }}
+    POSTGRES_INITDB_ARGS: --no-sync
+    POSTGRES_PASSWORD: postgres
+
+test:
+  extends:
+    - .test
+  stage: Test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+  script:
+    - ./scripts/test.sh
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - htmlcov
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: .artifacts/cobertura.xml
+      junit: .artifacts/junit.xml
+    when: always
+
+# [Pact Verify]
+# -----------------------------------------------------------------------------
+
+.pact-verify:
+  extends:
+    - .test
+  stage: Pact-verify
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: ${VAULT_ADDR}
+
+pact-verify-test:
+  extends:
+    - .pact-verify
+  rules:
+    - <<: *pipeline-push-rule
+    - if: $PACT_ENABLED == "true"
+      allow_failure: true
+  script:
+    - >
+      if [ "${CI_COMMIT_BRANCH}" ];
+      then PACT_CONSUMER_TAG="branch:${CI_COMMIT_BRANCH}";
+      else PACT_CONSUMER_TAG="${CI_COMMIT_TAG}";
+      fi
+    - >
+      ./scripts/pact_verify.sh
+      --pact-provider-version="${CI_COMMIT_SHA}"
+      --pact-verify-consumer-tag="${PACT_CONSUMER_TAG}"
+      --pact-verify-consumer-tag="development"
+      --pact-verify-consumer-tag="staging"
+      --pact-verify-consumer-tag="production"
+      --pact-publish-results
+
+pact-verify-webhook:
+  extends:
+    - .pact-verify
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "trigger" && $PACT_ENABLED == "true"
+      allow_failure: true
+  script:
+    - >
+      ./scripts/pact_verify.sh
+      --pact-provider-version="${CI_COMMIT_SHA}"
+      --pact-verify-consumer-tag="${PACT_CONSUMER_TAG}"
+      --pact-publish-results
+
+# [Report]
+# -----------------------------------------------------------------------------
+
+pages:
+  stage: Report
+  image: busybox
+  needs: ["test"]
+  rules:
+    - <<: *pipeline-push-rule
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - mkdir public
+    - mv htmlcov public/htmlcov
+  artifacts:
+    paths:
+      - public
+
+# [Pact - Can I Deploy]
+# -----------------------------------------------------------------------------
+
+.pact:
+  image:
+    name: pactfoundation/pact-cli:latest
+    entrypoint: []
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: ${VAULT_ADDR}
+  before_script:
+    - source ./scripts/ci_pact.sh
+
+.can-i-deploy:
+  extends:
+    - .pact
+  stage: Pact-check
+  needs: ["pact-verify-test"]
+  script:
+    - >
+      pact-broker can-i-deploy
+      --pacticipant "${PACT_PROVIDER_NAME}"
+      --version "${CI_COMMIT_SHA}"
+      --to "${CI_ENVIRONMENT_SLUG}"
+
+can-i-deploy_development:
+  extends:
+    - .development
+    - .can-i-deploy
+  rules:
+    - &skip-pact-rule
+      if: $PACT_ENABLED != "true"
+      when: never
+    - *development-rules
+
+can-i-deploy_staging:
+  extends:
+    - .staging
+    - .can-i-deploy
+  rules:
+    - <<: *skip-pact-rule
+    - *staging-rules
+
+can-i-deploy_production:
+  extends:
+    - .production
+    - .can-i-deploy
+  rules:
+    - <<: *skip-pact-rule
+    - *production-rules
+
+# [Deploy]
+# -----------------------------------------------------------------------------
+
+.deploy:
+  stage: Deploy
+  extends:
+    - .apply
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: ${VAULT_ADDR}
+  image: registry.gitlab.com/20tab-open/minos/service:latest
+  variables:
+    GITLAB_TOFU_INIT_NO_RECONFIGURE: true
+    GITLAB_TOFU_ROOT_DIR: ${CI_PROJECT_DIR}/tofu
+    PROJECT_DIR: ${CI_PROJECT_DIR}
+    TF_CLOUD_HOSTNAME: app.terraform.io
+    TF_CLOUD_ORGANIZATION: {{ cookiecutter.terraform_cloud_organization }}
+    TF_VAR_image: ${IMAGE_TAG}
+    TF_VAR_registry_password: ${CI_DEPLOY_PASSWORD}
+    TF_VAR_registry_server: ${CI_REGISTRY}
+    TF_VAR_registry_username: ${CI_DEPLOY_USER}
+    TF_WORKSPACE: "${PROJECT_SLUG}_${SERVICE_SLUG}_${CI_ENVIRONMENT_SLUG}"
+    TOFU_BACKEND: terraform-cloud
+    TOFU_VAR_FILES: "common.tfvars ${CI_ENVIRONMENT_SLUG}/this.tfvars"
+    VAULT_SECRETS_PREFIX: "envs/${CI_ENVIRONMENT_SLUG}"
+    VAULT_SECRETS: "digitalocean"
+    VAULT_SERVICE_SECRETS: "shared-secrets.tftpl"
+  before_script:
+    - export TF_CLI_ARGS="${TOFU_VAR_FILE_ARGS}"
+
+deploy_development:
+  extends:
+    - .deploy
+    - .development
+  needs:
+    - job: can-i-deploy_development
+      optional: true
+    - job: test
+
+deploy_staging:
+  extends:
+    - .deploy
+    - .staging
+  needs:
+    - job: can-i-deploy_staging
+      optional: true
+    - job: test
+
+deploy_production:
+  extends:
+    - .deploy
+    - .production
+  needs:
+    - job: can-i-deploy_production
+      optional: true
+    - job: test
+
+.rollback:
+  extends: .deploy
+  variables:
+    TF_VAR_image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BEFORE_SHA}"
+
+rollback_development:
+  extends:
+    - .development
+    - .rollback
+  needs: ["deploy_development"]
+  rules:
+    - <<: *pipeline-push-rule
+    - <<: *development-rule
+      when: manual
+      allow_failure: true
+
+rollback_staging:
+  extends:
+    - .staging
+    - .rollback
+  needs: ["deploy_staging"]
+  rules:
+    - <<: *pipeline-push-rule
+    - <<: *staging-rule
+      when: manual
+      allow_failure: true
+
+rollback_production:
+  extends:
+    - .production
+    - .rollback
+  needs: ["deploy_production"]
+  rules:
+    - <<: *pipeline-push-rule
+    - <<: *production-rule
+      when: manual
+      allow_failure: true
+
+# [Pact - Tag]
+# -----------------------------------------------------------------------------
+
+.create-version-tag:
+  extends:
+    - .pact
+  stage: Pact-tag
+  script:
+    - >
+      pact-broker create-version-tag
+      --pacticipant "${PACT_PROVIDER_NAME}"
+      --version "${CI_COMMIT_SHA}"
+      --tag "${CI_ENVIRONMENT_SLUG}"
+
+create-version-tag_development:
+  extends:
+    - .development
+    - .create-version-tag
+  needs: ["deploy_development"]
+  rules:
+    - <<: *skip-pact-rule
+    - *development-rules
+
+create-version-tag_staging:
+  extends:
+    - .staging
+    - .create-version-tag
+  needs: ["deploy_staging"]
+  rules:
+    - <<: *skip-pact-rule
+    - *staging-rules
+
+create-version-tag_production:
+  extends:
+    - .production
+    - .create-version-tag
+  needs: ["deploy_production"]
+  rules:
+    - <<: *skip-pact-rule
+    - *production-rules
+
+# [Sentry]
+# -----------------------------------------------------------------------------
+
+.sentry_deploy_success:
+  extends:
+    - .sentry
+  stage: Sentry
+  script:
+    - RELEASE_START=$(date -d "${CI_PIPELINE_CREATED_AT}" +%s)
+    - RELEASE_END=$(date +%s)
+    - >
+      sentry-cli releases deploys "${CI_COMMIT_SHA}"
+      new --env "${ENV_NAME}" --time $((RELEASE_END-RELEASE_START))
+
+sentry_success_development:
+  extends:
+    - .development
+    - .sentry_deploy_success
+  needs: ["deploy_development"]
+  rules:
+    - <<: *sentry-rule
+    - <<: *pipeline-push-rule
+    - <<: *development-rule
+      when: on_success
+
+sentry_success_staging:
+  extends:
+    - .staging
+    - .sentry_deploy_success
+  needs: ["deploy_staging"]
+  rules:
+    - <<: *sentry-rule
+    - <<: *pipeline-push-rule
+    - <<: *staging-rule
+      when: on_success
+
+sentry_success_production:
+  extends:
+    - .production
+    - .sentry_deploy_success
+  needs: ["deploy_production"]
+  rules:
+    - <<: *sentry-rule
+    - <<: *pipeline-push-rule
+    - <<: *production-rule
+      when: on_success
+
+.sentry_deploy_failure:
+  extends:
+    - .sentry
+  stage: Sentry
+  script:
+    - sentry-cli send-event --message "Deploy to ${ENV_NAME} failed."
+
+sentry_failure_development:
+  extends:
+    - .development
+    - .sentry_deploy_failure
+  rules:
+    - <<: *sentry-rule
+    - <<: *pipeline-push-rule
+    - <<: *development-rule
+      when: on_failure
+
+sentry_failure_staging:
+  extends:
+    - .staging
+    - .sentry_deploy_failure
+  rules:
+    - <<: *sentry-rule
+    - <<: *pipeline-push-rule
+    - <<: *staging-rule
+      when: on_failure
+
+sentry_failure_production:
+  extends:
+    - .production
+    - .sentry_deploy_failure
+  rules:
+    - <<: *sentry-rule
+    - <<: *pipeline-push-rule
+    - <<: *production-rule
+      when: on_failure
