@@ -2,7 +2,14 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 
-> A [Django](https://docs.djangoproject.com) project template ready for continuous delivery.
+> A [Django](https://docs.djangoproject.com) service template aligned to the 20tab **Minos** platform model: per-env Vault-driven secrets, GitLab Components OpenTofu deploys, Terraform Cloud workspaces managed by the parent platform.
+
+The generated service is meant to live as a sibling sub-repo of a platform produced by [talos](https://github.com/20tab/talos), and ships with:
+
+-   `Dockerfile` multi-stage on `uv` + Python 3.14
+-   `.gitlab-ci.yml` using `${CI_SERVER_FQDN}/components/opentofu/apply` and `registry.gitlab.com/20tab-open/minos/service:latest`
+-   `minos/{development,staging,production}/this.tfvars` + `common.tfvars` per-env configs
+-   Vault secret consumption at `{project}/envs/${CI_ENVIRONMENT_SLUG}/{service}/...`
 
 ## 🧩 Requirements
 
@@ -33,15 +40,20 @@ python3 -m pip install -r requirements/common.txt
 
 The `terraform` cli package is required, unless you want to generate a project only locally. To install it we suggest to use the official [install guide](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 
-## 🔑 Credentials (optional)
+## 🔑 Prerequisites
 
-### 🦊 GitLab
+### 🗝️ Vault project (one-time, admin)
 
-If the GitLab integration is enabled, a Personal Access Token with _api_ permission is required.<br/>
-It can be generated in the GitLab User Settings panel.
+The Minos pipeline assumes a shared Vault auth backbone is already provisioned by the [vault-project](https://github.com/20tab/vault-project) admin repo: KV mount, GitLab JWT auth backend, JWT roles `service-gitlab-job` and `platform-gitlab-job`, identity entity, admin policy. Run that **once per Vault cluster, before** bootstrapping any platform/service.
 
-**Note:** the token can be generated in the Access Tokens section of the GitLab User Settings panel.<br/>
-⚠️ Beware that the token is shown only once after creation.
+This sub-bootstrapper only seeds **service-scoped** secrets at `{project_slug}/envs/{env}/{service_slug}/...`. Vault prompts are optional: skip them if Vault is not used for this project.
+
+### 🦊 GitLab (optional)
+
+If the GitLab integration is enabled, a Personal Access Token with _api_ scope is required.<br/>
+It can be generated in the GitLab User Settings → Access Tokens panel.
+
+⚠️ The token is shown only once after creation.
 
 ## 🚀️ Quickstart
 
@@ -70,41 +82,34 @@ source talos-django/.venv/bin/activate
 Project name: My Project Name
 Project slug [my-project-name]:
 Service slug [backend]:
-Project dirname (backend, myprojectname) [backend]: myprojectname
-Deploy type (digitalocean-k8s, other-k8s) [digitalocean-k8s]:
-Terraform backend (gitlab, terraform-cloud) [terraform-cloud]:
-Terraform host name [app.terraform.io]:
-Terraform Cloud User token:
-Terraform Organization: my-organization-name
-Do you want to create Terraform Cloud Organization 'my-organization-name'? [y/N]:
-Choose the environments distribution:
-  1 - All environments share the same stack (Default)
-  2 - Dev and Stage environments share the same stack, Prod has its own
-  3 - Each environment has its own stack
- (1, 2, 3) [1]:
+Project dirname (backend, myprojectname) [backend]:
+Do you want to use Redis? [y/N]:
+Do you want to use Postgres? [Y/n]:
+Create a database inside the Postgres cluster? [Y/n]:
+Terraform Cloud organization: my-tfc-org
+Do you want to use Vault for secrets management? [y/N]: y
+Vault token (leave blank to perform a browser-based OIDC authentication):
+Make sure your Vault permissions allow to enable the project secrets backends and manage the project secrets. Continue? [y/N]: y
+Vault address: https://vault.example.com
+Cluster slug hosting the 'development' environment [dev]:
+Cluster slug hosting the 'staging' environment [dev]:
+Cluster slug hosting the 'production' environment [main]:
 Development environment complete URL [https://dev.my-project-name.com]:
 Staging environment complete URL [https://stage.my-project-name.com]:
 Production environment complete URL [https://www.my-project-name.com]:
-Media storage (digitalocean-s3, aws-s3, local, none) [digitalocean-s3]:
-Do you want to configure Redis? [y/N]:
+Do you want to use Sentry? [y/N]:
 Do you want to use GitLab? [Y/n]:
-GitLab group slug [my-project-name]:
-Make sure the GitLab "my-project-name" group exists before proceeding. Continue? [y/N]: y
-GitLab private token (with API scope enabled):
-Sentry DSN (leave blank if unused) []:
+GitLab URL [https://gitlab.com]:
+GitLab access token (with API scope enabled):
+GitLab parent group path: 20tab/my-project-name
+Media storage (digitalocean-s3, aws-s3, local, none) [digitalocean-s3]:
 Initializing the backend service:
 ...cookiecutting the service
 ...generating the .env file
 ...formatting the cookiecut python code
-...compiling the requirements files
-	- common.txt
-	- test.txt
-	- local.txt
-	- remote.txt
-	- base.txt
 ...creating the '/static' directory
 ...creating the GitLab repository and associated resources
-...creating the Terraform Cloud resources
+...creating the Vault resources with Terraform
 ```
 
 ## 🗒️ Arguments
@@ -147,43 +152,22 @@ The following arguments can be appended to the Docker and shell commands
 
 ### 📐 Architecture
 
-#### Deploy type
+#### Terraform Cloud organization
 
-| Description             | Argument                             |
-| ----------------------- | ------------------------------------ |
-| DigitalOcean Kubernetes | `--deployment-type=digitalocean-k8s` |
-| Other Kubernetes        | `--deployment-type=other-k8s`        |
+The TFC organization that owns the service workspaces. The workspaces themselves (`{project}_{service}_{env}`) are created by the parent platform via [talos](https://github.com/20tab/talos), not here.
 
-#### Terraform backend
+`--terraform-cloud-organization=my-tfc-org`
 
-| Name            | Argument                              |
-| --------------- | ------------------------------------- |
-| Terraform Cloud | `--terraform-backend=terraform-cloud` |
-| GitLab          | `--terraform-backend=gitlab`          |
+#### Cluster mapping per environment
 
-##### Terraform Cloud required argument
+Each environment is deployed to one cluster. Cluster slugs are prompted interactively per env (defaults: `development → dev`, `staging → dev`, `production → main`). There is no CLI flag for this mapping; pass them via prompt or `--quiet` with the defaults.
 
-`--terraform-cloud-hostname=app.terraform.io`<br/>
-`--terraform-cloud-token={{terraform-cloud-token}}`<br/>
-`--terraform-cloud-organization`
+#### 🗝️ Vault
 
-##### Terraform Cloud create organization
+`--vault-url=https://vault.example.com`<br/>
+`--vault-token={{vault-token}}` (env var: `VAULT_TOKEN`; leave blank for browser-based OIDC)
 
-`--terraform-cloud-organization-create`<br/>
-`--terraform-cloud-admin-email={{terraform-cloud-admin-email}}`
-
-Disabled args
-`--terraform-cloud-organization-create-skip`
-
-#### Environment distribution
-
-Choose the environments distribution:
-
-| Value | Description                                                       | Argument                       |
-| ----- | ----------------------------------------------------------------- | ------------------------------ |
-| 1     | All environments share the same stack (Default)                   | `--environment-distribution=1` |
-| 2     | Dev and Stage environments share the same stack, Prod has its own | `--environment-distribution=2` |
-| 3     | Each environment has its own stack                                | `--environment-distribution=3` |
+Omit `--vault-url` to disable Vault integration (in that case GitLab CI vars are used as a fallback for sensitive values).
 
 #### Project Domain
 
@@ -213,21 +197,37 @@ Disabled args
 
 ### 🦊 GitLab
 
-> **⚠️ Important: Make sure the GitLab group exists before creating.** > https://gitlab.com/gitlab-org/gitlab/-/issues/244345
-
 For enabling gitlab integration the following arguments are needed:
 
-`--gitlab-private-token={{gitlab-private-token}}`<br/>
-`--gitlab-group-path={{gitlab-group-path}}`
+`--gitlab-url=https://gitlab.com`<br/>
+`--gitlab-token={{gitlab-token}}` (env var: `GITLAB_PRIVATE_TOKEN`)<br/>
+`--gitlab-namespace-path=20tab/my-project-name`
+
+The namespace path can be nested (e.g. `20tab/my-project-name`). When invoked from talos, this is set automatically to `{parent-group}/{project-slug}`.
 
 #### 🪖 Sentry
 
 For enabling sentry integration the following arguments are needed:
 
-`--sentry-dsn={{frontend-sentry-dsn}}`
+`--sentry-org={{sentry-org}}`<br/>
+`--sentry-url=https://sentry.io/`<br/>
+`--sentry-dsn={{sentry-dsn}}`
 
 #### 🔇 Quiet
 
 No confirmations shown.
 
 `--quiet`
+
+### 🧰 Toolchain version overrides
+
+The generated service pins specific versions of Python, OpenTofu and the Minos image. Defaults match the current 20tab platform; override only if needed.
+
+| Field                        | Default                                                  | Where it lands                              |
+| ---------------------------- | -------------------------------------------------------- | ------------------------------------------- |
+| `python_version`             | `3.14`                                                   | `Dockerfile`, `pyproject.toml` (ruff/mypy)  |
+| `minos_service_image`        | `registry.gitlab.com/20tab-open/minos/service:latest`    | `.gitlab-ci.yml` deploy image               |
+| `opentofu_component_version` | `3.11.0`                                                 | GitLab Component pin in `.gitlab-ci.yml`    |
+| `opentofu_version`           | `1.10.6`                                                 | OpenTofu binary version in `.gitlab-ci.yml` |
+
+These are not exposed as CLI flags; pass them as kwargs when invoking the `Runner` directly (e.g. from talos).

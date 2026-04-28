@@ -1,0 +1,1 @@
+INTERNAL_SERVICE_PORT: "{{ cookiecutter.internal_service_port }}"

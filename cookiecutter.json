@@ -5,37 +5,36 @@
   "project_dirname": "backend",
   "django_settings_dirname": "{{ cookiecutter.project_slug | slugify(separator='') }}",
   "internal_service_port": "8000",
-  "deployment_type": ["digitalocean-k8s", "other-k8s"],
   "terraform_backend": "gitlab",
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "false",
+  "use_postgres": "true",
+  "postgres_create_database": "true",
   "use_vault": "false",
-  "environments_distribution": "1",
+  "python_version": "3.14",
+  "minos_service_image": "registry.gitlab.com/20tab-open/minos/service:latest",
+  "opentofu_component_version": "3.11.0",
+  "opentofu_version": "1.10.6",
   "resources": {
-    "stacks": [
-      [
-        {
-          "name": "main",
-          "slug": "main"
-        }
-      ]
-    ],
     "envs": [
       {
         "name": "development",
         "slug": "dev",
-        "stack_slug": "main"
+        "cluster_slug": "main",
+        "host": ""
       },
       {
         "name": "staging",
         "slug": "stage",
-        "stack_slug": "main"
+        "cluster_slug": "main",
+        "host": ""
       },
       {
         "name": "production",
         "slug": "prod",
-        "stack_slug": "main"
+        "cluster_slug": "main",
+        "host": ""
       }
     ]
   },

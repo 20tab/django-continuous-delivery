@@ -1,22 +1,37 @@
+{% set env_dev = cookiecutter.resources.envs|selectattr("slug", "equalto", "dev")|first %}{% set env_stage = cookiecutter.resources.envs|selectattr("slug", "equalto", "stage")|first %}{% set env_prod = cookiecutter.resources.envs|selectattr("slug", "equalto", "prod")|first %}include:
+  - component: ${CI_SERVER_FQDN}/components/opentofu/apply@{{ cookiecutter.opentofu_component_version }}
+    inputs:
+      as: .apply
+      version: {{ cookiecutter.opentofu_component_version }}
+      opentofu_version: {{ cookiecutter.opentofu_version }}
+      no_plan: true
+
 stages:
+  - Build
   - Test
   - Pact-verify
   - Pact-check
-  - Build
   - Deploy
   - Pact-tag
   - Report
   - Sentry
 
 variables:
+  IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+  BUILDAH_FORMAT: docker
+  BUILDAH_IMAGE: quay.io/buildah/stable:latest
+  BUILDAH_ISOLATION: chroot
+  STORAGE_DRIVER: vfs
   COMPOSE_DOCKER_CLI_BUILD: 1
   DOCKER_BUILDKIT: 1
-  PACT_PROVIDER_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
   PROJECT_SLUG: {{ cookiecutter.project_slug }}
-  SENTRY_PROJECT_NAME: {{ cookiecutter.project_slug }}-{{ cookiecutter.service_slug }}
+  SERVICE_SLUG: {{ cookiecutter.service_slug }}
   VERSION_BEFORE_REF: ${CI_COMMIT_BEFORE_SHA}
-  VERSION_REF: ${CI_COMMIT_SHA}
-{% with env=cookiecutter.resources.envs[0] %}
+  VAULT_ROLE: service-gitlab-job
+
+# [Environments]
+# -----------------------------------------------------------------------------
+
 .development:
   rules: &development-rules
     - &pipeline-push-rule
@@ -25,78 +40,63 @@ variables:
     - &development-rule
       if: $CI_COMMIT_BRANCH == "develop"
       variables:
-        ENV_SLUG: {{ env.slug }}
-        STACK_SLUG: {{ env.stack_slug }}
-        VAULT_ROLE: {{ cookiecutter.service_slug }}-{{ env.slug }}
+        CLUSTER_SLUG: {{ env_dev.cluster_slug }}
   environment:
-    name: {{ env.name }}{% if env.url %}
-    url: {{ env.url }}{% endif %}
-{% endwith %}{% with env=cookiecutter.resources.envs[1] %}
+    name: development
+    url: {{ env_dev.url }}
+
 .staging:
   rules: &staging-rules
     - <<: *pipeline-push-rule
     - &staging-rule
       if: $CI_COMMIT_BRANCH == "main"
       variables:
-        ENV_SLUG: {{ env.slug }}
-        STACK_SLUG: {{ env.stack_slug }}
-        VAULT_ROLE: {{ cookiecutter.service_slug }}-{{ env.slug }}
+        CLUSTER_SLUG: {{ env_stage.cluster_slug }}
   environment:
-    name: {{ env.name }}{% if env.url %}
-    url: {{ env.url }}{% endif %}
-{% endwith %}{% with env=cookiecutter.resources.envs[2] %}
+    name: staging
+    url: {{ env_stage.url }}
+
 .production:
   rules: &production-rules
     - <<: *pipeline-push-rule
     - &production-rule
       if: $CI_COMMIT_TAG
       variables:
-        ENV_SLUG: {{ env.slug }}
-        STACK_SLUG: {{ env.stack_slug }}
-        VAULT_ROLE: {{ cookiecutter.service_slug }}-{{ env.slug }}
+        CLUSTER_SLUG: {{ env_prod.cluster_slug }}
   environment:
-    name: {{ env.name }}{% if env.url %}
-    url: {{ env.url }}{% endif %}
-{% endwith %}
+    name: production
+    url: {{ env_prod.url }}
+
+# [Pre]
+# -----------------------------------------------------------------------------
+
 .sentry:
   stage: .pre
-  image: docker:20
-  services:
-    - docker:20-dind{% if cookiecutter.use_vault == "true" %}
+  image:
+    name: getsentry/sentry-cli:latest
+    entrypoint: []
   id_tokens:
     VAULT_ID_TOKEN:
-      aud: ${VAULT_ADDR}{% endif %}
-  script:
-    - >
-      docker run --rm
-      -v ${PWD}:${PWD}
-      -w ${PWD}
-      -e CI_ENVIRONMENT_NAME{% if cookiecutter.use_vault == "true" %}
-      -e ENV_NAME=${CI_ENVIRONMENT_NAME}{% endif %}
-      -e PROJECT_DIR=${CI_PROJECT_DIR}
-      -e PROJECT_SLUG
-      -e RELEASE_END
-      -e RELEASE_START{% if cookiecutter.use_vault == "false" %}
-      -e SENTRY_AUTH_TOKEN
-      -e SENTRY_DSN{% endif %}
-      -e SENTRY_ORG
-      -e SENTRY_PROJECT_NAME
-      -e SENTRY_URL{% if cookiecutter.use_vault == "true" %}
-      -e SERVICE_SLUG={{ cookiecutter.service_slug }}
-      -e VAULT_ADDR
-      -e VAULT_ID_TOKEN
-      -e VAULT_ROLE{% endif %}
-      -e VERSION_REF
-      --entrypoint=""
-      getsentry/sentry-cli:latest ./scripts/ci_sentry.sh ${SENTRY_CMD}
+      aud: ${VAULT_ADDR}
+  variables:
+    ENV_NAME: ${CI_ENVIRONMENT_SLUG}
+    PROJECT_DIR: ${CI_PROJECT_DIR}
+    SENTRY_PROJECT_NAME: ${PROJECT_SLUG}-${SERVICE_SLUG}
+  before_script:
+    - source ./scripts/ci_sentry.sh
+
+# [Sentry Release]
+# -----------------------------------------------------------------------------
 
 .sentry_release:
   extends:
     - .sentry
-  variables:
-    SENTRY_CMD: release
-  before_script:
-    - RELEASE_START=$(date +%s)
+  script:
+    - >
+      sentry-cli releases new "${CI_COMMIT_SHA}"
+      --log-level=debug --project "${SENTRY_PROJECT_NAME}"
+    - sentry-cli releases set-commits "${CI_COMMIT_SHA}" --auto --ignore-missing
+    - sentry-cli releases finalize "${CI_COMMIT_SHA}"
 
 sentry_release_development:
   extends:
@@ -124,101 +124,108 @@ sentry_release_production:
     - <<: *sentry-rule
     - *production-rules
 
-test:
-  stage: Test
-  image: docker:20
+# [Build]
+# -----------------------------------------------------------------------------
+
+build:
+  stage: Build
+  image: ${BUILDAH_IMAGE}
+  before_script:
+    - echo "${CI_REGISTRY_PASSWORD}" | buildah login "${CI_REGISTRY}" --username "${CI_REGISTRY_USER}" --password-stdin
+    - |
+      TAGS="--tag=${IMAGE_TAG}"
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        TAGS="$TAGS --tag=${CI_REGISTRY_IMAGE}:v${CI_COMMIT_TAG} --tag=${CI_REGISTRY_IMAGE}:latest"
+      fi
+  script:
+    - buildah bud --format="${BUILDAH_FORMAT}" --target=remote --layers $TAGS .
+    - buildah push --all "${IMAGE_TAG}"
+  after_script:
+    - buildah logout ${CI_REGISTRY}
+
+# [Test]
+# -----------------------------------------------------------------------------
+
+.test:
+  image:
+    entrypoint: ["./scripts/ci_test_entrypoint.sh"]
+    name: ${IMAGE_TAG}
   services:
-    - docker:20-dind
-  needs: []
+    - alias: postgres
+      name: postgres:17-alpine
+  variables:
+    POSTGRES_DB: {{ cookiecutter.project_slug }}
+    POSTGRES_INITDB_ARGS: --no-sync
+    POSTGRES_PASSWORD: postgres
+
+test:
+  extends:
+    - .test
+  stage: Test
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
-  variables:
-    {{ cookiecutter.service_slug|upper }}_CONTAINER_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
-    {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "${CI_JOB_NAME}-${CI_JOB_ID}"
-    COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
   script:
-    - docker-compose build
-    - docker-compose run --name ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME} {{ cookiecutter.service_slug }}
-    - docker cp ${{ "{" }}{{ cookiecutter.service_slug|upper }}_CONTAINER_NAME}:/app/htmlcov htmlcov
-  after_script:
-    - docker-compose down -v
+    - ./scripts/test.sh
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
     expire_in: 1 day
     paths:
       - htmlcov
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: .artifacts/cobertura.xml
+      junit: .artifacts/junit.xml
     when: always
 
-pact-verify-test:
+# [Pact Verify]
+# -----------------------------------------------------------------------------
+
+.pact-verify:
+  extends:
+    - .test
   stage: Pact-verify
-  image: docker:20
-  services:
-    - docker:20-dind{% if cookiecutter.use_vault == "true" %}
   id_tokens:
     VAULT_ID_TOKEN:
-      aud: ${VAULT_ADDR}{% endif %}
-  needs: []
-  variables:
-    {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
-    {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug|upper }}_IMAGE_TAG: "${CI_JOB_NAME}-${CI_JOB_ID}"
-    COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
+      aud: ${VAULT_ADDR}
+
+pact-verify-test:
+  extends:
+    - .pact-verify
   rules:
     - <<: *pipeline-push-rule
     - if: $PACT_ENABLED == "true"
       allow_failure: true
-  before_script: &pact-verify-before-script{% if cookiecutter.use_vault == "true" %}
-    - >
-      vault_token=$(wget --quiet --post-data="role=pact&jwt=${VAULT_ID_TOKEN}"
-      "${VAULT_ADDR%/}"/v1/auth/gitlab-jwt/login -O - |
-      sed -n 's/^.*"client_token":"\([^"]*\)".*$/\1/p')
-    - >
-      PACT_BROKER_AUTH_URL=$(wget --quiet --header="X-Vault-Token: ${vault_token}"
-      "${VAULT_ADDR%/}"/v1/"${PROJECT_SLUG}"/pact -O - |
-      sed -n 's/^.*"pact_broker_auth_url":"\([^"]*\)".*$/\1/p'){% endif %}
-    - export PACT_BROKER_URL="${PACT_BROKER_AUTH_URL}"
   script:
     - >
       if [ "${CI_COMMIT_BRANCH}" ];
       then PACT_CONSUMER_TAG="branch:${CI_COMMIT_BRANCH}";
-      else PACT_CONSUMER_TAG="tag:${CI_COMMIT_TAG}";
+      else PACT_CONSUMER_TAG="${CI_COMMIT_TAG}";
       fi
-    - docker-compose build
     - >
-      docker-compose run --rm {{ cookiecutter.service_slug }} ./scripts/pact_verify.sh
-      --pact-provider-version=${VERSION_REF}
-      --pact-verify-consumer-tag=${PACT_CONSUMER_TAG}
-      --pact-verify-consumer-tag="env:dev"
-      --pact-verify-consumer-tag="env:stage"
-      --pact-verify-consumer-tag="env:prod"
+      ./scripts/pact_verify.sh
+      --pact-provider-version="${CI_COMMIT_SHA}"
+      --pact-verify-consumer-tag="${PACT_CONSUMER_TAG}"
+      --pact-verify-consumer-tag="development"
+      --pact-verify-consumer-tag="staging"
+      --pact-verify-consumer-tag="production"
       --pact-publish-results
-  after_script:
-    - docker-compose down -v
 
 pact-verify-webhook:
-  stage: Pact-verify
-  image: docker:20
-  services:
-    - docker:20-dind
-  variables:
-    COMPOSE_PROJECT_NAME: "${CI_PROJECT_PATH_SLUG}-${CI_JOB_NAME}-${CI_JOB_ID}"
-    {{ cookiecutter.service_slug|upper }}_IMAGE_NAME: "gitlabci_{{ cookiecutter.project_slug }}_{{ cookiecutter.service_slug }}"
-    {{ cookiecutter.service_slug|upper }}_BUILD_TARGET: "test"
+  extends:
+    - .pact-verify
   rules:
     - if: $CI_PIPELINE_SOURCE == "trigger" && $PACT_ENABLED == "true"
       allow_failure: true
-  before_script: *pact-verify-before-script
   script:
-    - docker-compose build
     - >
-      docker-compose run --rm {{ cookiecutter.service_slug }} ./scripts/pact_verify.sh
-      --pact-provider-version=${VERSION_REF}
-      --pact-verify-consumer-tag=${PACT_CONSUMER_TAG}
+      ./scripts/pact_verify.sh
+      --pact-provider-version="${CI_COMMIT_SHA}"
+      --pact-verify-consumer-tag="${PACT_CONSUMER_TAG}"
       --pact-publish-results
-  after_script:
-    - docker-compose down -v
+
+# [Report]
+# -----------------------------------------------------------------------------
 
 pages:
   stage: Report
@@ -234,40 +241,30 @@ pages:
     paths:
       - public
 
+# [Pact - Can I Deploy]
+# -----------------------------------------------------------------------------
+
 .pact:
   image:
-    name: docker:20
-  services:
-    - docker:20-dind{% if cookiecutter.use_vault == "true" %}
+    name: pactfoundation/pact-cli:latest
+    entrypoint: []
   id_tokens:
     VAULT_ID_TOKEN:
-      aud: ${VAULT_ADDR}{% endif %}
-  script:
-    - >
-      docker run --rm
-      -v ${PWD}:${PWD}
-      -w ${PWD}{% if cookiecutter.use_vault == "true" %}
-      -e ENV_SLUG{% else %}
-      -e PACT_BROKER_BASE_URL
-      -e PACT_BROKER_PASSWORD
-      -e PACT_BROKER_USERNAME{% endif %}
-      -e PROJECT_SLUG{% if cookiecutter.use_vault == "true" %}
-      -e VAULT_ADDR
-      -e VAULT_ID_TOKEN{% endif %}
-      --entrypoint=""
-      pactfoundation/pact-cli:latest-node14 ./scripts/ci_pact.sh ${PACT_CMD}
+      aud: ${VAULT_ADDR}
+  before_script:
+    - source ./scripts/ci_pact.sh
 
 .can-i-deploy:
   extends:
     - .pact
   stage: Pact-check
   needs: ["pact-verify-test"]
-  before_script:
+  script:
     - >
-      export PACT_CMD="can-i-deploy
-      --pacticipant ${PACT_PROVIDER_NAME}
-      --version ${VERSION_REF}
-      --to env:${ENV_SLUG}"
+      pact-broker can-i-deploy
+      --pacticipant "${PACT_PROVIDER_NAME}"
+      --version "${CI_COMMIT_SHA}"
+      --to "${CI_ENVIRONMENT_SLUG}"
 
 can-i-deploy_development:
   extends:
@@ -295,134 +292,67 @@ can-i-deploy_production:
     - <<: *skip-pact-rule
     - *production-rules
 
-.build:
-  stage: Build
-  image: docker:20
-  services:
-    - docker:20-dind
-  before_script:
-    - export DOCKER_CONFIG=${PWD}/.dockerconfig
-    - docker login --username "${CI_REGISTRY_USER}" --password "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
-  script:
-    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}:${VERSION_REF} --target remote --pull .
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}:${VERSION_REF}
-  after_script:
-    - docker logout ${CI_REGISTRY}
+# [Deploy]
+# -----------------------------------------------------------------------------
 
-build_development:
+.deploy:
+  stage: Deploy
   extends:
+    - .apply
+  id_tokens:
+    VAULT_ID_TOKEN:
+      aud: ${VAULT_ADDR}
+  image: {{ cookiecutter.minos_service_image }}
+  variables:
+    GITLAB_TOFU_INIT_NO_RECONFIGURE: true
+    GITLAB_TOFU_ROOT_DIR: ${CI_PROJECT_DIR}/tofu
+    PROJECT_DIR: ${CI_PROJECT_DIR}
+    TF_CLOUD_HOSTNAME: app.terraform.io
+    TF_CLOUD_ORGANIZATION: {{ cookiecutter.terraform_cloud_organization }}
+    TF_VAR_image: ${IMAGE_TAG}
+    TF_VAR_registry_password: ${CI_DEPLOY_PASSWORD}
+    TF_VAR_registry_server: ${CI_REGISTRY}
+    TF_VAR_registry_username: ${CI_DEPLOY_USER}
+    TF_WORKSPACE: "${PROJECT_SLUG}_${SERVICE_SLUG}_${CI_ENVIRONMENT_SLUG}"
+    TOFU_BACKEND: terraform-cloud
+    TOFU_VAR_FILES: "common.tfvars ${CI_ENVIRONMENT_SLUG}/this.tfvars"
+    VAULT_SECRETS_PREFIX: "envs/${CI_ENVIRONMENT_SLUG}"
+    VAULT_SECRETS: "digitalocean"
+    VAULT_SERVICE_SECRETS: "shared-secrets.tftpl"
+  before_script:
+    - export TF_CLI_ARGS="${TOFU_VAR_FILE_ARGS}"
+
+deploy_development:
+  extends:
+    - .deploy
     - .development
-    - .build
   needs:
     - job: can-i-deploy_development
       optional: true
     - job: test
 
-build_staging:
+deploy_staging:
   extends:
+    - .deploy
     - .staging
-    - .build
   needs:
     - job: can-i-deploy_staging
       optional: true
     - job: test
 
-build_production:
+deploy_production:
   extends:
+    - .deploy
     - .production
-    - .build
   needs:
     - job: can-i-deploy_production
       optional: true
     - job: test
 
-.deploy:
-  stage: Deploy
-  image:
-    name: docker:20
-  services:
-    - docker:20-dind{% if cookiecutter.use_vault == "true" %}
-  id_tokens:
-    VAULT_ID_TOKEN:
-      aud: ${VAULT_ADDR}{% endif %}
-  variables:
-    TF_ROOT: ${CI_PROJECT_DIR}/terraform/{{ cookiecutter.deployment_type }}
-  before_script:
-    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_REF}
-  script:
-    - >
-      docker run --rm
-      -u `id -u`
-      -v ${PWD}:${PWD}
-      -w ${PWD}{% if cookiecutter.terraform_backend == "gitlab" %}
-      -e CI_API_V4_URL
-      -e CI_COMMIT_SHA
-      -e CI_JOB_ID
-      -e CI_JOB_STAGE
-      -e CI_JOB_TOKEN
-      -e CI_PROJECT_ID
-      -e CI_PROJECT_NAME
-      -e CI_PROJECT_NAMESPACE
-      -e CI_PROJECT_PATH
-      -e CI_PROJECT_URL{% endif %}
-      -e ENV_SLUG
-      -e PROJECT_DIR=${CI_PROJECT_DIR}
-      -e PROJECT_SLUG
-      -e STACK_SLUG
-      -e TERRAFORM_BACKEND={{ cookiecutter.terraform_backend }}
-      -e TERRAFORM_EXTRA_VAR_FILE=${ENV_SLUG}.tfvars
-      -e TERRAFORM_VARS_DIR=${CI_PROJECT_DIR}/terraform/vars
-      -e TF_ROOT{% if cookiecutter.terraform_backend == "gitlab" %}
-      -e TF_STATE_NAME="env_${ENV_SLUG}"{% endif %}{% if cookiecutter.use_vault == "false" %}{% if cookiecutter.deployment_type == "digitalocean-k8s" %}
-      -e TF_VAR_digitalocean_token="${DIGITALOCEAN_TOKEN}"{% endif %}
-      -e TF_VAR_email_url="${EMAIL_URL}"
-      -e TF_VAR_service_slug="{{ cookiecutter.service_slug }}"{% if cookiecutter.deployment_type == "other-k8s" %}
-      -e TF_VAR_kubernetes_cluster_ca_certificate="${KUBERNETES_CLUSTER_CA_CERTIFICATE}"
-      -e TF_VAR_kubernetes_host="${KUBERNETES_HOST}"
-      -e TF_VAR_kubernetes_token="${KUBERNETES_TOKEN}"{% endif %}{% if "s3" in cookiecutter.media_storage %}
-      -e TF_VAR_s3_access_id="${S3_ACCESS_ID}"
-      -e TF_VAR_s3_secret_key="${S3_SECRET_KEY}"
-      -e TF_VAR_s3_region="${S3_REGION}"
-      -e TF_VAR_s3_host="${S3_HOST}"
-      -e TF_VAR_s3_bucket_name="${S3_BUCKET_NAME}"{% endif %}
-      -e TF_VAR_sentry_dsn="${SENTRY_DSN}"{% endif %}
-      -e TF_VAR_service_container_image{% if cookiecutter.terraform_backend != "gitlab" %}
-      -e TF_WORKSPACE="{{ cookiecutter.project_slug }}_backend_environment_${ENV_SLUG}"{% endif %}{% if cookiecutter.terraform_backend == "terraform-cloud" and cookiecutter.use_vault == "false" %}
-      -e TFC_TOKEN{% endif %}{% if cookiecutter.use_vault == "true" %}
-      -e VAULT_ADDR
-      -e VAULT_ID_TOKEN
-      -e VAULT_ROLE
-      -e VAULT_SECRETS="digitalocean email k8s s3 {{ cookiecutter.service_slug }}/extra {{ cookiecutter.service_slug }}/sentry"
-      -e VAULT_SECRETS_PREFIX="envs/${CI_ENVIRONMENT_NAME}"
-      -e VAULT_VERSION{% endif %}
-      registry.gitlab.com/gitlab-org/terraform-images/stable:latest ./scripts/deploy.sh
-  artifacts:
-    name: plan
-    reports:
-      terraform: ${TF_ROOT}/plan.json
-
-deploy_development:
-  extends:
-    - .development
-    - .deploy
-  needs: ["build_development"]
-
-deploy_staging:
-  extends:
-    - .staging
-    - .deploy
-  needs: ["build_staging"]
-
-deploy_production:
-  extends:
-    - .production
-    - .deploy
-  needs: ["build_production"]
-
 .rollback:
   extends: .deploy
-  before_script:
-    - export TF_VAR_service_container_image=${CI_REGISTRY_IMAGE}:${VERSION_BEFORE_REF}
+  variables:
+    TF_VAR_image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BEFORE_SHA}"
 
 rollback_development:
   extends:
@@ -457,19 +387,23 @@ rollback_production:
       when: manual
       allow_failure: true
 
+# [Pact - Tag]
+# -----------------------------------------------------------------------------
+
 .create-version-tag:
   extends:
     - .pact
   stage: Pact-tag
-  before_script:
+  script:
     - >
-      export PACT_CMD="create-version-tag
-      --pacticipant ${PACT_PROVIDER_NAME}
-      --version ${VERSION_REF}
-      --tag env:${ENV_SLUG}"
+      pact-broker create-version-tag
+      --pacticipant "${PACT_PROVIDER_NAME}"
+      --version "${CI_COMMIT_SHA}"
+      --tag "${CI_ENVIRONMENT_SLUG}"
 
 create-version-tag_development:
   extends:
+    - .development
     - .create-version-tag
   needs: ["deploy_development"]
   rules:
@@ -478,6 +412,7 @@ create-version-tag_development:
 
 create-version-tag_staging:
   extends:
+    - .staging
     - .create-version-tag
   needs: ["deploy_staging"]
   rules:
@@ -486,20 +421,26 @@ create-version-tag_staging:
 
 create-version-tag_production:
   extends:
+    - .production
     - .create-version-tag
   needs: ["deploy_production"]
   rules:
     - <<: *skip-pact-rule
     - *production-rules
 
+# [Sentry]
+# -----------------------------------------------------------------------------
+
 .sentry_deploy_success:
   extends:
     - .sentry
-  variables:
-    SENTRY_CMD: success
   stage: Sentry
-  before_script:
+  script:
+    - RELEASE_START=$(date -d "${CI_PIPELINE_CREATED_AT}" +%s)
     - RELEASE_END=$(date +%s)
+    - >
+      sentry-cli releases deploys "${CI_COMMIT_SHA}"
+      new --env "${ENV_NAME}" --time $((RELEASE_END-RELEASE_START))
 
 sentry_success_development:
   extends:
@@ -537,9 +478,9 @@ sentry_success_production:
 .sentry_deploy_failure:
   extends:
     - .sentry
-  variables:
-    SENTRY_CMD: failure
   stage: Sentry
+  script:
+    - sentry-cli send-event --message "Deploy to ${ENV_NAME} failed."
 
 sentry_failure_development:
   extends:

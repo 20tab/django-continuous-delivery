@@ -2,5 +2,6 @@
 
 set -euo pipefail
 
-python3 -m manage migrate --noinput
-exec "${@}"
+uv run -m manage migrate --noinput
+
+exec uv run "$@"

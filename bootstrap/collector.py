@@ -9,15 +9,15 @@ from pydantic import validate_arguments
 from slugify import slugify
 
 from bootstrap.constants import (
-    DEPLOYMENT_TYPE_CHOICES,
-    DEPLOYMENT_TYPE_DIGITALOCEAN,
-    DEPLOYMENT_TYPE_OTHER,
-    ENVIRONMENTS_DISTRIBUTION_CHOICES,
-    ENVIRONMENTS_DISTRIBUTION_DEFAULT,
-    ENVIRONMENTS_DISTRIBUTION_PROMPT,
+    ENV_NAMES,
+    ENV_TO_CLUSTER_DEFAULT,
     GITLAB_URL_DEFAULT,
     MEDIA_STORAGE_CHOICES,
     MEDIA_STORAGE_DIGITALOCEAN_S3,
+    MINOS_SERVICE_IMAGE,
+    OPENTOFU_COMPONENT_VERSION,
+    OPENTOFU_VERSION,
+    PYTHON_VERSION_DEFAULT,
     TERRAFORM_BACKEND_CHOICES,
     TERRAFORM_BACKEND_TFC,
 )
@@ -43,7 +43,6 @@ class Collector:
     project_dirname: str | None = None
     service_slug: str | None = None
     internal_service_port: int | None = None
-    deployment_type: str | None = None
     terraform_backend: str | None = None
     terraform_cloud_hostname: str | None = None
     terraform_cloud_token: str | None = None
@@ -52,7 +51,9 @@ class Collector:
     terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
     vault_url: str | None = None
-    environments_distribution: str | None = None
+    use_postgres: bool | None = None
+    postgres_create_database: bool | None = None
+    env_to_cluster: dict[str, str] | None = None
     project_url_dev: str | None = None
     project_url_stage: str | None = None
     project_url_prod: str | None = None
@@ -64,6 +65,10 @@ class Collector:
     gitlab_url: str | None = None
     gitlab_token: str | None = None
     gitlab_namespace_path: str | None = None
+    python_version: str | None = None
+    minos_service_image: str | None = None
+    opentofu_component_version: str | None = None
+    opentofu_version: str | None = None
     uid: int | None = None
     gid: int | None = None
     terraform_dir: Path | None = None
@@ -81,14 +86,15 @@ class Collector:
         self.set_project_dirname()
         self.set_service_dir()
         self.set_use_redis()
+        self.set_postgres()
         self.set_terraform()
         self.set_vault()
-        self.set_deployment_type()
-        self.set_environments_distribution()
+        self.set_env_to_cluster()
         self.set_project_urls()
         self.set_sentry()
         self.set_gitlab()
         self.set_media_storage()
+        self.set_versions()
 
     def set_project_slug(self):
         """Set the project slug option."""
@@ -131,6 +137,18 @@ class Collector:
         if self.use_redis is None:
             self.use_redis = click.confirm(
                 warning("Do you want to use Redis?"), default=False
+            )
+
+    def set_postgres(self):
+        """Set the Postgres options."""
+        if self.use_postgres is None:
+            self.use_postgres = click.confirm(
+                warning("Do you want to use Postgres?"), default=True
+            )
+        if self.use_postgres and self.postgres_create_database is None:
+            self.postgres_create_database = click.confirm(
+                warning("Create a database inside the Postgres cluster?"),
+                default=True,
             )
 
     def set_terraform(self):
@@ -192,27 +210,15 @@ class Collector:
             )
             self.vault_url = validate_or_prompt_url("Vault address", self.vault_url)
 
-    def set_deployment_type(self):
-        """Set the deployment type option."""
-        if self.deployment_type not in DEPLOYMENT_TYPE_CHOICES:
-            self.deployment_type = click.prompt(
-                "Deploy type",
-                default=DEPLOYMENT_TYPE_DIGITALOCEAN,
-                type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
-            ).lower()
-
-    def set_environments_distribution(self):
-        """Set the environments distribution option."""
-        # TODO: forcing a single stack when deployment is `k8s-other` should be removed,
-        #       and `set_deployment_type` merged with `set_deployment`
-        if self.deployment_type == DEPLOYMENT_TYPE_OTHER:
-            self.environments_distribution = "1"
-        elif self.environments_distribution not in ENVIRONMENTS_DISTRIBUTION_CHOICES:
-            self.environments_distribution = click.prompt(
-                ENVIRONMENTS_DISTRIBUTION_PROMPT,
-                default=ENVIRONMENTS_DISTRIBUTION_DEFAULT,
-                type=click.Choice(ENVIRONMENTS_DISTRIBUTION_CHOICES),
-            )
+    def set_env_to_cluster(self):
+        """Set the environment-to-cluster mapping (one cluster slug per environment)."""
+        self.env_to_cluster = self.env_to_cluster or {}
+        for env_name in ENV_NAMES:
+            if env_name not in self.env_to_cluster:
+                self.env_to_cluster[env_name] = click.prompt(
+                    f"Cluster slug hosting the '{env_name}' environment",
+                    default=ENV_TO_CLUSTER_DEFAULT[env_name],
+                )
 
     def set_project_urls(self):
         """Set the project urls options."""
@@ -286,6 +292,21 @@ class Collector:
                 type=click.Choice(MEDIA_STORAGE_CHOICES, case_sensitive=False),
             ).lower()
 
+    def set_versions(self):
+        """Set the toolchain versions."""
+        self.python_version = self.python_version or click.prompt(
+            "Python version", default=PYTHON_VERSION_DEFAULT
+        )
+        self.minos_service_image = self.minos_service_image or click.prompt(
+            "Minos service image", default=MINOS_SERVICE_IMAGE
+        )
+        self.opentofu_component_version = self.opentofu_component_version or click.prompt(
+            "OpenTofu CI component version", default=OPENTOFU_COMPONENT_VERSION
+        )
+        self.opentofu_version = self.opentofu_version or click.prompt(
+            "OpenTofu version", default=OPENTOFU_VERSION
+        )
+
     def get_runner(self):
         """Get the bootstrap runner instance."""
         return Runner(
@@ -298,7 +319,6 @@ class Collector:
             service_dir=self._service_dir,
             service_slug=self.service_slug,
             internal_service_port=self.internal_service_port,
-            deployment_type=self.deployment_type,
             terraform_backend=self.terraform_backend,
             terraform_cloud_hostname=self.terraform_cloud_hostname,
             terraform_cloud_token=self.terraform_cloud_token,
@@ -307,7 +327,9 @@ class Collector:
             terraform_cloud_admin_email=self.terraform_cloud_admin_email,
             vault_token=self.vault_token,
             vault_url=self.vault_url,
-            environments_distribution=self.environments_distribution,
+            use_postgres=self.use_postgres,
+            postgres_create_database=self.postgres_create_database,
+            env_to_cluster=self.env_to_cluster,
             project_url_dev=self.project_url_dev,
             project_url_stage=self.project_url_stage,
             project_url_prod=self.project_url_prod,
@@ -319,6 +341,10 @@ class Collector:
             gitlab_url=self.gitlab_url,
             gitlab_token=self.gitlab_token,
             gitlab_namespace_path=self.gitlab_namespace_path,
+            python_version=self.python_version,
+            minos_service_image=self.minos_service_image,
+            opentofu_component_version=self.opentofu_component_version,
+            opentofu_version=self.opentofu_version,
             terraform_dir=self.terraform_dir,
             logs_dir=self.logs_dir,
         )
