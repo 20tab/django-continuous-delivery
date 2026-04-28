@@ -260,29 +260,6 @@ class Runner:
             ]
         )
 
-    def compile_requirements(self):
-        """Compile the requirements files."""
-        click.echo(info("...compiling the requirements files"))
-        requirements_path = self.service_dir / "requirements"
-        PIP_COMPILE = [
-            "python3",
-            "-m",
-            "piptools",
-            "compile",
-            "--generate-hashes",
-            "--no-header",
-            "--quiet",
-            "--resolver=backtracking",
-            "--strip-extras",
-            "--upgrade",
-            "--output-file",
-        ]
-        for in_file in requirements_path.glob("*.in"):
-            output_filename = f"{in_file.stem}.txt"
-            output_file = requirements_path / output_filename
-            subprocess.run(PIP_COMPILE + [output_file, in_file])  # nosec B603 B607
-            click.echo(info(f"\t- {output_filename}"))
-
     def create_static_directory(self):
         """Create the static directory."""
         click.echo(info("...creating the '/static' directory"))
@@ -506,7 +483,6 @@ class Runner:
         self.init_service()
         self.create_env_file()
         self.format_files()
-        self.compile_requirements()
         self.create_static_directory()
         self.media_storage == "local" and self.create_media_directory()
         if self.terraform_backend == TERRAFORM_BACKEND_TFC:

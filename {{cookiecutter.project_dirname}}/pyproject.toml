@@ -1,5 +1,56 @@
+[project]
+name = "{{ cookiecutter.project_slug }}"
+version = "0.0.1"
+description = "{{ cookiecutter.project_name }}"
+readme = "README.md"
+requires-python = ">=3.14"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "django[argon2]~=5.2.0",
+  "django-configurations[cache,database,email]~=2.5.0",
+  "psycopg~=3.2.0",
+]
+
+[dependency-groups]
+test = [
+  "bandit[toml]~=1.9.0",
+  "behave-django~=1.4.0",
+  "coverage[toml]~=7.13.0",
+  "model-bakery~=1.23.0",
+  "mypy~=1.19.0",
+  "pactman~=2.30.0",
+  "pytest-django~=4.11.0",
+  "pytest-dotenv~=0.5.0",
+  "ruff~=0.14.0",
+  "tblib~=3.0.0",
+  "time-machine~=3.2.0",
+]
+local = [
+  "django-debug-toolbar~=6.2.0",
+  "django-extensions~=4.1.0",
+  "graphviz~=0.20.0",
+  "ipython~=9.9.0",
+  "prek~=0.2",
+  "rust-just~=1.46.0",
+]
+remote = [
+  {%- if "s3" in cookiecutter.media_storage %}
+  "django-storages[boto3]~=1.14.0",
+  {%- endif %}
+  "gunicorn~=23.0.0",
+  {%- if cookiecutter.use_redis == "true" %}
+  "redis~=5.0.0",
+  {%- endif %}
+  "sentry-sdk~=2.50.0",
+  "uvicorn[standard]~=0.40.0",
+  "whitenoise[brotli]~=6.11.0",
+]
+
 [tool.ruff]
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 ignore = [
@@ -76,7 +127,7 @@ enable_error_code = [
     "truthy-bool",
 ]
 ignore_missing_imports = true
-python_version = "3.12"
+python_version = "3.14"
 
 [tool.bandit]
 exclude_dirs = [
