@@ -30,26 +30,29 @@ class TestBootstrapCollector(TestCase):
         collector = Collector(
             project_name="project_name",
         )
-        collector.set_project_dirname = mock.MagicMock()
         collector.set_project_slug = mock.MagicMock()
         collector.set_service_slug = mock.MagicMock()
-        collector.set_project_urls = mock.MagicMock()
         collector.set_project_dirname = mock.MagicMock()
         collector.set_service_dir = mock.MagicMock()
         collector.set_use_redis = mock.MagicMock()
+        collector.set_postgres = mock.MagicMock()
         collector.set_terraform = mock.MagicMock()
         collector.set_vault = mock.MagicMock()
+        collector.set_env_to_cluster = mock.MagicMock()
         collector.set_project_urls = mock.MagicMock()
         collector.set_sentry = mock.MagicMock()
         collector.set_gitlab = mock.MagicMock()
         collector.set_media_storage = mock.MagicMock()
         collector.collect()
         collector.set_project_slug.assert_called_once()
+        collector.set_service_slug.assert_called_once()
         collector.set_project_dirname.assert_called_once()
         collector.set_service_dir.assert_called_once()
         collector.set_use_redis.assert_called_once()
+        collector.set_postgres.assert_called_once()
         collector.set_terraform.assert_called_once()
         collector.set_vault.assert_called_once()
+        collector.set_env_to_cluster.assert_called_once()
         collector.set_project_urls.assert_called_once()
         collector.set_sentry.assert_called_once()
         collector.set_gitlab.assert_called_once()
@@ -242,6 +245,13 @@ class TestBootstrapCollector(TestCase):
             service_slug="django",
             terraform_backend="terraform-cloud",
             use_redis=False,
+            use_postgres=True,
+            postgres_create_database=True,
+            env_to_cluster={
+                "development": "dev",
+                "staging": "dev",
+                "production": "main",
+            },
         )
         collector._service_dir = Path(".")
         runner = collector.get_runner()
