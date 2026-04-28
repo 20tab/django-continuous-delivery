@@ -151,3 +151,16 @@ resource "gitlab_project_variable" "vars" {
   masked            = lookup(each.value, "masked", false)
   environment_scope = lookup(each.value, "environment_scope", "*")
 }
+
+resource "gitlab_project_variable" "test_env_file" {
+  project           = gitlab_project.main.id
+  key               = "TEST_ENV_FILE"
+  variable_type     = "file"
+  value             = <<-EOT
+    DATABASE_URL=postgres://postgres:postgres@postgres:5432/${var.project_slug}
+    DJANGO_CONFIGURATION=Testing
+  EOT
+  protected         = false
+  masked            = false
+  environment_scope = "*"
+}
