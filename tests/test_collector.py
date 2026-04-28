@@ -39,8 +39,6 @@ class TestBootstrapCollector(TestCase):
         collector.set_use_redis = mock.MagicMock()
         collector.set_terraform = mock.MagicMock()
         collector.set_vault = mock.MagicMock()
-        collector.set_deployment_type = mock.MagicMock()
-        collector.set_environments_distribution = mock.MagicMock()
         collector.set_project_urls = mock.MagicMock()
         collector.set_sentry = mock.MagicMock()
         collector.set_gitlab = mock.MagicMock()
@@ -52,81 +50,10 @@ class TestBootstrapCollector(TestCase):
         collector.set_use_redis.assert_called_once()
         collector.set_terraform.assert_called_once()
         collector.set_vault.assert_called_once()
-        collector.set_deployment_type.assert_called_once()
-        collector.set_environments_distribution.assert_called_once()
         collector.set_project_urls.assert_called_once()
         collector.set_sentry.assert_called_once()
         collector.set_gitlab.assert_called_once()
         collector.set_media_storage.assert_called_once()
-
-    def test_environments_distribution_for_other_k8s_deployment(self):
-        """Test collecting the environments distribution for other-k8s deployment."""
-        collector = Collector(project_name="project_name", deployment_type="other-k8s")
-        self.assertIsNone(collector.environments_distribution)
-        with mock.patch("bootstrap.collector.click.prompt") as mocked_prompt:
-            collector.set_environments_distribution()
-        self.assertEqual(collector.environments_distribution, "1")
-        mocked_prompt.assert_not_called()
-
-    def test_environments_distribution_from_default(self):
-        """Test collecting the environments distribution from its default value."""
-        collector = Collector(
-            project_name="project_name",
-        )
-        self.assertIsNone(collector.environments_distribution)
-        with mock_input(""):
-            collector.set_environments_distribution()
-        self.assertEqual(collector.environments_distribution, "1")
-
-    def test_environments_distribution_from_input(self):
-        """Test collecting the environments distribution from user input."""
-        collector = Collector(
-            project_name="project_name",
-        )
-        self.assertIsNone(collector.environments_distribution)
-        with mock_input("one", "yet-another-bad-value", "3"):
-            collector.set_environments_distribution()
-        self.assertEqual(collector.environments_distribution, "3")
-
-    def test_environments_distribution_from_options(self):
-        """Test collecting the environments distribution from the collected options."""
-        collector = Collector(
-            project_name="project_name", environments_distribution="2"
-        )
-        self.assertEqual(collector.environments_distribution, "2")
-        with mock.patch("bootstrap.collector.click.prompt") as mocked_prompt:
-            collector.set_environments_distribution()
-        self.assertEqual(collector.environments_distribution, "2")
-        mocked_prompt.assert_not_called()
-
-    def test_deployment_type_from_default(self):
-        """Test collecting the deployment type from its default value."""
-        collector = Collector(
-            project_name="project_name",
-        )
-        self.assertIsNone(collector.deployment_type)
-        with mock_input(""):
-            collector.set_deployment_type()
-        self.assertEqual(collector.deployment_type, "digitalocean-k8s")
-
-    def test_deployment_type_from_input(self):
-        """Test collecting the deployment type from user input."""
-        collector = Collector(
-            project_name="project_name",
-        )
-        self.assertIsNone(collector.deployment_type)
-        with mock_input("bad-deployment-type", "yet-another-bad-value", "other-k8s"):
-            collector.set_deployment_type()
-        self.assertEqual(collector.deployment_type, "other-k8s")
-
-    def test_deployment_type_from_options(self):
-        """Test collecting the deployment type from the collected options."""
-        collector = Collector(project_name="project_name", deployment_type="other-k8s")
-        self.assertEqual(collector.deployment_type, "other-k8s")
-        with mock.patch("bootstrap.collector.click.prompt") as mocked_prompt:
-            collector.set_deployment_type()
-        self.assertEqual(collector.deployment_type, "other-k8s")
-        mocked_prompt.assert_not_called()
 
     def test_gitlab_no(self):
         """Test not setting Gitlab."""
@@ -304,8 +231,6 @@ class TestBootstrapCollector(TestCase):
     def test_get_runner(self):
         """Test getting the runner."""
         collector = Collector(
-            deployment_type="digitalocean-k8s",
-            environments_distribution="1",
             internal_service_port=8000,
             media_storage="local",
             project_dirname="project_dirname",
@@ -321,8 +246,6 @@ class TestBootstrapCollector(TestCase):
         collector._service_dir = Path(".")
         runner = collector.get_runner()
 
-        self.assertEqual(runner.deployment_type, "digitalocean-k8s")
-        self.assertEqual(runner.environments_distribution, "1")
         self.assertEqual(runner.internal_service_port, 8000)
         self.assertEqual(runner.media_storage, "local")
         self.assertEqual(runner.project_dirname, "project_dirname")

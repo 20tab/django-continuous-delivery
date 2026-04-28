@@ -7,8 +7,6 @@ import click
 
 from bootstrap.collector import Collector
 from bootstrap.constants import (
-    DEPLOYMENT_TYPE_CHOICES,
-    ENVIRONMENTS_DISTRIBUTION_CHOICES,
     GITLAB_TOKEN_ENV_VAR,
     MEDIA_STORAGE_CHOICES,
     VAULT_TOKEN_ENV_VAR,
@@ -33,10 +31,6 @@ from bootstrap.helpers import slugify_option
 @click.option("--project-dirname")
 @click.option("--service-slug", callback=slugify_option)
 @click.option("--internal-service-port", default=8000, type=int)
-@click.option(
-    "--deployment-type",
-    type=click.Choice(DEPLOYMENT_TYPE_CHOICES, case_sensitive=False),
-)
 @click.option("--terraform-backend")
 @click.option("--terraform-cloud-hostname")
 @click.option("--terraform-cloud-token")
@@ -49,9 +43,6 @@ from bootstrap.helpers import slugify_option
 @click.option("--terraform-cloud-admin-email")
 @click.option("--vault-token", envvar=VAULT_TOKEN_ENV_VAR)
 @click.option("--vault-url")
-@click.option(
-    "--environments-distribution", type=click.Choice(ENVIRONMENTS_DISTRIBUTION_CHOICES)
-)
 @click.option("--project-url-dev")
 @click.option("--project-url-stage")
 @click.option("--project-url-prod")
