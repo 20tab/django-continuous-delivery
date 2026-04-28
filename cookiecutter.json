@@ -5,6 +5,7 @@
   "project_dirname": "backend",
   "django_settings_dirname": "{{ cookiecutter.project_slug | slugify(separator='') }}",
   "internal_service_port": "8000",
+  "terraform_backend": "gitlab",
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
   "use_redis": "false",

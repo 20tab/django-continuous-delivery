@@ -37,7 +37,7 @@ class TestBootstrapCollector(TestCase):
         collector.set_project_dirname = mock.MagicMock()
         collector.set_service_dir = mock.MagicMock()
         collector.set_use_redis = mock.MagicMock()
-        collector.set_terraform_cloud_organization = mock.MagicMock()
+        collector.set_terraform = mock.MagicMock()
         collector.set_vault = mock.MagicMock()
         collector.set_project_urls = mock.MagicMock()
         collector.set_sentry = mock.MagicMock()
@@ -48,7 +48,7 @@ class TestBootstrapCollector(TestCase):
         collector.set_project_dirname.assert_called_once()
         collector.set_service_dir.assert_called_once()
         collector.set_use_redis.assert_called_once()
-        collector.set_terraform_cloud_organization.assert_called_once()
+        collector.set_terraform.assert_called_once()
         collector.set_vault.assert_called_once()
         collector.set_project_urls.assert_called_once()
         collector.set_sentry.assert_called_once()
@@ -240,6 +240,7 @@ class TestBootstrapCollector(TestCase):
             project_url_prod="https://www.test.com",
             project_url_stage="https://stage.test.com",
             service_slug="django",
+            terraform_backend="terraform-cloud",
             use_redis=False,
         )
         collector._service_dir = Path(".")
@@ -254,6 +255,7 @@ class TestBootstrapCollector(TestCase):
         self.assertEqual(runner.project_url_prod, "https://www.test.com")
         self.assertEqual(runner.project_url_stage, "https://stage.test.com")
         self.assertEqual(runner.service_slug, "django")
+        self.assertEqual(runner.terraform_backend, "terraform-cloud")
         self.assertEqual(runner.use_redis, False)
 
     def test_sentry_no(self):
@@ -378,23 +380,112 @@ class TestBootstrapCollector(TestCase):
         self.assertFalse(os.path.exists(service_dir))
         self.assertEqual(collector._service_dir, service_dir.resolve())
 
-    def test_terraform_cloud_organization_from_input(self):
-        """Test prompting for the Terraform Cloud organization."""
-        collector = Collector(project_name="project_name")
-        self.assertIsNone(collector.terraform_cloud_organization)
-        with mock_input("myTFCOrg"):
-            collector.set_terraform_cloud_organization()
-        self.assertEqual(collector.terraform_cloud_organization, "myTFCOrg")
-
-    def test_terraform_cloud_organization_from_options(self):
-        """Test reading the Terraform Cloud organization from options."""
+    def test_terraform_backend_from_default(self):
+        """Test setting the Terraform backend from its default value."""
         collector = Collector(
-            project_name="project_name", terraform_cloud_organization="myTFCOrg"
+            project_name="project_name",
         )
-        with mock.patch("bootstrap.collector.click.prompt") as mocked_prompt:
-            collector.set_terraform_cloud_organization()
+        self.assertIsNone(collector.terraform_backend)
+        collector.set_terraform_cloud = mock.MagicMock()
+        with mock_input(""):
+            collector.set_terraform()
+        self.assertEqual(collector.terraform_backend, "terraform-cloud")
+        collector.set_terraform_cloud.assert_called_once()
+
+    def test_terraform_backend_from_input(self):
+        """Test setting the Terraform backend from user input."""
+        collector = Collector(
+            project_name="project_name",
+        )
+        self.assertIsNone(collector.terraform_backend)
+        collector.set_terraform_cloud = mock.MagicMock()
+        with mock_input("bad-tf-backend", "another-bad-tf-backend", "gitlab"):
+            collector.set_terraform()
+        self.assertEqual(collector.terraform_backend, "gitlab")
+        collector.set_terraform_cloud.assert_not_called()
+
+    def test_terraform_backend_from_options(self):
+        """Test setting the Terraform backend from the collected options."""
+        collector = Collector(
+            project_name="project_name", terraform_backend="terraform-cloud"
+        )
+        self.assertEqual(collector.terraform_backend, "terraform-cloud")
+        collector.set_terraform_cloud = mock.MagicMock()
+        with mock.patch("bootstrap.collector.click") as mocked_click:
+            collector.set_terraform()
+        self.assertEqual(collector.terraform_backend, "terraform-cloud")
+        mocked_click.prompt.assert_not_called()
+        collector.set_terraform_cloud.assert_called_once()
+
+    def test_terraform_cloud_from_input(self):
+        """Test setting up Terraform Cloud from user input."""
+        collector = Collector(
+            project_name="project_name", terraform_backend="terraform-cloud"
+        )
+        self.assertIsNone(collector.terraform_cloud_hostname)
+        self.assertIsNone(collector.terraform_cloud_token)
+        self.assertIsNone(collector.terraform_cloud_organization)
+        self.assertIsNone(collector.terraform_cloud_organization_create)
+        self.assertIsNone(collector.terraform_cloud_admin_email)
+        with mock_input(
+            "",
+            {"hidden": "mytfcT0k3N"},
+            "myTFCOrg",
+            "y",
+            "bad-email",
+            "admin@test.com",
+        ):
+            collector.set_terraform_cloud()
+        self.assertEqual(collector.terraform_cloud_hostname, "app.terraform.io")
+        self.assertEqual(collector.terraform_cloud_token, "mytfcT0k3N")
         self.assertEqual(collector.terraform_cloud_organization, "myTFCOrg")
-        mocked_prompt.assert_not_called()
+        self.assertTrue(collector.terraform_cloud_organization_create)
+        self.assertEqual(collector.terraform_cloud_admin_email, "admin@test.com")
+
+    def test_terraform_cloud_from_options(self):
+        """Test setting up Terraform Cloud from the collected options."""
+        collector = Collector(
+            project_name="project_name",
+            terraform_backend="terraform-cloud",
+            terraform_cloud_hostname="app.terraform.io",
+            terraform_cloud_token="mytfcT0k3N",
+            terraform_cloud_organization="myTFCOrg",
+            terraform_cloud_organization_create=True,
+            terraform_cloud_admin_email="admin@test.com",
+        )
+        self.assertEqual(collector.terraform_cloud_hostname, "app.terraform.io")
+        self.assertEqual(collector.terraform_cloud_token, "mytfcT0k3N")
+        self.assertEqual(collector.terraform_cloud_organization, "myTFCOrg")
+        self.assertTrue(collector.terraform_cloud_organization_create)
+        self.assertEqual(collector.terraform_cloud_admin_email, "admin@test.com")
+        with mock.patch("bootstrap.collector.click") as mocked_click:
+            collector.set_terraform_cloud()
+        self.assertEqual(collector.terraform_cloud_hostname, "app.terraform.io")
+        self.assertEqual(collector.terraform_cloud_token, "mytfcT0k3N")
+        self.assertEqual(collector.terraform_cloud_organization, "myTFCOrg")
+        self.assertTrue(collector.terraform_cloud_organization_create)
+        self.assertEqual(collector.terraform_cloud_admin_email, "admin@test.com")
+        mocked_click.prompt.assert_not_called()
+
+    def test_terraform_cloud_from_input_and_options(self):
+        """Test setting up Terraform Cloud from options and user input."""
+        collector = Collector(
+            project_name="project_name",
+            terraform_backend="terraform-cloud",
+            terraform_cloud_token="mytfcT0k3N",
+        )
+        self.assertIsNone(collector.terraform_cloud_hostname)
+        self.assertEqual(collector.terraform_cloud_token, "mytfcT0k3N")
+        self.assertIsNone(collector.terraform_cloud_organization)
+        self.assertIsNone(collector.terraform_cloud_organization_create)
+        self.assertIsNone(collector.terraform_cloud_admin_email)
+        with mock_input("tfc.my-company.com", "myTFCOrg", "n"):
+            collector.set_terraform_cloud()
+        self.assertEqual(collector.terraform_cloud_hostname, "tfc.my-company.com")
+        self.assertEqual(collector.terraform_cloud_token, "mytfcT0k3N")
+        self.assertEqual(collector.terraform_cloud_organization, "myTFCOrg")
+        self.assertFalse(collector.terraform_cloud_organization_create)
+        self.assertEqual(collector.terraform_cloud_admin_email, "")
 
     def test_vault_no(self):
         """Test not setting vault."""

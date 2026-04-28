@@ -31,7 +31,16 @@ from bootstrap.helpers import slugify_option
 @click.option("--project-dirname")
 @click.option("--service-slug", callback=slugify_option)
 @click.option("--internal-service-port", default=8000, type=int)
+@click.option("--terraform-backend")
+@click.option("--terraform-cloud-hostname")
+@click.option("--terraform-cloud-token")
 @click.option("--terraform-cloud-organization")
+@click.option(
+    "--terraform-cloud-organization-create/--terraform-cloud-organization-create-skip",
+    is_flag=True,
+    default=None,
+)
+@click.option("--terraform-cloud-admin-email")
 @click.option("--vault-token", envvar=VAULT_TOKEN_ENV_VAR)
 @click.option("--vault-url")
 @click.option("--project-url-dev")
