@@ -61,6 +61,7 @@ class Runner:
     terraform_cloud_token: str | None = None
     terraform_cloud_organization: str | None = None
     terraform_cloud_organization_create: bool | None = None
+    terraform_cloud_project_create: bool = True
     terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
     vault_url: str | None = None
@@ -287,6 +288,9 @@ class Runner:
         env = {
             "TF_VAR_admin_email": self.terraform_cloud_admin_email,
             "TF_VAR_create_organization": self.terraform_cloud_organization_create
+            and "true"
+            or "false",
+            "TF_VAR_create_project": self.terraform_cloud_project_create
             and "true"
             or "false",
             "TF_VAR_environments": json.dumps(list(map(itemgetter("slug"), self.envs))),

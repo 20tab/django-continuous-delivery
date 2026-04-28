@@ -1,39 +1,19 @@
 locals {
   organization = var.create_organization ? tfe_organization.main[0] : data.tfe_organization.main[0]
+  project      = var.create_project ? tfe_project.main[0] : data.tfe_project.main[0]
 
-  workspaces = concat(
-    flatten(
-      [
-        for stage in ["base", "cluster"] :
-        [
-          for stack in var.stacks :
-          {
-            name        = "${var.project_slug}_${var.service_slug}_${stage}_${stack}"
-            description = "${var.project_name} project, ${var.service_slug} service, ${stack} stack, ${stage} stage"
-            tags = [
-              "project:${var.project_slug}",
-              "service:${var.service_slug}",
-              "stage:${stage}",
-              "stack:${stack}",
-            ]
-          }
-        ]
+  workspaces = [
+    for env in var.environments : {
+      name        = "${var.project_slug}_${var.service_slug}_${env}"
+      description = "${var.project_name} ${var.service_slug} service, ${env} environment."
+      tags = [
+        "project:${var.project_slug}",
+        "layer:service",
+        "service:${var.service_slug}",
+        "env:${env}",
       ]
-    ),
-    [
-      for env in var.environments :
-      {
-        name        = "${var.project_slug}_${var.service_slug}_environment_${env}"
-        description = "${var.project_name} project, ${var.service_slug} service, ${env} environment"
-        tags = [
-          "project:${var.project_slug}",
-          "service:${var.service_slug}",
-          "stage:environment",
-          "env:${env}",
-        ]
-      }
-    ]
-  )
+    }
+  ]
 }
 
 terraform {
@@ -43,7 +23,7 @@ terraform {
   required_providers {
     tfe = {
       source  = "hashicorp/tfe"
-      version = "~> 0.53"
+      version = "~> 0.70"
     }
   }
 }
@@ -68,20 +48,32 @@ resource "tfe_organization" "main" {
   email = var.admin_email
 }
 
+/* Project */
+
+data "tfe_project" "main" {
+  count = var.create_project ? 0 : 1
+
+  name         = var.project_slug
+  organization = local.organization.name
+}
+
+resource "tfe_project" "main" {
+  count = var.create_project ? 1 : 0
+
+  organization           = local.organization.name
+  name                   = var.project_slug
+  description            = "${var.project_name} project workspaces."
+  default_execution_mode = "local"
+}
+
 /* Workspaces */
 
 resource "tfe_workspace" "main" {
   for_each = { for i in local.workspaces : i.name => i }
 
-  name           = each.value.name
-  description    = each.value.description
-  organization   = local.organization.name
-  tag_names      = each.value.tags
-}
-
-resource "tfe_workspace_settings" "main-settings" {
-  for_each = tfe_workspace.main
-
-  workspace_id   = each.value.id
-  execution_mode = "local"
+  name         = each.value.name
+  description  = each.value.description
+  organization = local.organization.name
+  project_id   = local.project.id
+  tag_names    = each.value.tags
 }
