@@ -37,14 +37,6 @@ MEDIA_STORAGE_CHOICES = [
     "none",
 ]
 
-# Terraform backend
-
-TERRAFORM_BACKEND_GITLAB = "gitlab"
-
-TERRAFORM_BACKEND_TFC = "terraform-cloud"
-
-TERRAFORM_BACKEND_CHOICES = [TERRAFORM_BACKEND_GITLAB, TERRAFORM_BACKEND_TFC]
-
 # GitLab
 
 GITLAB_URL_DEFAULT = "https://gitlab.com"

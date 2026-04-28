@@ -6,7 +6,6 @@ import secrets
 import subprocess  # nosec B404
 from dataclasses import dataclass, field
 from functools import partial
-from operator import itemgetter
 from pathlib import Path
 from time import time
 
@@ -26,7 +25,6 @@ from bootstrap.constants import (
     PYTHON_VERSION_DEFAULT,
     STAGE_ENV_NAME,
     STAGE_ENV_SLUG,
-    TERRAFORM_BACKEND_TFC,
 )
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import format_gitlab_variable, format_tfvar
@@ -56,12 +54,7 @@ class Runner:
     project_url_dev: str = ""
     project_url_stage: str = ""
     project_url_prod: str = ""
-    terraform_backend: str
-    terraform_cloud_hostname: str | None = None
-    terraform_cloud_token: str | None = None
     terraform_cloud_organization: str | None = None
-    terraform_cloud_organization_create: bool | None = None
-    terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
     vault_url: str | None = None
     sentry_dsn: str | None = None
@@ -233,7 +226,6 @@ class Runner:
                 "python_version": self.python_version,
                 "resources": {"envs": self.envs},
                 "service_slug": self.service_slug,
-                "terraform_backend": self.terraform_backend,
                 "terraform_cloud_organization": self.terraform_cloud_organization,
                 "tfvars": self.tfvars,
                 "use_postgres": self.use_postgres and "true" or "false",
@@ -280,24 +272,6 @@ class Runner:
         """Create the media directory."""
         click.echo(info("...creating the '/media' directory"))
         (self.service_dir / "media").mkdir(exist_ok=True)
-
-    def init_terraform_cloud(self):
-        """Initialize the Terraform Cloud resources."""
-        click.echo(info("...creating the Terraform Cloud resources"))
-        env = {
-            "TF_VAR_admin_email": self.terraform_cloud_admin_email,
-            "TF_VAR_create_organization": self.terraform_cloud_organization_create
-            and "true"
-            or "false",
-            "TF_VAR_environments": json.dumps(list(map(itemgetter("slug"), self.envs))),
-            "TF_VAR_hostname": self.terraform_cloud_hostname,
-            "TF_VAR_organization_name": self.terraform_cloud_organization,
-            "TF_VAR_project_name": self.project_name,
-            "TF_VAR_project_slug": self.project_slug,
-            "TF_VAR_service_slug": self.service_slug,
-            "TF_VAR_terraform_cloud_token": self.terraform_cloud_token,
-        }
-        self.run_terraform("terraform-cloud", env)
 
     def init_gitlab(self):
         """Initialize the GitLab resources."""
@@ -496,8 +470,6 @@ class Runner:
         self.format_files()
         self.create_static_directory()
         self.media_storage == "local" and self.create_media_directory()
-        if self.terraform_backend == TERRAFORM_BACKEND_TFC:
-            self.init_terraform_cloud()
         if self.gitlab_namespace_path:
             self.init_gitlab()
         if self.vault_url:

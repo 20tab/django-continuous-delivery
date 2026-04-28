@@ -18,12 +18,8 @@ from bootstrap.constants import (
     OPENTOFU_COMPONENT_VERSION,
     OPENTOFU_VERSION,
     PYTHON_VERSION_DEFAULT,
-    TERRAFORM_BACKEND_CHOICES,
-    TERRAFORM_BACKEND_TFC,
 )
 from bootstrap.helpers import (
-    validate_or_prompt_domain,
-    validate_or_prompt_email,
     validate_or_prompt_path,
     validate_or_prompt_secret,
     validate_or_prompt_url,
@@ -43,12 +39,7 @@ class Collector:
     project_dirname: str | None = None
     service_slug: str | None = None
     internal_service_port: int | None = None
-    terraform_backend: str | None = None
-    terraform_cloud_hostname: str | None = None
-    terraform_cloud_token: str | None = None
     terraform_cloud_organization: str | None = None
-    terraform_cloud_organization_create: bool | None = None
-    terraform_cloud_admin_email: str | None = None
     vault_token: str | None = None
     vault_url: str | None = None
     use_postgres: bool | None = None
@@ -87,7 +78,7 @@ class Collector:
         self.set_service_dir()
         self.set_use_redis()
         self.set_postgres()
-        self.set_terraform()
+        self.set_terraform_cloud_organization()
         self.set_vault()
         self.set_env_to_cluster()
         self.set_project_urls()
@@ -150,42 +141,11 @@ class Collector:
                 default=True,
             )
 
-    def set_terraform(self):
-        """Set the Terraform options."""
-        if self.terraform_backend not in TERRAFORM_BACKEND_CHOICES:
-            self.terraform_backend = click.prompt(
-                "Terraform backend",
-                default=TERRAFORM_BACKEND_TFC,
-                type=click.Choice(TERRAFORM_BACKEND_CHOICES, case_sensitive=False),
-            ).lower()
-        if self.terraform_backend == TERRAFORM_BACKEND_TFC:
-            self.set_terraform_cloud()
-
-    def set_terraform_cloud(self):
-        """Set the Terraform Cloud options."""
-        self.terraform_cloud_hostname = validate_or_prompt_domain(
-            "Terraform host name",
-            self.terraform_cloud_hostname,
-            default="app.terraform.io",
-        )
-        self.terraform_cloud_token = validate_or_prompt_secret(
-            "Terraform Cloud User token", self.terraform_cloud_token
-        )
+    def set_terraform_cloud_organization(self):
+        """Set the Terraform Cloud organization name (used in service .gitlab-ci.yml)."""
         self.terraform_cloud_organization = (
-            self.terraform_cloud_organization or click.prompt("Terraform Organization")
+            self.terraform_cloud_organization or click.prompt("Terraform Cloud organization")
         )
-        if self.terraform_cloud_organization_create is None:
-            self.terraform_cloud_organization_create = click.confirm(
-                "Do you want to create Terraform Cloud Organization "
-                f"'{self.terraform_cloud_organization}'?",
-            )
-        if self.terraform_cloud_organization_create:
-            self.terraform_cloud_admin_email = validate_or_prompt_email(
-                "Terraform Cloud Organization admin email (e.g. tech@20tab.com)",
-                self.terraform_cloud_admin_email,
-            )
-        else:
-            self.terraform_cloud_admin_email = ""
 
     def set_vault(self):
         """Set the Vault options."""
@@ -303,12 +263,7 @@ class Collector:
             service_dir=self._service_dir,
             service_slug=self.service_slug,
             internal_service_port=self.internal_service_port,
-            terraform_backend=self.terraform_backend,
-            terraform_cloud_hostname=self.terraform_cloud_hostname,
-            terraform_cloud_token=self.terraform_cloud_token,
             terraform_cloud_organization=self.terraform_cloud_organization,
-            terraform_cloud_organization_create=self.terraform_cloud_organization_create,
-            terraform_cloud_admin_email=self.terraform_cloud_admin_email,
             vault_token=self.vault_token,
             vault_url=self.vault_url,
             use_postgres=self.use_postgres,
