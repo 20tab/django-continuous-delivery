@@ -60,9 +60,13 @@ data "tfe_project" "main" {
 resource "tfe_project" "main" {
   count = var.create_project ? 1 : 0
 
-  organization           = local.organization.name
-  name                   = var.project_slug
-  description            = "${var.project_name} project workspaces."
+  organization = local.organization.name
+  name         = var.project_slug
+  description  = "${var.project_name} project workspaces."
+}
+
+resource "tfe_project_settings" "main" {
+  project_id             = local.project.id
   default_execution_mode = "local"
 }
 
