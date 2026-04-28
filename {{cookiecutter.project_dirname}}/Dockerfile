@@ -84,7 +84,7 @@ RUN apt-get update \
         postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-RUN su "$APPUSER" -c "uv sync --frozen --group local --group test"
+RUN su "$APPUSER" -c "uv sync --frozen --group local"
 
 COPY --chown=$APPUSER . .
 
