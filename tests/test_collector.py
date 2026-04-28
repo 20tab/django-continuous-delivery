@@ -43,6 +43,7 @@ class TestBootstrapCollector(TestCase):
         collector.set_sentry = mock.MagicMock()
         collector.set_gitlab = mock.MagicMock()
         collector.set_media_storage = mock.MagicMock()
+        collector.set_versions = mock.MagicMock()
         collector.collect()
         collector.set_project_slug.assert_called_once()
         collector.set_service_slug.assert_called_once()
@@ -57,6 +58,7 @@ class TestBootstrapCollector(TestCase):
         collector.set_sentry.assert_called_once()
         collector.set_gitlab.assert_called_once()
         collector.set_media_storage.assert_called_once()
+        collector.set_versions.assert_called_once()
 
     def test_gitlab_no(self):
         """Test not setting Gitlab."""
@@ -252,6 +254,10 @@ class TestBootstrapCollector(TestCase):
                 "staging": "dev",
                 "production": "main",
             },
+            python_version="3.14",
+            minos_service_image="registry.gitlab.com/20tab-open/minos/service:latest",
+            opentofu_component_version="3.11.0",
+            opentofu_version="1.10.6",
         )
         collector._service_dir = Path(".")
         runner = collector.get_runner()
