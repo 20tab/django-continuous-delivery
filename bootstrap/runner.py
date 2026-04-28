@@ -293,7 +293,7 @@ class Runner:
             "TF_VAR_create_project": self.terraform_cloud_project_create
             and "true"
             or "false",
-            "TF_VAR_environments": json.dumps(list(map(itemgetter("slug"), self.envs))),
+            "TF_VAR_environments": json.dumps(list(map(itemgetter("name"), self.envs))),
             "TF_VAR_hostname": self.terraform_cloud_hostname,
             "TF_VAR_organization_name": self.terraform_cloud_organization,
             "TF_VAR_project_name": self.project_name,

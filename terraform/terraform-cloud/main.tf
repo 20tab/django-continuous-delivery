@@ -10,7 +10,7 @@ locals {
         "project:${var.project_slug}",
         "layer:service",
         "service:${var.service_slug}",
-        "env:${env}",
+        "environment:${env}",
       ]
     }
   ]
