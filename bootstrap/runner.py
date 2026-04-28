@@ -18,8 +18,12 @@ from bootstrap.constants import (
     DEV_ENV_NAME,
     DEV_ENV_SLUG,
     GITLAB_URL_DEFAULT,
+    MINOS_SERVICE_IMAGE,
+    OPENTOFU_COMPONENT_VERSION,
+    OPENTOFU_VERSION,
     PROD_ENV_NAME,
     PROD_ENV_SLUG,
+    PYTHON_VERSION_DEFAULT,
     STAGE_ENV_NAME,
     STAGE_ENV_SLUG,
     TERRAFORM_BACKEND_TFC,
@@ -70,6 +74,10 @@ class Runner:
     gitlab_url: str | None = None
     gitlab_namespace_path: str | None = None
     gitlab_token: str | None = None
+    python_version: str = PYTHON_VERSION_DEFAULT
+    minos_service_image: str = MINOS_SERVICE_IMAGE
+    opentofu_component_version: str = OPENTOFU_COMPONENT_VERSION
+    opentofu_version: str = OPENTOFU_VERSION
     uid: int | None = None
     gid: int | None = None
     terraform_dir: Path | None = None
@@ -216,9 +224,13 @@ class Runner:
             extra_context={
                 "internal_service_port": self.internal_service_port,
                 "media_storage": self.media_storage,
+                "minos_service_image": self.minos_service_image,
+                "opentofu_component_version": self.opentofu_component_version,
+                "opentofu_version": self.opentofu_version,
                 "project_dirname": self.project_dirname,
                 "project_name": self.project_name,
                 "project_slug": self.project_slug,
+                "python_version": self.python_version,
                 "resources": {"envs": self.envs},
                 "service_slug": self.service_slug,
                 "terraform_backend": self.terraform_backend,

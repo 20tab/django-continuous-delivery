@@ -1,9 +1,9 @@
 {% set env_dev = cookiecutter.resources.envs|selectattr("slug", "equalto", "dev")|first %}{% set env_stage = cookiecutter.resources.envs|selectattr("slug", "equalto", "stage")|first %}{% set env_prod = cookiecutter.resources.envs|selectattr("slug", "equalto", "prod")|first %}include:
-  - component: ${CI_SERVER_FQDN}/components/opentofu/apply@3.11.0
+  - component: ${CI_SERVER_FQDN}/components/opentofu/apply@{{ cookiecutter.opentofu_component_version }}
     inputs:
       as: .apply
-      version: 3.11.0
-      opentofu_version: 1.10.6
+      version: {{ cookiecutter.opentofu_component_version }}
+      opentofu_version: {{ cookiecutter.opentofu_version }}
       no_plan: true
 
 stages:
@@ -302,7 +302,7 @@ can-i-deploy_production:
   id_tokens:
     VAULT_ID_TOKEN:
       aud: ${VAULT_ADDR}
-  image: registry.gitlab.com/20tab-open/minos/service:latest
+  image: {{ cookiecutter.minos_service_image }}
   variables:
     GITLAB_TOFU_INIT_NO_RECONFIGURE: true
     GITLAB_TOFU_ROOT_DIR: ${CI_PROJECT_DIR}/tofu

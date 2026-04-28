@@ -14,6 +14,10 @@ from bootstrap.constants import (
     GITLAB_URL_DEFAULT,
     MEDIA_STORAGE_CHOICES,
     MEDIA_STORAGE_DIGITALOCEAN_S3,
+    MINOS_SERVICE_IMAGE,
+    OPENTOFU_COMPONENT_VERSION,
+    OPENTOFU_VERSION,
+    PYTHON_VERSION_DEFAULT,
     TERRAFORM_BACKEND_CHOICES,
     TERRAFORM_BACKEND_TFC,
 )
@@ -61,6 +65,10 @@ class Collector:
     gitlab_url: str | None = None
     gitlab_token: str | None = None
     gitlab_namespace_path: str | None = None
+    python_version: str = PYTHON_VERSION_DEFAULT
+    minos_service_image: str = MINOS_SERVICE_IMAGE
+    opentofu_component_version: str = OPENTOFU_COMPONENT_VERSION
+    opentofu_version: str = OPENTOFU_VERSION
     uid: int | None = None
     gid: int | None = None
     terraform_dir: Path | None = None
@@ -317,6 +325,10 @@ class Collector:
             gitlab_url=self.gitlab_url,
             gitlab_token=self.gitlab_token,
             gitlab_namespace_path=self.gitlab_namespace_path,
+            python_version=self.python_version,
+            minos_service_image=self.minos_service_image,
+            opentofu_component_version=self.opentofu_component_version,
+            opentofu_version=self.opentofu_version,
             terraform_dir=self.terraform_dir,
             logs_dir=self.logs_dir,
         )
