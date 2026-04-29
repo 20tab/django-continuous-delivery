@@ -1,0 +1,86 @@
+_default:
+    just --list
+
+# Check code formatting and import sorting
+check:
+    ./scripts/check.sh
+
+# Django collectstatic
+collectstatic:
+    uv run -m manage collectstatic --clear --link --noinput
+
+# Django compilemessages
+compilemessages:
+    uv run -m manage compilemessages
+
+# Run coverage
+coverage:
+    ./scripts/coverage.sh
+
+# Django dump auth.Group data
+dumpgroups:
+    uv run -m manage dumpdata auth.Group --natural-foreign --natural-primary --output fixtures/groups.json
+
+# Django dump auth.Permission data
+dumppermissions:
+    uv run -m manage dumpdata auth.Permission --natural-foreign --natural-primary --output fixtures/permissions.json
+
+# Fix Python code formatting, linting, and sorting imports
+fix:
+    uv run -m ruff format .
+    uv run -m ruff check --fix .
+    uv run -m mypy .
+
+# Django load auth.Group data
+loadgroups:
+    uv run -m manage loaddata fixtures/groups.json
+
+# Django load auth.Permission data
+loadpermissions:
+    uv run -m manage loaddata fixtures/permissions.json
+
+# Django makemessages
+makemessages:
+    uv run -m manage makemessages --add-location file --ignore htmlcov --ignore features --ignore gunicorn.conf.py
+
+# Django makemigrations
+makemigrations *ARGS:
+    uv run -m manage makemigrations --no-header {% raw %}{{ARGS}}{% endraw %}
+
+# Django migrate
+migrate *ARGS:
+    uv run -m manage migrate --noinput {% raw %}{{ARGS}}{% endraw %}
+
+# Fix code formatting, linting, and sorting imports
+prek:
+    uv run prek run --all-files
+
+# Install prek
+prek_install:
+    uv run prek install
+
+# Run debugging test with pytest
+pytest *ARGS:
+    uv run -m pytest --capture=no --durations 10 {% raw %}{{ARGS}}{% endraw %}
+
+# Run local server
+runserver:
+    uv run -m manage runserver 0:{{ cookiecutter.internal_service_port }}
+
+# Run shell_plus
+shell:
+    uv run -m manage shell_plus
+
+# Show outdated packages
+showoutdated:
+    uv tree --all-groups --outdated | grep --color=always "(latest:.*)" || true
+
+# Run the test suite
+test *ARGS:
+    ./scripts/test.sh {% raw %}{{ARGS}}{% endraw %}
+
+# Upgrade all libraries
+upgrade:
+    uv lock --upgrade
+    uv sync --group local --group test
+    uv run prek autoupdate
