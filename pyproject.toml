@@ -36,6 +36,9 @@ extend-exclude = [
     "__pycache__",
     ".vscode*",
 ]
+target-version = "py312"
+
+[tool.ruff.lint]
 ignore = [
     "D203",
     "D212",
@@ -65,9 +68,8 @@ select = [
     "W",
     "B9"
 ]
-target-version = "py312"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = [
     "bootstrap",
 ]

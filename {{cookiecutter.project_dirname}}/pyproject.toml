@@ -73,7 +73,7 @@ select = [
   "W",      # pycodestyle warnings
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "{{ cookiecutter.django_settings_dirname }}/*sgi.py" = [
     "E402",
 ]
@@ -87,7 +87,7 @@ select = [
 [tool.ruff.format]
 docstring-code-format = true
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = [
     "{{ cookiecutter.django_settings_dirname }}",
 ]
