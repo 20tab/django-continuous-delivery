@@ -83,7 +83,7 @@ Project name: My Project Name
 Project slug [my-project-name]:
 Service slug [backend]:
 Project dirname (backend, myprojectname) [backend]:
-Do you want to use Redis? [y/N]:
+Do you want to use Valkey? [y/N]:
 Do you want to use Postgres? [Y/n]:
 Create a database inside the Postgres cluster? [Y/n]:
 Terraform Cloud organization: my-tfc-org
@@ -186,14 +186,14 @@ If you don't want DigitalOcean DNS configuration the following args are required
 | local           | Docker Volume are used to store media       | `--media-storage=local`           |
 | none            | Project have no media                       | `--media-storage=none`            |
 
-#### Redis
+#### Valkey
 
-For enabling redis integration the following arguments are needed:
+For enabling valkey integration the following arguments are needed:
 
-`--use-redis`
+`--use-valkey`
 
 Disabled args
-`--no-redis`
+`--no-valkey`
 
 ### 🦊 GitLab
 

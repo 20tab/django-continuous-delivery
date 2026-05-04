@@ -69,7 +69,7 @@ class Runner:
     sentry_org: str | None = None
     sentry_url: str | None = None
     media_storage: str
-    use_redis: bool = False
+    use_valkey: bool = False
     use_postgres: bool = True
     postgres_create_database: bool = True
     gitlab_url: str | None = None
@@ -192,7 +192,7 @@ class Runner:
         self.register_environment_tfvars(
             ("media_storage", self.media_storage),
             ("service_slug", self.service_slug),
-            ("use_redis", self.use_redis, "bool"),
+            ("use_valkey", self.use_valkey, "bool"),
         )
         for env in self.envs:
             self.register_environment_tfvars(
@@ -241,7 +241,7 @@ class Runner:
                 "postgres_create_database": (
                     self.postgres_create_database and "true" or "false"
                 ),
-                "use_redis": self.use_redis and "true" or "false",
+                "use_valkey": self.use_valkey and "true" or "false",
                 "use_vault": self.vault_url and "true" or "false",
             },
             output_dir=self.output_dir,

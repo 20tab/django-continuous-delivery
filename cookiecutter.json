@@ -8,7 +8,7 @@
   "terraform_backend": "gitlab",
   "terraform_cloud_organization": "",
   "media_storage": ["digitalocean-s3", "other-s3", "local", "none"],
-  "use_redis": "false",
+  "use_valkey": "false",
   "use_postgres": "true",
   "postgres_create_database": "true",
   "use_vault": "false",

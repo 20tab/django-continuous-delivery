@@ -179,7 +179,7 @@ cython_debug/
 .devcontainer*
 .vscode/
 
-# Redis
+# Valkey
 *.rdb
 
 # macOS

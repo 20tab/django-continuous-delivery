@@ -42,7 +42,7 @@ remote = [
   "django-storages[boto3]~=1.14.0",
   {%- endif %}
   "gunicorn~=23.0.0",
-  {%- if cookiecutter.use_redis == "true" %}
+  {%- if cookiecutter.use_valkey == "true" %}
   "redis~=5.0.0",
   {%- endif %}
   "sentry-sdk~=2.50.0",
