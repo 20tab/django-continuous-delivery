@@ -247,6 +247,20 @@ class Runner:
             output_dir=self.output_dir,
             no_input=True,
         )
+        self.generate_uv_lock()
+
+    def generate_uv_lock(self):
+        """Generate uv.lock so the produced backend Dockerfile can do uv sync --frozen."""
+        click.echo(info("...generating uv.lock"))
+        result = subprocess.run(  # nosec B603 B607
+            ["uv", "lock"],
+            cwd=self.service_dir,
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            click.echo(error("uv lock failed"))
+            click.echo(result.stderr.decode("utf-8", "replace"))
+            raise BootstrapError
 
     def create_env_file(self):
         """Create the final env file from its template."""
