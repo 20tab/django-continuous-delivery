@@ -53,13 +53,9 @@ FROM base AS remote
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="{{ cookiecutter.service_slug }}" stage="remote"
 
-ENV DJANGO_CONFIGURATION=Remote
-
 RUN su "$APPUSER" -c "uv sync --frozen --group remote"
 
 COPY --chown=$APPUSER . .
-
-RUN DJANGO_SECRET_KEY=build python3 -m manage collectstatic --clear --link --noinput
 
 USER $APPUSER
 
@@ -71,8 +67,6 @@ CMD ["gunicorn", "{{ cookiecutter.django_settings_dirname }}.asgi"]
 FROM base AS local
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="{{ cookiecutter.service_slug }}" stage="local"
-
-ENV DJANGO_CONFIGURATION=Local
 
 RUN apt-get update \
     && apt-get install --assume-yes --no-install-recommends \
@@ -90,6 +84,9 @@ COPY --chown=$APPUSER . .
 
 USER $APPUSER
 
+HEALTHCHECK --start-period=5s --retries=5 \
+    CMD curl --fail "http://localhost:${INTERNAL_SERVICE_PORT}/health/" || exit 1
+
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 
-CMD ["sh", "-c", "exec python3 -m manage runserver 0.0.0.0:${INTERNAL_SERVICE_PORT}"]
+CMD ["just", "runserver"]

@@ -57,7 +57,7 @@ class Collector:
     project_url_dev: str | None = None
     project_url_stage: str | None = None
     project_url_prod: str | None = None
-    use_redis: bool | None = None
+    use_valkey: bool | None = None
     sentry_dsn: str | None = None
     sentry_org: str | None = None
     sentry_url: str | None = None
@@ -85,7 +85,7 @@ class Collector:
         self.set_service_slug()
         self.set_project_dirname()
         self.set_service_dir()
-        self.set_use_redis()
+        self.set_use_valkey()
         self.set_postgres()
         self.set_terraform()
         self.set_vault()
@@ -132,11 +132,11 @@ class Collector:
             rmtree(service_dir)
         self._service_dir = service_dir
 
-    def set_use_redis(self):
-        """Set the use Redis option."""
-        if self.use_redis is None:
-            self.use_redis = click.confirm(
-                warning("Do you want to use Redis?"), default=False
+    def set_use_valkey(self):
+        """Set the use Valkey option."""
+        if self.use_valkey is None:
+            self.use_valkey = click.confirm(
+                warning("Do you want to use Valkey?"), default=False
             )
 
     def set_postgres(self):
@@ -337,7 +337,7 @@ class Collector:
             sentry_org=self.sentry_org,
             sentry_url=self.sentry_url,
             media_storage=self.media_storage,
-            use_redis=self.use_redis,
+            use_valkey=self.use_valkey,
             gitlab_url=self.gitlab_url,
             gitlab_token=self.gitlab_token,
             gitlab_namespace_path=self.gitlab_namespace_path,

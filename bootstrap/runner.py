@@ -69,7 +69,7 @@ class Runner:
     sentry_org: str | None = None
     sentry_url: str | None = None
     media_storage: str
-    use_redis: bool = False
+    use_valkey: bool = False
     use_postgres: bool = True
     postgres_create_database: bool = True
     gitlab_url: str | None = None
@@ -192,7 +192,7 @@ class Runner:
         self.register_environment_tfvars(
             ("media_storage", self.media_storage),
             ("service_slug", self.service_slug),
-            ("use_redis", self.use_redis, "bool"),
+            ("use_valkey", self.use_valkey, "bool"),
         )
         for env in self.envs:
             self.register_environment_tfvars(
@@ -241,12 +241,26 @@ class Runner:
                 "postgres_create_database": (
                     self.postgres_create_database and "true" or "false"
                 ),
-                "use_redis": self.use_redis and "true" or "false",
+                "use_valkey": self.use_valkey and "true" or "false",
                 "use_vault": self.vault_url and "true" or "false",
             },
             output_dir=self.output_dir,
             no_input=True,
         )
+        self.generate_uv_lock()
+
+    def generate_uv_lock(self):
+        """Generate uv.lock so the produced backend Dockerfile can do uv sync --frozen."""
+        click.echo(info("...generating uv.lock"))
+        result = subprocess.run(  # nosec B603 B607
+            ["uv", "lock"],
+            cwd=self.service_dir,
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            click.echo(error("uv lock failed"))
+            click.echo(result.stderr.decode("utf-8", "replace"))
+            raise BootstrapError
 
     def create_env_file(self):
         """Create the final env file from its template."""
@@ -300,6 +314,9 @@ class Runner:
             "TF_VAR_project_slug": self.project_slug,
             "TF_VAR_service_slug": self.service_slug,
             "TF_VAR_terraform_cloud_token": self.terraform_cloud_token,
+            # Serialize workspace creation: tfe provider races on tfe_project readiness
+            # when creating multiple workspaces in parallel, returning sporadic 422s.
+            "TF_CLI_ARGS_apply": "-parallelism=1",
         }
         self.run_terraform("terraform-cloud", env)
 
@@ -339,8 +356,8 @@ class Runner:
     def get_terraform_module_params(self, module_name, env):
         """Return Terraform parameters for the given module."""
         return (
-            Path(__file__).parent.parent / "terraform" / module_name,
-            self.logs_dir / self.service_slug / "terraform" / module_name,
+            Path(__file__).parent.parent / "tofu" / module_name,
+            self.logs_dir / self.service_slug / "tofu" / module_name,
             terraform_dir := self.terraform_dir / self.service_slug / module_name,
             {
                 **env,
@@ -357,7 +374,7 @@ class Runner:
         init_stderr_path = logs_dir / "init-stderr.log"
         init_process = subprocess.run(  # nosec B603 B607
             [
-                "terraform",
+                "tofu",
                 "init",
                 "-backend-config",
                 f"path={state_path.resolve()}",
@@ -386,7 +403,7 @@ class Runner:
         apply_stdout_path = logs_dir / "apply-stdout.log"
         apply_stderr_path = logs_dir / "apply-stderr.log"
         apply_process = subprocess.run(  # nosec B603 B607
-            ["terraform", "apply", "-auto-approve", "-input=false", "-no-color"],
+            ["tofu", "apply", "-auto-approve", "-input=false", "-no-color"],
             capture_output=True,
             cwd=cwd,
             env=dict(**env, TF_LOG_PATH=str(apply_log_path.resolve())),
@@ -411,7 +428,7 @@ class Runner:
         destroy_stderr_path = logs_dir / "destroy-stderr.log"
         destroy_process = subprocess.run(  # nosec B603 B607
             [
-                "terraform",
+                "tofu",
                 "destroy",
                 "-auto-approve",
                 "-input=false",
@@ -437,7 +454,7 @@ class Runner:
         """Get Terraform outputs."""
         return {
             output_name: subprocess.run(  # nosec B603 B607
-                ["terraform", "output", "-raw", output_name],
+                ["tofu", "output", "-raw", output_name],
                 capture_output=True,
                 cwd=cwd,
                 env=env,

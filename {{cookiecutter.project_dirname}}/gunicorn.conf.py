@@ -20,9 +20,18 @@ bind = "0.0.0.0:" + os.getenv(
 # Worker Processes
 # https://docs.gunicorn.org/en/stable/settings.html#worker-processes
 
+max_requests = 200
+max_requests_jitter = 50
+
+# Workers
+workers = 2
 worker_class = "{{ cookiecutter.django_settings_dirname }}.workers.UvicornDjangoWorker"
-
-# Temporary Directory
-# https://docs.gunicorn.org/en/stable/settings.html#worker-tmp-dir
-
 worker_tmp_dir = "/dev/shm"  # nosec B108
+
+# Recommended for Django + ASGI
+preload_app = False
+
+# Timeouts
+timeout = 60
+graceful_timeout = 60
+keepalive = 5
