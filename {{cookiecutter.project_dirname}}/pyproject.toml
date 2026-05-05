@@ -24,9 +24,14 @@ test = [
   "pactman~=2.30.0",
   "pytest-django~=4.11.0",
   "pytest-dotenv~=0.5.0",
+  "pytest-mock~=3.15.0",
+  "pytest-playwright~=0.7.0",
+  "pytest-random-order~=1.2.0",
+  "requests-mock~=1.12.0",
   "ruff~=0.14.0",
   "tblib~=3.0.0",
   "time-machine~=3.2.0",
+  "types-requests~=2.32",
 ]
 local = [
   {include-group = "test"},
@@ -95,9 +100,16 @@ known-third-party = [
     "django",
 ]
 
+[tool.pyproject-fmt]
+max_supported_python = "{{ cookiecutter.python_version }}"
+
 [tool.pytest.ini_options]
 DJANGO_CONFIGURATION = "Testing"
 DJANGO_SETTINGS_MODULE = "{{ cookiecutter.django_settings_dirname }}.settings"
+addopts = "--no-migrations --junitxml=.artifacts/junit.xml --random-order-bucket=global"
+filterwarnings = [
+  "ignore::django.utils.deprecation.RemovedInDjango60Warning",
+]
 
 [tool.coverage.html]
 title = "{{cookiecutter.project_name}} - Coverage"
@@ -105,6 +117,7 @@ title = "{{cookiecutter.project_name}} - Coverage"
 [tool.coverage.report]
 fail_under = 100
 show_missing = true
+skip_covered = true
 
 [tool.coverage.run]
 branch = true
@@ -123,6 +136,9 @@ omit = [
 ]
 source = ["."]
 
+[tool.coverage.xml]
+output = ".artifacts/cobertura.xml"
+
 [tool.mypy]
 enable_error_code = [
     "truthy-bool",
@@ -136,3 +152,12 @@ exclude_dirs = [
     "tests",
     "features"
 ]
+
+[tool.djlint]
+extend_exclude = "htmlcov"
+ignore = "D018,H006,H021"
+indent = 2
+max_blank_lines = 1
+max_line_length = 88
+profile = "django"
+target = "templates"

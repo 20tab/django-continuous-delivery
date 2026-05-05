@@ -8,15 +8,13 @@ A [Django](https://docs.djangoproject.com) project using [uvicorn](https://www.u
 
 -   [Conventions](#conventions)
 -   [Initialization](#initialization)
-    -   [Virtual environment](#virtual-environment)
-    -   [Requirements](#requirements)
 -   [Git](#git)
     -   [Git clone](#git-clone)
     -   [Git hooks](#git-hooks)
--   [Libraries](#libraries)
-    -   [List outdated libraries](#list-outdated-libraries)
-    -   [Update libraries](#update-libraries)
-    -   [Install libraries](#install-libraries)
+-   [Commands](#commands)
+    -   [List available commands](#list-available-commands)
+    -   [List outdated dependencies](#list-outdated-dependencies)
+    -   [Upgrade dependencies](#upgrade-dependencies)
 -   [Testing](#testing)
 -   [Static files](#static-files)
 -   [Continuous Integration](#continuous-integration)
@@ -29,12 +27,13 @@ A [Django](https://docs.djangoproject.com) project using [uvicorn](https://www.u
 
 ## Initialization
 
-We suggest updating pip to the latest version and using a virtual environment to wrap all your libraries.
+This project uses [uv](https://docs.astral.sh/uv/) for Python and dependency management. `uv sync` will install the locked dependencies and provision the virtual environment automatically.
 
-### Virtual environment
+```shell
+$ uv sync --group local --group test
+```
 
-**IMPORTANT**: Please, create an empty virtual environment, with the right Python version, and activate it.
-To install and use a virtual environment, please, visit the official [Python tutorial](https://docs.python.org/3/tutorial/venv.html)
+Local development tasks are exposed via [just](https://github.com/casey/just) (installed in the `local` dependency group).
 
 ## Git
 
@@ -44,80 +43,64 @@ To get the existing project, change the directory, clone the project repository 
 
 ### Git hooks
 
-To install pre-commit into your git hooks run the below command. Pre-commit will now run on every commit. Every time you clone a project using pre-commit, running `pre-commit` install should always be the first thing you do.
+To install [prek](https://github.com/j178/prek) (pre-commit-compatible) into your git hooks run:
 
 ```shell
-$ make precommit_install
+$ just prek_install
 ```
 
-## Libraries
+## Commands
 
-### Self-documentation of Makefile commands
+### List available commands
 
-To show the Makefile self-documentation help:
+To show the available `just` recipes:
 
 ```shell
-$ make
+$ just
 ```
 
-### List outdated libraries
+### List outdated dependencies
 
-To list all outdated installed libraries:
+To list outdated dependencies tracked by `uv`:
 
 ```shell
-$ make outdated
+$ just showoutdated
 ```
 
-### Update libraries
+### Upgrade dependencies
 
-Edit the appropriate requirements file `*.in`, to add/remove pinned libraries or modify their versions.
-
-To update the compiled requirements files (`requirements/*.txt`), execute:
+To upgrade all dependencies to the latest versions matching `pyproject.toml` constraints (and refresh `uv.lock`):
 
 ```shell
-$ make pip
-```
-
-### Install libraries
-
-To install the just updated requirements (e.g. `requirements/local.txt`), execute:
-
-```shell
-$ make local
+$ just upgrade
 ```
 
 ## Testing
 
-To run the full test suite, with coverage calculation, execute:
+To run the full test suite with coverage:
 
 ```shell
-$ make test
+$ just test
 ```
 
-To run the full test suite, without coverage calculation, execute:
+To run debugging tests with `pytest` directly (verbose output, no coverage gating):
 
 ```shell
-$ make simpletest
+$ just pytest
 ```
 
-To run a single test suite, without coverage calculation, execute:
+Pytest accepts arguments after the recipe name, e.g.:
 
 ```shell
-$ make simpletest app.tests.single.Test.to_execute
-```
-
-The `simpletest` command accepts dashed arguments with a particular syntax, such as:
-
-```shell
-$ make simpletest app.tests.single.Test.to_execute -- --keepdb
+$ just pytest path/to/test_module.py::TestClass::test_case
 ```
 
 ## Static files
 
-To collect static files, execute:
+To collect static files locally:
 
 ```shell
-$ make collectstatic
+$ just collectstatic
 ```
 
 ## Continuous Integration
