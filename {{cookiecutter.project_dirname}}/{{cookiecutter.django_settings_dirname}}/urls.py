@@ -30,7 +30,7 @@ admin.site.site_header = admin.site.site_title = "{{ cookiecutter.project_name }
 urlpatterns = [
     path("admin/", admin.site.urls),
     path(
-        "{{ cookiecutter.service_slug }}/health/",
+        "health/",
         HealthView.as_view(),
         name="health-check",
     ),
