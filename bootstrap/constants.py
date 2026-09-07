@@ -78,3 +78,11 @@ OPENTOFU_VERSION = "1.10.6"
 # Python
 
 PYTHON_VERSION_DEFAULT = "3.14"
+
+# uv
+
+UV_VERSION = "0.12.10"
+
+# CI
+
+TEST_RUNNER_TAG_DEFAULT = "saas-linux-small-amd64"
