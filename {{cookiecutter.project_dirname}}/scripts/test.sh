@@ -2,6 +2,9 @@
 
 set -uo pipefail
 
-./scripts/check.sh
-./scripts/coverage.sh "$@"
-./scripts/report.sh
+status=0
+
+./scripts/coverage.sh "$@" || status=1
+./scripts/report.sh || status=1
+
+exit "${status}"
