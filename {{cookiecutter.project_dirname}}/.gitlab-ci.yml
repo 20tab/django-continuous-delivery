@@ -6,7 +6,27 @@
       opentofu_version: {{ cookiecutter.opentofu_version }}
       no_plan: true
 
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      variables:
+        IMAGE_REPO: development
+        IMAGE_REF: ${CI_COMMIT_SHA}
+    - if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        IMAGE_REPO: staging
+        IMAGE_REF: ${CI_COMMIT_SHA}
+    - if: $CI_COMMIT_TAG
+      variables:
+        IMAGE_REPO: production
+        IMAGE_REF: v${CI_COMMIT_TAG}
+    - when: always
+      variables:
+        IMAGE_REPO: feature
+        IMAGE_REF: ${CI_COMMIT_SHA}
+
 stages:
+  - Check
   - Build
   - Test
   - Pact-verify
@@ -17,7 +37,7 @@ stages:
   - Sentry
 
 variables:
-  IMAGE_TAG: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
+  IMAGE_TAG: ${CI_REGISTRY_IMAGE}/${IMAGE_REPO}:${IMAGE_REF}
   BUILDAH_FORMAT: docker
   BUILDAH_IMAGE: quay.io/buildah/stable:latest
   BUILDAH_ISOLATION: chroot
@@ -26,6 +46,7 @@ variables:
   DOCKER_BUILDKIT: 1
   PROJECT_SLUG: {{ cookiecutter.project_slug }}
   SERVICE_SLUG: {{ cookiecutter.service_slug }}
+  TEST_RUNNER_TAG: saas-linux-small-amd64
   VERSION_BEFORE_REF: ${CI_COMMIT_BEFORE_SHA}
   VAULT_ROLE: service-gitlab-job
 
@@ -124,22 +145,61 @@ sentry_release_production:
     - <<: *sentry-rule
     - *production-rules
 
+# [Check]
+# -----------------------------------------------------------------------------
+
+.check:
+  stage: Check
+  image: ghcr.io/astral-sh/uv:{{ cookiecutter.uv_version }}-python{{ cookiecutter.python_version }}-trixie-slim
+  before_script:
+    - uv sync --frozen --only-group test --no-install-project
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+
+lint:
+  extends:
+    - .check
+  script:
+    - uv run --no-sync ruff format --check .
+    - uv run --no-sync ruff check .
+
+security:
+  extends:
+    - .check
+  script:
+    - uv run --no-sync bandit -c pyproject.toml --quiet --recursive .
+
+audit:
+  extends:
+    - .check
+  script:
+    - uvx uv-secure --no-check-uv-tool --ignore-unfixed uv.lock
+
 # [Build]
 # -----------------------------------------------------------------------------
 
 build:
   stage: Build
   image: ${BUILDAH_IMAGE}
+  rules:
+    - <<: *pipeline-push-rule
+    - when: always
+  variables:
+    STORAGE_DRIVER: overlay
   before_script:
     - echo "${CI_REGISTRY_PASSWORD}" | buildah login "${CI_REGISTRY}" --username "${CI_REGISTRY_USER}" --password-stdin
     - |
-      TAGS="--tag=${IMAGE_TAG}"
-      if [ -n "$CI_COMMIT_TAG" ]; then
-        TAGS="$TAGS --tag=${CI_REGISTRY_IMAGE}:v${CI_COMMIT_TAG} --tag=${CI_REGISTRY_IMAGE}:latest"
+      IMAGE_TAGS="${IMAGE_TAG}"
+      if [ -n "$CI_COMMIT_TAG" ]; then IMAGE_TAGS="$IMAGE_TAGS ${CI_REGISTRY_IMAGE}/${IMAGE_REPO}:${CI_COMMIT_SHA}"; fi
+      BUILD_TAGS=""
+      for image_tag in $IMAGE_TAGS; do BUILD_TAGS="$BUILD_TAGS --tag=$image_tag"; done
+      CACHE_ARGS="--cache-from=${CI_REGISTRY_IMAGE}/cache"
+      if [ "$CI_COMMIT_BRANCH" = "develop" ] || [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        CACHE_ARGS="$CACHE_ARGS --cache-to=${CI_REGISTRY_IMAGE}/cache"
       fi
   script:
-    - buildah bud --format="${BUILDAH_FORMAT}" --target=remote --layers $TAGS .
-    - buildah push --all "${IMAGE_TAG}"
+    - buildah bud --format="${BUILDAH_FORMAT}" --target=remote --layers $CACHE_ARGS $BUILD_TAGS .
+    - for image_tag in $IMAGE_TAGS; do buildah push "$image_tag"; done
   after_script:
     - buildah logout ${CI_REGISTRY}
 
@@ -162,9 +222,12 @@ test:
   extends:
     - .test
   stage: Test
+  tags:
+    - ${TEST_RUNNER_TAG}
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
   script:
+    - uv run mypy .
     - ./scripts/test.sh
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
@@ -352,7 +415,7 @@ deploy_production:
 .rollback:
   extends: .deploy
   variables:
-    TF_VAR_image: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_BEFORE_SHA}"
+    TF_VAR_image: "${CI_REGISTRY_IMAGE}/${IMAGE_REPO}:${CI_COMMIT_BEFORE_SHA}"
 
 rollback_development:
   extends:
