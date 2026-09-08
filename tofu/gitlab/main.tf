@@ -58,6 +58,15 @@ resource "gitlab_project" "main" {
   namespace_id           = data.gitlab_group.main.id
   initialize_with_readme = false
   shared_runners_enabled = true
+
+  container_expiration_policy {
+    enabled           = true
+    cadence           = "1d"
+    keep_n            = 10
+    older_than        = "7d"
+    name_regex_delete = ".*"
+    name_regex_keep   = "^v.*"
+  }
 }
 
 resource "null_resource" "init_repo" {

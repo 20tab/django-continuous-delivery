@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python{{ cookiecutter.python_version }}-bookworm-slim AS base
+FROM ghcr.io/astral-sh/uv:{{ cookiecutter.uv_version }}-python{{ cookiecutter.python_version }}-trixie-slim AS base
 
 LABEL company="20tab" project="{{ cookiecutter.project_slug }}" service="{{ cookiecutter.service_slug }}" stage="base"
 

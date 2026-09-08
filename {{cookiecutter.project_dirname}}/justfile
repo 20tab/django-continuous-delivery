@@ -76,7 +76,7 @@ showoutdated:
     uv tree --all-groups --outdated | grep --color=always "(latest:.*)" || true
 
 # Run the test suite
-test *ARGS:
+test *ARGS: check
     ./scripts/test.sh {% raw %}{{ARGS}}{% endraw %}
 
 # Upgrade all libraries

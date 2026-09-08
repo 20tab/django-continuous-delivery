@@ -27,6 +27,8 @@ from bootstrap.constants import (
     STAGE_ENV_NAME,
     STAGE_ENV_SLUG,
     TERRAFORM_BACKEND_TFC,
+    TEST_RUNNER_TAG_DEFAULT,
+    UV_VERSION,
 )
 from bootstrap.exceptions import BootstrapError
 from bootstrap.helpers import format_gitlab_variable, format_tfvar
@@ -76,6 +78,8 @@ class Runner:
     gitlab_namespace_path: str | None = None
     gitlab_token: str | None = None
     python_version: str = PYTHON_VERSION_DEFAULT
+    uv_version: str = UV_VERSION
+    test_runner_tag: str = TEST_RUNNER_TAG_DEFAULT
     minos_service_image: str = MINOS_SERVICE_IMAGE
     opentofu_component_version: str = OPENTOFU_COMPONENT_VERSION
     opentofu_version: str = OPENTOFU_VERSION
@@ -146,6 +150,9 @@ class Runner:
 
     def collect_gitlab_variables(self):
         """Collect the GitLab group and project variables."""
+        self.register_gitlab_project_variables(
+            ("TEST_RUNNER_TAG", self.test_runner_tag, False, False)
+        )
         if self.sentry_dsn:
             self.register_gitlab_project_variables(
                 ("SENTRY_ORG", self.sentry_org),
@@ -243,6 +250,7 @@ class Runner:
                 ),
                 "use_valkey": self.use_valkey and "true" or "false",
                 "use_vault": self.vault_url and "true" or "false",
+                "uv_version": self.uv_version,
             },
             output_dir=self.output_dir,
             no_input=True,

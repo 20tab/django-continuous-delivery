@@ -13,6 +13,7 @@
   "postgres_create_database": "true",
   "use_vault": "false",
   "python_version": "3.14",
+  "uv_version": "0.12.10",
   "minos_service_image": "registry.gitlab.com/20tab-open/minos/service:latest",
   "opentofu_component_version": "3.11.0",
   "opentofu_version": "1.10.6",
