@@ -499,11 +499,9 @@ create-version-tag_production:
     - .sentry
   stage: Sentry
   script:
-    - RELEASE_START=$(date -d "${CI_PIPELINE_CREATED_AT}" +%s)
-    - RELEASE_END=$(date +%s)
     - >
       sentry-cli releases deploys "${CI_COMMIT_SHA}"
-      new --env "${ENV_NAME}" --time $((RELEASE_END-RELEASE_START))
+      new --env "${ENV_NAME}" --started "${CI_PIPELINE_CREATED_AT}"
 
 sentry_success_development:
   extends:
